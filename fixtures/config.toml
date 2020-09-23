@@ -1,0 +1,5 @@
+[database]
+user = "root"
+password = "local"
+host = "localhost:3306"
+db = "ansible"
