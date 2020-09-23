@@ -3,32 +3,26 @@ package cli
 import (
 	"encoding/json"
 
-	"github.com/via-justa/admiral/database"
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func (conf *Config) GenInventory() ([]byte, error) {
-	db, err := database.Connect(conf.Database)
+func GenInventory() ([]byte, error) {
+	hosts, err := db.getHosts()
 	if err != nil {
 		return nil, err
 	}
 
-	hosts, err := db.GetHosts()
+	groups, err := db.getGroups()
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := db.GetGroups()
+	childGroups, err := db.getChildGroups()
 	if err != nil {
 		return nil, err
 	}
 
-	childGroups, err := db.GetChildGroups()
-	if err != nil {
-		return nil, err
-	}
-
-	hostGroups, err := db.GetHostGroups()
+	hostGroups, err := db.getHostGroups()
 	if err != nil {
 		return nil, err
 	}

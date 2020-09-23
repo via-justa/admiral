@@ -47,7 +47,6 @@ var createChildGroup = &cobra.Command{
 }
 
 func createChildGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var childGroupByName ChildGroupByName
 	if jsonPath != "" {
 		childGroupByNameF, err := ioutil.ReadFile(jsonPath)
@@ -69,21 +68,21 @@ func createChildGroupFunc(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	parentGroup, err := client.ViewGroupByName(childGroupByName.Parent)
+	parentGroup, err := cli.ViewGroupByName(childGroupByName.Parent)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	childGroup, err := client.ViewGroupByName(childGroupByName.Child)
+	childGroup, err := cli.ViewGroupByName(childGroupByName.Child)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := client.CreateChildGroup(parentGroup, childGroup); err != nil {
+	if err := cli.CreateChildGroup(parentGroup, childGroup); err != nil {
 		log.Fatal(err)
 	}
 
-	createdChildGroup, err := client.ViewChildGroupsByChild(childGroup.ID)
+	createdChildGroup, err := cli.ViewChildGroupsByChild(childGroup.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,26 +97,25 @@ var viewChildGroup = &cobra.Command{
 }
 
 func viewChildGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var childGroups []datastructs.ChildGroup
 
 	if len(parentName) > 0 {
-		group, err := client.ViewGroupByName(parentName)
+		group, err := cli.ViewGroupByName(parentName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		childGroups, err = client.ViewChildGroupsByParent(group.ID)
+		childGroups, err = cli.ViewChildGroupsByParent(group.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if len(childName) > 0 {
-		group, err := client.ViewGroupByName(childName)
+		group, err := cli.ViewGroupByName(childName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		childGroups, err = client.ViewChildGroupsByChild(group.ID)
+		childGroups, err = cli.ViewChildGroupsByChild(group.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -135,7 +133,6 @@ var deleteChildGroup = &cobra.Command{
 }
 
 func deleteChildGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var childGroup datastructs.ChildGroup
 	var err error
 
@@ -143,12 +140,12 @@ func deleteChildGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	pGroup, err := client.ViewGroupByName(parentName)
+	pGroup, err := cli.ViewGroupByName(parentName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cGroup, err := client.ViewGroupByName(childName)
+	cGroup, err := cli.ViewGroupByName(childName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -158,7 +155,7 @@ func deleteChildGroupFunc(cmd *cobra.Command, args []string) {
 		Child:  cGroup.ID,
 	}
 
-	affected, err := client.DeleteChildGroup(childGroup)
+	affected, err := cli.DeleteChildGroup(childGroup)
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -173,9 +170,7 @@ var listChildGroup = &cobra.Command{
 }
 
 func listChildGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-
-	childGroups, err := client.ListChildGroups()
+	childGroups, err := cli.ListChildGroups()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -184,7 +179,6 @@ func listChildGroupFunc(cmd *cobra.Command, args []string) {
 }
 
 func printChildGroups(childGroups []datastructs.ChildGroup) {
-	client := cli.NewConfig()
 	tbl, err := prettytable.NewTable([]prettytable.Column{
 		{Header: "ID"},
 		{Header: "Parent", MinWidth: 12},
@@ -195,8 +189,8 @@ func printChildGroups(childGroups []datastructs.ChildGroup) {
 	}
 	tbl.Separator = " | "
 	for _, childGroup := range childGroups {
-		pGroup, _ := client.ViewGroupByID(childGroup.Parent)
-		cGroup, _ := client.ViewGroupByID(childGroup.Child)
+		pGroup, _ := cli.ViewGroupByID(childGroup.Parent)
+		cGroup, _ := cli.ViewGroupByID(childGroup.Child)
 
 		err = tbl.AddRow(childGroup.ID, pGroup.Name, cGroup.Name)
 		if err != nil {

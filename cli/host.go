@@ -3,17 +3,11 @@ package cli
 import (
 	"fmt"
 
-	"github.com/via-justa/admiral/database"
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func (conf *Config) CreateHost(host datastructs.Host) error {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return err
-	}
-
-	i, err := db.InsertHost(host)
+func CreateHost(host datastructs.Host) error {
+	i, err := db.insertHost(host)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -23,18 +17,13 @@ func (conf *Config) CreateHost(host datastructs.Host) error {
 	return nil
 }
 
-func (conf *Config) ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
-	db, err := database.Connect(conf.Database)
+func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
+	selected, err := db.selectHost(hostname, "", 0)
 	if err != nil {
 		return host, err
 	}
 
-	selected, err := db.SelectHost(hostname, "", 0)
-	if err != nil {
-		return host, err
-	}
-
-	host, err = conf.getHostGroups(selected)
+	host, err = getHostGroups(selected)
 	if err != nil {
 		return host, err
 	}
@@ -42,18 +31,13 @@ func (conf *Config) ViewHostByHostname(hostname string) (host datastructs.Host, 
 	return host, nil
 }
 
-func (conf *Config) ViewHostByIP(ip string) (host datastructs.Host, err error) {
-	db, err := database.Connect(conf.Database)
+func ViewHostByIP(ip string) (host datastructs.Host, err error) {
+	selected, err := db.selectHost("", ip, 0)
 	if err != nil {
 		return host, err
 	}
 
-	selected, err := db.SelectHost("", ip, 0)
-	if err != nil {
-		return host, err
-	}
-
-	host, err = conf.getHostGroups(selected)
+	host, err = getHostGroups(selected)
 	if err != nil {
 		return host, err
 	}
@@ -61,18 +45,13 @@ func (conf *Config) ViewHostByIP(ip string) (host datastructs.Host, err error) {
 	return host, nil
 }
 
-func (conf *Config) ViewHostByID(id int) (host datastructs.Host, err error) {
-	db, err := database.Connect(conf.Database)
+func ViewHostByID(id int) (host datastructs.Host, err error) {
+	selected, err := db.selectHost("", "", id)
 	if err != nil {
 		return host, err
 	}
 
-	selected, err := db.SelectHost("", "", id)
-	if err != nil {
-		return host, err
-	}
-
-	host, err = conf.getHostGroups(selected)
+	host, err = getHostGroups(selected)
 	if err != nil {
 		return host, err
 	}
@@ -80,19 +59,14 @@ func (conf *Config) ViewHostByID(id int) (host datastructs.Host, err error) {
 	return host, nil
 }
 
-func (conf *Config) ListHosts() (hosts []datastructs.Host, err error) {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return hosts, err
-	}
-
-	selected, err := db.GetHosts()
+func ListHosts() (hosts []datastructs.Host, err error) {
+	selected, err := db.getHosts()
 	if err != nil {
 		return hosts, err
 	}
 
 	for _, host := range selected {
-		host, err = conf.getHostGroups(host)
+		host, err = getHostGroups(host)
 		if err != nil {
 			return hosts, err
 		}
@@ -102,13 +76,8 @@ func (conf *Config) ListHosts() (hosts []datastructs.Host, err error) {
 	return hosts, nil
 }
 
-func (conf *Config) DeleteHost(host datastructs.Host) (affected int64, err error) {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return affected, err
-	}
-
-	affected, err = db.DeleteHost(host)
+func DeleteHost(host datastructs.Host) (affected int64, err error) {
+	affected, err = db.deleteHost(host)
 	if err != nil {
 		return affected, err
 	}
@@ -116,13 +85,8 @@ func (conf *Config) DeleteHost(host datastructs.Host) (affected int64, err error
 	return affected, nil
 }
 
-func (conf *Config) getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return res, err
-	}
-
-	hostGroups, err := db.SelectHostGroup(host.ID, 0)
+func getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
+	hostGroups, err := db.selectHostGroup(host.ID, 0)
 	if err != nil {
 		return res, err
 	}
@@ -135,7 +99,7 @@ func (conf *Config) getHostGroups(host datastructs.Host) (res datastructs.Host, 
 		// add group to list
 		groups = append(groups, hostGroup.Group)
 
-		parents, err := conf.getParents(hostGroup.Group, []int{})
+		parents, err := getParents(hostGroup.Group, []int{})
 		if err != nil {
 			return res, err
 		}
@@ -144,7 +108,7 @@ func (conf *Config) getHostGroups(host datastructs.Host) (res datastructs.Host, 
 	}
 
 	for _, g := range groups {
-		group, err := db.SelectGroup("", g)
+		group, err := db.selectGroup("", g)
 		if err != nil {
 			return res, err
 		}
@@ -156,20 +120,15 @@ func (conf *Config) getHostGroups(host datastructs.Host) (res datastructs.Host, 
 	return host, nil
 }
 
-func (conf *Config) getParents(child int, parents []int) ([]int, error) {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return nil, err
-	}
-
-	childGroups, err := db.SelectChildGroup(child, 0)
+func getParents(child int, parents []int) ([]int, error) {
+	childGroups, err := db.selectChildGroup(child, 0)
 	if err != nil {
 		return nil, err
 	}
 	for _, group := range childGroups {
 		parents = append(parents, group.Parent)
 		child = group.Parent
-		parents, err = conf.getParents(child, parents)
+		parents, err = getParents(child, parents)
 		if err != nil {
 			return nil, err
 		}

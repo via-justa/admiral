@@ -44,7 +44,6 @@ var createGroup = &cobra.Command{
 }
 
 func createGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var group datastructs.Group
 	if jsonPath != "" {
 		groupF, err := ioutil.ReadFile(jsonPath)
@@ -71,11 +70,11 @@ func createGroupFunc(cmd *cobra.Command, args []string) {
 		group.Variables = "{}"
 	}
 
-	if err := client.CreateGroup(group); err != nil {
+	if err := cli.CreateGroup(group); err != nil {
 		log.Fatal(err)
 	}
 
-	createdGroup, err := client.ViewGroupByName(group.Name)
+	createdGroup, err := cli.ViewGroupByName(group.Name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,17 +89,16 @@ var viewGroup = &cobra.Command{
 }
 
 func viewGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var group datastructs.Group
 	var err error
 
 	if len(name) > 0 {
-		group, err = client.ViewGroupByName(name)
+		group, err = cli.ViewGroupByName(name)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if id != 0 {
-		group, err = client.ViewGroupByID(id)
+		group, err = cli.ViewGroupByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -118,24 +116,23 @@ var deleteGroup = &cobra.Command{
 }
 
 func deleteGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var group datastructs.Group
 	var err error
 
 	if len(name) > 0 {
-		group, err = client.ViewGroupByName(name)
+		group, err = cli.ViewGroupByName(name)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if id != 0 {
-		group, err = client.ViewGroupByID(id)
+		group, err = cli.ViewGroupByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
-	affected, err := client.DeleteGroup(group)
+	affected, err := cli.DeleteGroup(group)
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -150,8 +147,7 @@ var listGroup = &cobra.Command{
 }
 
 func listGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-	groups, err := client.ListGroups()
+	groups, err := cli.ListGroups()
 	if err != nil {
 		log.Fatal(err)
 	}

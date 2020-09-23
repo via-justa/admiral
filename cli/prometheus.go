@@ -3,26 +3,20 @@ package cli
 import (
 	"encoding/json"
 
-	"github.com/via-justa/admiral/database"
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func (conf *Config) GenPrometheusSDFile() (promSDFile []byte, err error) {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return nil, err
-	}
-
+func GenPrometheusSDFile() (promSDFile []byte, err error) {
 	hostsWithGroups := []datastructs.Host{}
 
-	hosts, err := db.GetHosts()
+	hosts, err := db.getHosts()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, host := range hosts {
 		if host.Monitored {
-			updated, err := conf.getHostGroups(host)
+			updated, err := getHostGroups(host)
 			if err != nil {
 				return nil, err
 			}

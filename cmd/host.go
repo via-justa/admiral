@@ -56,7 +56,6 @@ var createHost = &cobra.Command{
 }
 
 func createHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var host datastructs.Host
 	if jsonPath != "" {
 		hostF, err := ioutil.ReadFile(jsonPath)
@@ -81,11 +80,11 @@ func createHostFunc(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := client.CreateHost(host); err != nil {
+	if err := cli.CreateHost(host); err != nil {
 		log.Fatal(err)
 	}
 
-	createdHost, err := client.ViewHostByHostname(host.Hostname)
+	createdHost, err := cli.ViewHostByHostname(host.Hostname)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,22 +99,21 @@ var viewHost = &cobra.Command{
 }
 
 func viewHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var host datastructs.Host
 	var err error
 
 	if len(name) > 0 {
-		host, err = client.ViewHostByHostname(name)
+		host, err = cli.ViewHostByHostname(name)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if len(ip) > 0 {
-		host, err = client.ViewHostByIP(ip)
+		host, err = cli.ViewHostByIP(ip)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if id != 0 {
-		host, err = client.ViewHostByID(id)
+		host, err = cli.ViewHostByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -133,29 +131,28 @@ var deleteHost = &cobra.Command{
 }
 
 func deleteHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var host datastructs.Host
 	var err error
 
 	if len(name) > 0 {
-		host, err = client.ViewHostByHostname(name)
+		host, err = cli.ViewHostByHostname(name)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if len(ip) > 0 {
-		host, err = client.ViewHostByIP(ip)
+		host, err = cli.ViewHostByIP(ip)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if id != 0 {
-		host, err = client.ViewHostByID(id)
+		host, err = cli.ViewHostByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
-	affected, err := client.DeleteHost(host)
+	affected, err := cli.DeleteHost(host)
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -170,9 +167,7 @@ var listHost = &cobra.Command{
 }
 
 func listHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-
-	hosts, err := client.ListHosts()
+	hosts, err := cli.ListHosts()
 	if err != nil {
 		log.Fatal(err)
 	}
