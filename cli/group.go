@@ -21,6 +21,8 @@ func ViewGroupByName(name string) (group datastructs.Group, err error) {
 	group, err = db.selectGroup(name, 0)
 	if err != nil {
 		return group, err
+	} else if group == (datastructs.Group{}) {
+		return group, fmt.Errorf("Requested group does not exists")
 	}
 
 	return group, nil
@@ -30,6 +32,8 @@ func ViewGroupByID(id int) (group datastructs.Group, err error) {
 	group, err = db.selectGroup("", id)
 	if err != nil {
 		return group, err
+	} else if group == (datastructs.Group{}) {
+		return group, fmt.Errorf("Requested group does not exists")
 	}
 
 	return group, nil
@@ -48,6 +52,8 @@ func DeleteGroup(group datastructs.Group) (affected int64, err error) {
 	affected, err = db.deleteGroup(group)
 	if err != nil {
 		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("No record matched")
 	}
 
 	return affected, nil

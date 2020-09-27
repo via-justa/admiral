@@ -21,6 +21,8 @@ func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
 	selected, err := db.selectHost(hostname, "", 0)
 	if err != nil {
 		return host, err
+	} else if selected.Hostname == "" {
+		return host, fmt.Errorf("Requested host does not exists")
 	}
 
 	host, err = getHostGroups(selected)
@@ -35,6 +37,8 @@ func ViewHostByIP(ip string) (host datastructs.Host, err error) {
 	selected, err := db.selectHost("", ip, 0)
 	if err != nil {
 		return host, err
+	} else if selected.Hostname == "" {
+		return host, fmt.Errorf("Requested host does not exists")
 	}
 
 	host, err = getHostGroups(selected)
@@ -49,6 +53,8 @@ func ViewHostByID(id int) (host datastructs.Host, err error) {
 	selected, err := db.selectHost("", "", id)
 	if err != nil {
 		return host, err
+	} else if selected.Hostname == "" {
+		return host, fmt.Errorf("Requested host does not exists")
 	}
 
 	host, err = getHostGroups(selected)
@@ -80,6 +86,8 @@ func DeleteHost(host datastructs.Host) (affected int64, err error) {
 	affected, err = db.deleteHost(host)
 	if err != nil {
 		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("No record matched")
 	}
 
 	return affected, nil
@@ -118,20 +126,4 @@ func getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
 	host.Groups = groupsName
 
 	return host, nil
-}
-
-func getParents(child int, parents []int) ([]int, error) {
-	childGroups, err := db.selectChildGroup(child, 0)
-	if err != nil {
-		return nil, err
-	}
-	for _, group := range childGroups {
-		parents = append(parents, group.Parent)
-		child = group.Parent
-		parents, err = getParents(child, parents)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return parents, nil
 }

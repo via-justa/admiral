@@ -26,6 +26,8 @@ func ViewHostGroupByHost(hostID int) (hostGroup []datastructs.HostGroup, err err
 	hostGroup, err = db.selectHostGroup(hostID, 0)
 	if err != nil {
 		return hostGroup, err
+	} else if hostGroup == nil {
+		return hostGroup, fmt.Errorf("No record matched request")
 	}
 
 	return hostGroup, nil
@@ -35,6 +37,8 @@ func ViewHostGroupByGroup(groupID int) (hostGroup []datastructs.HostGroup, err e
 	hostGroup, err = db.selectHostGroup(0, groupID)
 	if err != nil {
 		return hostGroup, err
+	} else if hostGroup == nil {
+		return hostGroup, fmt.Errorf("No record matched request")
 	}
 
 	return hostGroup, nil
@@ -53,6 +57,8 @@ func DeleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error
 	affected, err = db.deleteHostGroup(hostGroup)
 	if err != nil {
 		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("No record matched")
 	}
 
 	return affected, nil

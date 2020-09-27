@@ -94,7 +94,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 	if len(hostname) != 0 {
 		err = db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE hostname=?", hostname)
 		if err == sql.ErrNoRows {
-			return returnedHost, fmt.Errorf("No host found for hostname %s", hostname)
+			return returnedHost, nil
 		} else if err != nil {
 			return returnedHost, err
 		}
@@ -104,7 +104,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 	} else if len(ip) != 0 {
 		err := db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE host=?", ip)
 		if err == sql.ErrNoRows {
-			return returnedHost, fmt.Errorf("No host found for ip %s", ip)
+			return returnedHost, nil
 		} else if err != nil {
 			return returnedHost, err
 		}
@@ -114,7 +114,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 	} else if id != 0 {
 		err := db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE id=?", id)
 		if err == sql.ErrNoRows {
-			return returnedHost, fmt.Errorf("No host found for id %v", id)
+			return returnedHost, nil
 		} else if err != nil {
 			return returnedHost, err
 		}
@@ -130,7 +130,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
 	rows, err := db.Conn.Query("SELECT id, host, hostname, domain, variables, enabled, monitored FROM host")
 	if err == sql.ErrNoRows {
-		return hosts, fmt.Errorf("Could not get hosts")
+		return hosts, nil
 	} else if err != nil {
 		return hosts, err
 	}
@@ -179,7 +179,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 	if len(name) != 0 {
 		err = db.Conn.Get(&returnedGroup, "SELECT id, name, variables, enabled, monitored FROM `group` WHERE name=?", name)
 		if err == sql.ErrNoRows {
-			return returnedGroup, fmt.Errorf("No group found for name %s", name)
+			return returnedGroup, nil
 		} else if err != nil {
 			return returnedGroup, err
 		}
@@ -189,7 +189,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 	} else if id != 0 {
 		err := db.Conn.Get(&returnedGroup, "SELECT id, name, variables, enabled, monitored FROM `group` WHERE id=?", id)
 		if err == sql.ErrNoRows {
-			return returnedGroup, fmt.Errorf("No group found for id %v", id)
+			return returnedGroup, nil
 		} else if err != nil {
 			return returnedGroup, err
 		}
@@ -204,7 +204,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
 	rows, err := db.Conn.Query("SELECT id, name, variables, enabled, monitored FROM `group`")
 	if err == sql.ErrNoRows {
-		return groups, fmt.Errorf("Could not get groups")
+		return groups, nil
 	} else if err != nil {
 		return groups, err
 	}
@@ -254,7 +254,7 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 	if child != 0 {
 		rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups WHERE child_id=?", child)
 		if err == sql.ErrNoRows {
-			return childGroups, fmt.Errorf("No parents found for child id %v", child)
+			return childGroups, nil
 		} else if err != nil {
 			return childGroups, err
 		}
@@ -272,7 +272,7 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 	} else if parent != 0 {
 		rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups WHERE parent_id=?", parent)
 		if err == sql.ErrNoRows {
-			return childGroups, fmt.Errorf("No children found for parent id %v", parent)
+			return childGroups, nil
 		} else if err != nil {
 			return childGroups, err
 		}
@@ -297,7 +297,7 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups")
 	if err == sql.ErrNoRows {
-		return childGroups, fmt.Errorf("Could not get child groups")
+		return childGroups, nil
 	} else if err != nil {
 		return childGroups, err
 	}
@@ -347,7 +347,7 @@ func (db *Database) SelectHostGroup(host, group int) (hostGroups []datastructs.H
 	if host != 0 {
 		rows, err := db.Conn.Query("SELECT id, group_id, host_id FROM hostgroups WHERE host_id=?", host)
 		if err == sql.ErrNoRows {
-			return hostGroups, fmt.Errorf("No groups found for host id %v", host)
+			return hostGroups, nil
 		} else if err != nil {
 			return hostGroups, err
 		}
@@ -365,7 +365,7 @@ func (db *Database) SelectHostGroup(host, group int) (hostGroups []datastructs.H
 	} else if group != 0 {
 		rows, err := db.Conn.Query("SELECT id, group_id, host_id FROM hostgroups WHERE group_id=?", group)
 		if err == sql.ErrNoRows {
-			return hostGroups, fmt.Errorf("No groups found for host id %v", host)
+			return hostGroups, nil
 		} else if err != nil {
 			return hostGroups, err
 		}
@@ -390,7 +390,7 @@ func (db *Database) SelectHostGroup(host, group int) (hostGroups []datastructs.H
 func (db *Database) GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
 	rows, err := db.Conn.Query("SELECT id, group_id, host_id FROM hostgroups")
 	if err == sql.ErrNoRows {
-		return hostGroups, fmt.Errorf("Could not get host groups")
+		return hostGroups, nil
 	} else if err != nil {
 		return hostGroups, err
 	}
