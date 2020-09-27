@@ -1,10 +1,11 @@
+![Go Test](https://github.com/via-justa/admiral/workflows/Go/badge.svg)  ![Language](https://img.shields.io/badge/Language-go-green)   [![Go Report Card](https://goreportcard.com/badge/github.com/via-justa/admiral)](https://goreportcard.com/report/github.com/via-justa/admiral)  [![license](https://img.shields.io/badge/license-CC-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 # Admiral
 
-Admiral is a command line tool to manage ansible inventory. 
+Admiral is a command line tool to manage [ansible](https://www.ansible.com/) inventory. 
 
-It can also expose the inventory to ansible as a full inventory structure. 
-
-As monitoring is also important, the tool can also expose the inventory in Prometheus static file structure where all the host groups are set as host 'groups' label.
+In addition to providing command line interface to manage the inventory, the tool can be used to:
+- Expose the inventory to ansible as a full inventory structure. 
+- Expose the inventory in Prometheus static file structure where all the host groups are set as host `groups` label.
 
 Supported Operating systems
 ---------------------------
@@ -25,7 +26,7 @@ Installation
 Configuration File
 -----------
 
-The tool is expecting to find a toml configuration file with the database details in one of the following locations:
+The tool is expecting to find a `toml` configuration file with the database details in one of the following locations:
 - /etc/admiral/config.toml
 - ./config.toml
 - $HOME/.admiral.toml
@@ -42,7 +43,7 @@ db = "ansible"
 Usage
 -----------
 The tool comes with a full help menu that can be accessed with the flag `-h, --help`. 
-The compleat command documentation is also available [here](https://github.com/via-justa/admiral/docs/admiral.md)
+The compleat command documentation is also available [here](https://github.com/via-justa/admiral/blob/master/docs/admiral.md)
 
 Configuring the Database
 -----------
