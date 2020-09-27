@@ -20,6 +20,7 @@ func GenPrometheusSDFile() (promSDFile []byte, err error) {
 			if err != nil {
 				return nil, err
 			}
+
 			hostsWithGroups = append(hostsWithGroups, updated)
 		}
 	}
@@ -39,5 +40,4 @@ func GenPrometheusSDFile() (promSDFile []byte, err error) {
 	}
 
 	return promSDFile, err
-
 }

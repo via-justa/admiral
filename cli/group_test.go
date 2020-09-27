@@ -9,6 +9,7 @@ import (
 
 func TestCreateGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		group datastructs.Group
 	}
@@ -20,21 +21,36 @@ func TestCreateGroup(t *testing.T) {
 		{
 			name: "Insert group",
 			args: args{
-				group: datastructs.Group{Name: "group4", Variables: "{\"var4\": \"val4\"}", Enabled: true, Monitored: true},
+				group: datastructs.Group{
+					Name:      "group4",
+					Variables: "{\"var4\": \"val4\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Insert Existing group without change",
 			args: args{
-				group: datastructs.Group{Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true},
+				group: datastructs.Group{
+					Name:      "group1",
+					Variables: "{\"var1\": \"val1\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Change Existing group",
 			args: args{
-				group: datastructs.Group{Name: "group1", Variables: "{\"var1\": \"val1\", \"var2\": \"val2\"}", Enabled: true, Monitored: true},
+				group: datastructs.Group{
+					Name:      "group1",
+					Variables: "{\"var1\": \"val1\", \"var2\": \"val2\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
 			},
 			wantErr: false,
 		},
@@ -57,6 +73,7 @@ func TestCreateGroup(t *testing.T) {
 
 func TestViewGroupByName(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		name string
 	}
@@ -71,8 +88,14 @@ func TestViewGroupByName(t *testing.T) {
 			args: args{
 				name: "group1",
 			},
-			wantGroup: datastructs.Group{ID: 1, Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true},
-			wantErr:   false,
+			wantGroup: datastructs.Group{
+				ID:        1,
+				Name:      "group1",
+				Variables: "{\"var1\": \"val1\"}",
+				Enabled:   true,
+				Monitored: true,
+			},
+			wantErr: false,
 		},
 		{
 			name: "None existing group",
@@ -107,6 +130,7 @@ func TestViewGroupByName(t *testing.T) {
 
 func TestViewGroupByID(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		id int
 	}
@@ -121,8 +145,14 @@ func TestViewGroupByID(t *testing.T) {
 			args: args{
 				id: 1,
 			},
-			wantGroup: datastructs.Group{ID: 1, Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true},
-			wantErr:   false,
+			wantGroup: datastructs.Group{
+				ID:        1,
+				Name:      "group1",
+				Variables: "{\"var1\": \"val1\"}",
+				Enabled:   true,
+				Monitored: true,
+			},
+			wantErr: false,
 		},
 		{
 			name: "None existing group",
@@ -157,15 +187,38 @@ func TestViewGroupByID(t *testing.T) {
 
 func TestListGroups(t *testing.T) {
 	db = dbMock{}
+
 	tests := []struct {
 		name       string
 		wantGroups []datastructs.Group
 		wantErr    bool
 	}{
 		{
-			name:       "List groups",
-			wantGroups: []datastructs.Group{datastructs.Group{ID: 1, Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true}, datastructs.Group{ID: 2, Name: "group2", Variables: "{\"var2\": \"val2\"}", Enabled: true, Monitored: true}, datastructs.Group{ID: 3, Name: "group3", Variables: "{\"var3\": \"val3\"}", Enabled: true, Monitored: true}},
-			wantErr:    false,
+			name: "List groups",
+			wantGroups: []datastructs.Group{
+				datastructs.Group{
+					ID:        1,
+					Name:      "group1",
+					Variables: "{\"var1\": \"val1\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
+				datastructs.Group{
+					ID:        2,
+					Name:      "group2",
+					Variables: "{\"var2\": \"val2\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
+				datastructs.Group{
+					ID:        3,
+					Name:      "group3",
+					Variables: "{\"var3\": \"val3\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -184,6 +237,7 @@ func TestListGroups(t *testing.T) {
 
 func TestDeleteGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		group datastructs.Group
 	}

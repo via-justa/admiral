@@ -11,7 +11,7 @@ func CreateHost(host datastructs.Host) error {
 	if err != nil {
 		return err
 	} else if i == 0 {
-		return fmt.Errorf("No lines affected")
+		return fmt.Errorf("no lines affected")
 	}
 
 	return nil
@@ -22,7 +22,7 @@ func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
 	if err != nil {
 		return host, err
 	} else if selected.Hostname == "" {
-		return host, fmt.Errorf("Requested host does not exists")
+		return host, fmt.Errorf("requested host does not exists")
 	}
 
 	host, err = getHostGroups(selected)
@@ -38,7 +38,7 @@ func ViewHostByIP(ip string) (host datastructs.Host, err error) {
 	if err != nil {
 		return host, err
 	} else if selected.Hostname == "" {
-		return host, fmt.Errorf("Requested host does not exists")
+		return host, fmt.Errorf("requested host does not exists")
 	}
 
 	host, err = getHostGroups(selected)
@@ -54,7 +54,7 @@ func ViewHostByID(id int) (host datastructs.Host, err error) {
 	if err != nil {
 		return host, err
 	} else if selected.Hostname == "" {
-		return host, fmt.Errorf("Requested host does not exists")
+		return host, fmt.Errorf("requested host does not exists")
 	}
 
 	host, err = getHostGroups(selected)
@@ -76,6 +76,7 @@ func ListHosts() (hosts []datastructs.Host, err error) {
 		if err != nil {
 			return hosts, err
 		}
+
 		hosts = append(hosts, host)
 	}
 
@@ -87,7 +88,7 @@ func DeleteHost(host datastructs.Host) (affected int64, err error) {
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
-		return affected, fmt.Errorf("No record matched")
+		return affected, fmt.Errorf("no record matched")
 	}
 
 	return affected, nil
@@ -111,8 +112,8 @@ func getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
 		if err != nil {
 			return res, err
 		}
-		groups = append(groups, parents...)
 
+		groups = append(groups, parents...)
 	}
 
 	for _, g := range groups {
@@ -120,6 +121,7 @@ func getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
 		if err != nil {
 			return res, err
 		}
+
 		groupsName = append(groupsName, group.Name)
 	}
 

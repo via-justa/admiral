@@ -10,7 +10,6 @@ import (
 
 func init() {
 	rootCmd.AddCommand(genPromSDFile)
-
 }
 
 var genPromSDFile = &cobra.Command{

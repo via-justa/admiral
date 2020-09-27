@@ -9,6 +9,7 @@ var inv = `{"_meta":{"hostvars":{"host1.local":{"var1":"val1"},"host2.local":{"v
 
 func TestGenInventory(t *testing.T) {
 	db = dbMock{}
+
 	tests := []struct {
 		name    string
 		want    []byte

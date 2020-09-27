@@ -45,14 +45,17 @@ var createGroup = &cobra.Command{
 
 func createGroupFunc(cmd *cobra.Command, args []string) {
 	var group datastructs.Group
+
 	if jsonPath != "" {
 		groupF, err := ioutil.ReadFile(jsonPath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if len(groupF) <= 0 {
+
+		if len(groupF) == 0 {
 			log.Fatal("File is empty or could not be found")
 		}
+
 		err = json.Unmarshal(groupF, &group)
 		if err != nil {
 			log.Fatal(err)
@@ -78,6 +81,7 @@ func createGroupFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	printGroups([]datastructs.Group{createdGroup})
 }
 
@@ -90,21 +94,24 @@ var viewGroup = &cobra.Command{
 
 func viewGroupFunc(cmd *cobra.Command, args []string) {
 	var group datastructs.Group
+
 	var err error
 
-	if len(name) > 0 {
+	switch {
+	case len(name) > 0:
 		group, err = cli.ViewGroupByName(name)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if id != 0 {
+	case id != 0:
 		group, err = cli.ViewGroupByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
+
 	printGroups([]datastructs.Group{group})
 }
 
@@ -117,21 +124,24 @@ var deleteGroup = &cobra.Command{
 
 func deleteGroupFunc(cmd *cobra.Command, args []string) {
 	var group datastructs.Group
+
 	var err error
 
-	if len(name) > 0 {
+	switch {
+	case len(name) > 0:
 		group, err = cli.ViewGroupByName(name)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if id != 0 {
+	case id != 0:
 		group, err = cli.ViewGroupByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
+
 	affected, err := cli.DeleteGroup(group)
 	if err != nil {
 		log.Fatal(err)
@@ -166,7 +176,9 @@ func printGroups(groups []datastructs.Group) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	tbl.Separator = " | "
+
 	for _, group := range groups {
 		err = tbl.AddRow(group.ID, group.Name, group.Enabled, group.Monitored, group.Variables)
 		if err != nil {

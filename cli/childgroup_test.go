@@ -9,6 +9,7 @@ import (
 
 func TestCreateChildGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		parent datastructs.Group
 		child  datastructs.Group
@@ -70,6 +71,7 @@ func TestCreateChildGroup(t *testing.T) {
 
 func TestViewChildGroupsByParent(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		parentID int
 	}
@@ -84,8 +86,10 @@ func TestViewChildGroupsByParent(t *testing.T) {
 			args: args{
 				parentID: 3,
 			},
-			wantChildGroups: []datastructs.ChildGroup{datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3}},
-			wantErr:         false,
+			wantChildGroups: []datastructs.ChildGroup{
+				datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3},
+			},
+			wantErr: false,
 		},
 		{
 			name: "Get none-existing child-groups",
@@ -112,6 +116,7 @@ func TestViewChildGroupsByParent(t *testing.T) {
 
 func TestViewChildGroupsByChild(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		childID int
 	}
@@ -126,8 +131,10 @@ func TestViewChildGroupsByChild(t *testing.T) {
 			args: args{
 				childID: 1,
 			},
-			wantChildGroups: []datastructs.ChildGroup{datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2}},
-			wantErr:         false,
+			wantChildGroups: []datastructs.ChildGroup{
+				datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2},
+			},
+			wantErr: false,
 		},
 		{
 			name: "Get none-existing child-groups",
@@ -154,15 +161,19 @@ func TestViewChildGroupsByChild(t *testing.T) {
 
 func TestListChildGroups(t *testing.T) {
 	db = dbMock{}
+
 	tests := []struct {
 		name            string
 		wantChildGroups []datastructs.ChildGroup
 		wantErr         bool
 	}{
 		{
-			name:            "List child-groups",
-			wantChildGroups: []datastructs.ChildGroup{datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2}, datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3}},
-			wantErr:         false,
+			name: "List child-groups",
+			wantChildGroups: []datastructs.ChildGroup{
+				datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2},
+				datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3},
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -181,6 +192,7 @@ func TestListChildGroups(t *testing.T) {
 
 func TestDeleteChildGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		childGroup datastructs.ChildGroup
 	}

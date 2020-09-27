@@ -16,7 +16,7 @@ func CreateHostGroup(host datastructs.Host, group datastructs.Group) error {
 	if err != nil {
 		return err
 	} else if i == 0 {
-		return fmt.Errorf("No lines affected")
+		return fmt.Errorf("no lines affected")
 	}
 
 	return nil
@@ -27,7 +27,7 @@ func ViewHostGroupByHost(hostID int) (hostGroup []datastructs.HostGroup, err err
 	if err != nil {
 		return hostGroup, err
 	} else if hostGroup == nil {
-		return hostGroup, fmt.Errorf("No record matched request")
+		return hostGroup, fmt.Errorf("no record matched request")
 	}
 
 	return hostGroup, nil
@@ -38,7 +38,7 @@ func ViewHostGroupByGroup(groupID int) (hostGroup []datastructs.HostGroup, err e
 	if err != nil {
 		return hostGroup, err
 	} else if hostGroup == nil {
-		return hostGroup, fmt.Errorf("No record matched request")
+		return hostGroup, fmt.Errorf("no record matched request")
 	}
 
 	return hostGroup, nil
@@ -58,7 +58,7 @@ func DeleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
-		return affected, fmt.Errorf("No record matched")
+		return affected, fmt.Errorf("no record matched")
 	}
 
 	return affected, nil

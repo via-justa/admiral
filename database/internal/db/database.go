@@ -30,6 +30,7 @@ var SQLFile string
 // Connect returns a Database connection
 func Connect(conf DatabaseConfig) (Database, error) {
 	var db Database
+
 	dbConfig := mysql.Config{
 		User:                 conf.User,
 		Passwd:               conf.Password,
@@ -38,21 +39,26 @@ func Connect(conf DatabaseConfig) (Database, error) {
 		DBName:               conf.DB,
 		AllowNativePasswords: true,
 	}
+
 	var err error
+
 	db.Conn, err = sqlx.Open("mysql", dbConfig.FormatDSN())
 	if err != nil {
 		return db, err
 	}
+
 	err = db.Conn.Ping()
 	if err != nil {
 		return db, err
 	}
+
 	return db, err
 }
 
 // Initialize bootstraps the storage DB
 func Initialize(conf DatabaseConfig) error {
 	var db Database
+
 	dbConfig := mysql.Config{
 		User:                 conf.User,
 		Passwd:               conf.Password,
@@ -60,11 +66,14 @@ func Initialize(conf DatabaseConfig) error {
 		Addr:                 conf.Host,
 		AllowNativePasswords: true,
 	}
+
 	var err error
+
 	db.Conn, err = sqlx.Open("mysql", dbConfig.FormatDSN())
 	if err != nil {
 		return err
 	}
+
 	err = db.Conn.Ping()
 	if err != nil {
 		return err
@@ -77,7 +86,7 @@ func Initialize(conf DatabaseConfig) error {
 
 	queries := strings.Split(string(sqlfile), "$$\n")
 	for _, query := range queries[1:] {
-		_, err = db.Conn.Exec(string(query))
+		_, err = db.Conn.Exec(query)
 		if err != nil {
 			return err
 		}
@@ -91,7 +100,8 @@ func Initialize(conf DatabaseConfig) error {
 // SelectHost return host information. The function will search for the host in the following order:
 // By hostname, if hostname is empty by host and if both hostname and host are empty by id
 func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
-	if len(hostname) != 0 {
+	switch {
+	case len(hostname) != 0:
 		err = db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE hostname=?", hostname)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
@@ -100,8 +110,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 		}
 
 		return returnedHost, nil
-
-	} else if len(ip) != 0 {
+	case len(ip) != 0:
 		err := db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE host=?", ip)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
@@ -110,8 +119,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 		}
 
 		return returnedHost, nil
-
-	} else if id != 0 {
+	case id != 0:
 		err := db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE id=?", id)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
@@ -120,9 +128,8 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 		}
 
 		return returnedHost, nil
-
-	} else {
-		return returnedHost, fmt.Errorf("Please provide either hostname, host or id")
+	default:
+		return returnedHost, fmt.Errorf("please provide either hostname, host or id")
 	}
 }
 
@@ -143,6 +150,7 @@ func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
 
 		hosts = append(hosts, *host)
 	}
+
 	return hosts, nil
 }
 
@@ -157,6 +165,7 @@ func (db *Database) InsertHost(host datastructs.Host) (affected int64, err error
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
@@ -168,6 +177,7 @@ func (db *Database) DeleteHost(host datastructs.Host) (affected int64, err error
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
@@ -176,7 +186,8 @@ func (db *Database) DeleteHost(host datastructs.Host) (affected int64, err error
 // SelectGroup return group information. The function will search for the group in the following order:
 // By name, if name is empty by id
 func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
-	if len(name) != 0 {
+	switch {
+	case len(name) != 0:
 		err = db.Conn.Get(&returnedGroup, "SELECT id, name, variables, enabled, monitored FROM `group` WHERE name=?", name)
 		if err == sql.ErrNoRows {
 			return returnedGroup, nil
@@ -185,8 +196,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 		}
 
 		return returnedGroup, nil
-
-	} else if id != 0 {
+	case id != 0:
 		err := db.Conn.Get(&returnedGroup, "SELECT id, name, variables, enabled, monitored FROM `group` WHERE id=?", id)
 		if err == sql.ErrNoRows {
 			return returnedGroup, nil
@@ -195,8 +205,8 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 		}
 
 		return returnedGroup, nil
-	} else {
-		return returnedGroup, fmt.Errorf("Please provide either name or id")
+	default:
+		return returnedGroup, fmt.Errorf("please provide either name or id")
 	}
 }
 
@@ -217,6 +227,7 @@ func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
 
 		groups = append(groups, *group)
 	}
+
 	return groups, nil
 }
 
@@ -230,6 +241,7 @@ func (db *Database) InsertGroup(group datastructs.Group) (affected int64, err er
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
@@ -241,6 +253,7 @@ func (db *Database) DeleteGroup(group datastructs.Group) (affected int64, err er
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
@@ -251,7 +264,8 @@ func (db *Database) DeleteGroup(group datastructs.Group) (affected int64, err er
 // If parent is provided will return slice of child ids
 // will error if none is provided
 func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error) {
-	if child != 0 {
+	switch {
+	case child != 0:
 		rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups WHERE child_id=?", child)
 		if err == sql.ErrNoRows {
 			return childGroups, nil
@@ -267,9 +281,9 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 
 			childGroups = append(childGroups, *childGroup)
 		}
-		return childGroups, nil
 
-	} else if parent != 0 {
+		return childGroups, nil
+	case parent != 0:
 		rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups WHERE parent_id=?", parent)
 		if err == sql.ErrNoRows {
 			return childGroups, nil
@@ -285,12 +299,11 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 
 			childGroups = append(childGroups, *childGroup)
 		}
+
 		return childGroups, nil
-
-	} else {
-		return childGroups, fmt.Errorf("Please provide either child or parent id")
+	default:
+		return childGroups, fmt.Errorf("please provide either child or parent id")
 	}
-
 }
 
 // GetChildGroups return all child groups relationships in the inventory
@@ -310,6 +323,7 @@ func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroup, err 
 
 		childGroups = append(childGroups, *childGroup)
 	}
+
 	return childGroups, nil
 }
 
@@ -323,17 +337,19 @@ func (db *Database) InsertChildGroup(childGroup datastructs.ChildGroup) (affecte
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
 // DeleteChildGroup accept ChildGroup to delete and return the number of affected rows and error if exists
-func (db *Database) DeleteChildGroup(ChildGroup datastructs.ChildGroup) (affected int64, err error) {
-	res, err := db.Conn.Exec("DELETE FROM childgroups WHERE child_id=? and parent_id=?", ChildGroup.Child, ChildGroup.Parent)
+func (db *Database) DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
+	res, err := db.Conn.Exec("DELETE FROM childgroups WHERE child_id=? and parent_id=?", childGroup.Child, childGroup.Parent)
 	if err != nil {
 		return 0, err
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
@@ -344,7 +360,8 @@ func (db *Database) DeleteChildGroup(ChildGroup datastructs.ChildGroup) (affecte
 // If group is provided will return slice of hosts ids
 // will error if none is provided
 func (db *Database) SelectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error) {
-	if host != 0 {
+	switch {
+	case host != 0:
 		rows, err := db.Conn.Query("SELECT id, group_id, host_id FROM hostgroups WHERE host_id=?", host)
 		if err == sql.ErrNoRows {
 			return hostGroups, nil
@@ -360,9 +377,9 @@ func (db *Database) SelectHostGroup(host, group int) (hostGroups []datastructs.H
 
 			hostGroups = append(hostGroups, *hostGroup)
 		}
-		return hostGroups, nil
 
-	} else if group != 0 {
+		return hostGroups, nil
+	case group != 0:
 		rows, err := db.Conn.Query("SELECT id, group_id, host_id FROM hostgroups WHERE group_id=?", group)
 		if err == sql.ErrNoRows {
 			return hostGroups, nil
@@ -378,12 +395,11 @@ func (db *Database) SelectHostGroup(host, group int) (hostGroups []datastructs.H
 
 			hostGroups = append(hostGroups, *hostGroup)
 		}
+
 		return hostGroups, nil
-
-	} else {
-		return hostGroups, fmt.Errorf("Please provide either host or group id")
+	default:
+		return hostGroups, fmt.Errorf("please provide either host or group id")
 	}
-
 }
 
 // GetHostGroups return all host groups relationships in the inventory
@@ -403,6 +419,7 @@ func (db *Database) GetHostGroups() (hostGroups []datastructs.HostGroup, err err
 
 		hostGroups = append(hostGroups, *hostGroup)
 	}
+
 	return hostGroups, nil
 }
 
@@ -416,6 +433,7 @@ func (db *Database) InsertHostGroup(hostGroup datastructs.HostGroup) (affected i
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }
 
@@ -427,5 +445,6 @@ func (db *Database) DeleteHostGroup(hostGroup datastructs.HostGroup) (affected i
 	}
 
 	affected, err = res.RowsAffected()
+
 	return affected, err
 }

@@ -12,6 +12,7 @@ import (
 func SelectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.SelectHost(hostname, ip, id)
 }
 
@@ -19,6 +20,7 @@ func SelectHost(hostname string, ip string, id int) (returnedHost datastructs.Ho
 func GetHosts() (hosts []datastructs.Host, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.GetHosts()
 }
 
@@ -26,6 +28,7 @@ func GetHosts() (hosts []datastructs.Host, err error) {
 func InsertHost(host datastructs.Host) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.InsertHost(host)
 }
 
@@ -33,6 +36,7 @@ func InsertHost(host datastructs.Host) (affected int64, err error) {
 func DeleteHost(host datastructs.Host) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.DeleteHost(host)
 }
 
@@ -43,6 +47,7 @@ func DeleteHost(host datastructs.Host) (affected int64, err error) {
 func SelectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.SelectGroup(name, id)
 }
 
@@ -50,6 +55,7 @@ func SelectGroup(name string, id int) (returnedGroup datastructs.Group, err erro
 func GetGroups() (groups []datastructs.Group, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.GetGroups()
 }
 
@@ -57,6 +63,7 @@ func GetGroups() (groups []datastructs.Group, err error) {
 func InsertGroup(group datastructs.Group) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.InsertGroup(group)
 }
 
@@ -64,6 +71,7 @@ func InsertGroup(group datastructs.Group) (affected int64, err error) {
 func DeleteGroup(group datastructs.Group) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.DeleteGroup(group)
 }
 
@@ -76,6 +84,7 @@ func DeleteGroup(group datastructs.Group) (affected int64, err error) {
 func SelectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.SelectChildGroup(child, parent)
 }
 
@@ -83,6 +92,7 @@ func SelectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, 
 func GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.GetChildGroups()
 }
 
@@ -90,14 +100,16 @@ func GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 func InsertChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.InsertChildGroup(childGroup)
 }
 
 // DeleteChildGroup accept ChildGroup to delete and return the number of affected rows and error if exists
-func DeleteChildGroup(ChildGroup datastructs.ChildGroup) (affected int64, err error) {
+func DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
-	return conn.DeleteChildGroup(ChildGroup)
+
+	return conn.DeleteChildGroup(childGroup)
 }
 
 // HostGroups
@@ -109,6 +121,7 @@ func DeleteChildGroup(ChildGroup datastructs.ChildGroup) (affected int64, err er
 func SelectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.SelectHostGroup(host, group)
 }
 
@@ -116,6 +129,7 @@ func SelectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err e
 func GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.GetHostGroups()
 }
 
@@ -123,6 +137,7 @@ func GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
 func InsertHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.InsertHostGroup(hostGroup)
 }
 
@@ -130,5 +145,6 @@ func InsertHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error
 func DeleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
+
 	return conn.DeleteHostGroup(hostGroup)
 }

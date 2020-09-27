@@ -25,7 +25,6 @@ func init() {
 
 	hostGroup.PersistentFlags().StringVarP(&name, "hostname", "n", "", "base hostname")
 	hostGroup.PersistentFlags().StringVarP(&groupName, "group", "g", "", "main group the host will be in")
-
 }
 
 type HostGroupByName struct {
@@ -47,19 +46,21 @@ var createHostGroup = &cobra.Command{
 
 func createHostGroupFunc(cmd *cobra.Command, args []string) {
 	var hostGroupByName HostGroupByName
+
 	if jsonPath != "" {
 		hostGroupByNameF, err := ioutil.ReadFile(jsonPath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if len(hostGroupByNameF) <= 0 {
+
+		if len(hostGroupByNameF) == 0 {
 			log.Fatal("File is empty or could not be found")
 		}
+
 		err = json.Unmarshal(hostGroupByNameF, &hostGroupByName)
 		if err != nil {
 			log.Fatal(err)
 		}
-
 	} else {
 		hostGroupByName = HostGroupByName{
 			Host:  name,
@@ -85,6 +86,7 @@ func createHostGroupFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	printHostGroups(createdHostGroup)
 }
 
@@ -98,7 +100,8 @@ var viewHostGroup = &cobra.Command{
 func viewHostGroupFunc(cmd *cobra.Command, args []string) {
 	var hostGroup []datastructs.HostGroup
 
-	if len(name) > 0 {
+	switch {
+	case len(name) > 0:
 		host, err := cli.ViewHostByHostname(name)
 		if err != nil {
 			log.Fatal(err)
@@ -108,7 +111,7 @@ func viewHostGroupFunc(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if len(groupName) > 0 {
+	case len(groupName) > 0:
 		group, err := cli.ViewGroupByName(groupName)
 		if err != nil {
 			log.Fatal(err)
@@ -118,9 +121,10 @@ func viewHostGroupFunc(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
+
 	printHostGroups(hostGroup)
 }
 
@@ -133,6 +137,7 @@ var deleteHostGroup = &cobra.Command{
 
 func deleteHostGroupFunc(cmd *cobra.Command, args []string) {
 	var hostGroup datastructs.HostGroup
+
 	var err error
 
 	if len(name) == 0 || len(groupName) == 0 {
@@ -186,7 +191,9 @@ func printHostGroups(hostGroups []datastructs.HostGroup) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	tbl.Separator = " | "
+
 	for _, hostGroup := range hostGroups {
 		group, _ := cli.ViewGroupByID(hostGroup.Group)
 		host, _ := cli.ViewHostByID(hostGroup.Host)

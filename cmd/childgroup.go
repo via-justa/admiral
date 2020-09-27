@@ -26,7 +26,6 @@ func init() {
 
 	childGroup.PersistentFlags().StringVarP(&parentName, "parent", "p", "", "parent group name")
 	childGroup.PersistentFlags().StringVarP(&childName, "child", "c", "", "child group name")
-
 }
 
 type ChildGroupByName struct {
@@ -48,19 +47,21 @@ var createChildGroup = &cobra.Command{
 
 func createChildGroupFunc(cmd *cobra.Command, args []string) {
 	var childGroupByName ChildGroupByName
+
 	if jsonPath != "" {
 		childGroupByNameF, err := ioutil.ReadFile(jsonPath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if len(childGroupByNameF) <= 0 {
+
+		if len(childGroupByNameF) == 0 {
 			log.Fatal("File is empty or could not be found")
 		}
+
 		err = json.Unmarshal(childGroupByNameF, &childGroupByName)
 		if err != nil {
 			log.Fatal(err)
 		}
-
 	} else {
 		childGroupByName = ChildGroupByName{
 			Parent: parentName,
@@ -86,6 +87,7 @@ func createChildGroupFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	printChildGroups(createdChildGroup)
 }
 
@@ -99,7 +101,8 @@ var viewChildGroup = &cobra.Command{
 func viewChildGroupFunc(cmd *cobra.Command, args []string) {
 	var childGroups []datastructs.ChildGroup
 
-	if len(parentName) > 0 {
+	switch {
+	case len(parentName) > 0:
 		group, err := cli.ViewGroupByName(parentName)
 		if err != nil {
 			log.Fatal(err)
@@ -109,7 +112,7 @@ func viewChildGroupFunc(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if len(childName) > 0 {
+	case len(childName) > 0:
 		group, err := cli.ViewGroupByName(childName)
 		if err != nil {
 			log.Fatal(err)
@@ -119,9 +122,10 @@ func viewChildGroupFunc(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
+
 	printChildGroups(childGroups)
 }
 
@@ -134,6 +138,7 @@ var deleteChildGroup = &cobra.Command{
 
 func deleteChildGroupFunc(cmd *cobra.Command, args []string) {
 	var childGroup datastructs.ChildGroup
+
 	var err error
 
 	if len(parentName) == 0 || len(childName) == 0 {
@@ -187,7 +192,9 @@ func printChildGroups(childGroups []datastructs.ChildGroup) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	tbl.Separator = " | "
+
 	for _, childGroup := range childGroups {
 		pGroup, _ := cli.ViewGroupByID(childGroup.Parent)
 		cGroup, _ := cli.ViewGroupByID(childGroup.Child)

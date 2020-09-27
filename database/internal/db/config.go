@@ -12,7 +12,6 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("/etc/admiral")

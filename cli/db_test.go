@@ -40,13 +40,31 @@ func (d dbMock) selectGroup(name string, id int) (returnedGroup datastructs.Grou
 	switch {
 	// Existing record group1
 	case name == "group1" || id == 1:
-		return datastructs.Group{ID: 1, Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true}, nil
+		return datastructs.Group{
+			ID:        1,
+			Name:      "group1",
+			Variables: "{\"var1\": \"val1\"}",
+			Enabled:   true,
+			Monitored: true,
+		}, nil
 	// Existing record group2
 	case name == "group2" || id == 2:
-		return datastructs.Group{ID: 2, Name: "group2", Variables: "{\"var2\": \"val2\"}", Enabled: true, Monitored: true}, nil
+		return datastructs.Group{
+			ID:        2,
+			Name:      "group2",
+			Variables: "{\"var2\": \"val2\"}",
+			Enabled:   true,
+			Monitored: true,
+		}, nil
 	// Existing record group3
 	case name == "group3" || id == 3:
-		return datastructs.Group{ID: 3, Name: "group3", Variables: "{\"var3\": \"val3\"}", Enabled: true, Monitored: true}, nil
+		return datastructs.Group{
+			ID:        3,
+			Name:      "group3",
+			Variables: "{\"var3\": \"val3\"}",
+			Enabled:   true,
+			Monitored: true,
+		}, nil
 	// Error missing param
 	case name == "" && id == 0:
 		return returnedGroup, fmt.Errorf("missing param")
@@ -57,16 +75,48 @@ func (d dbMock) selectGroup(name string, id int) (returnedGroup datastructs.Grou
 }
 
 func (d dbMock) getGroups() (groups []datastructs.Group, err error) {
-	return []datastructs.Group{datastructs.Group{ID: 1, Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true}, datastructs.Group{ID: 2, Name: "group2", Variables: "{\"var2\": \"val2\"}", Enabled: true, Monitored: true}, datastructs.Group{ID: 3, Name: "group3", Variables: "{\"var3\": \"val3\"}", Enabled: true, Monitored: true}}, nil
+	return []datastructs.Group{
+		datastructs.Group{
+			ID:        1,
+			Name:      "group1",
+			Variables: "{\"var1\": \"val1\"}",
+			Enabled:   true,
+			Monitored: true,
+		},
+		datastructs.Group{
+			ID:        2,
+			Name:      "group2",
+			Variables: "{\"var2\": \"val2\"}",
+			Enabled:   true,
+			Monitored: true,
+		},
+		datastructs.Group{
+			ID:        3,
+			Name:      "group3",
+			Variables: "{\"var3\": \"val3\"}",
+			Enabled:   true,
+			Monitored: true,
+		},
+	}, nil
 }
 
 func (d dbMock) insertGroup(group datastructs.Group) (affected int64, err error) {
 	switch {
 	// insert existing group without changes
-	case group == datastructs.Group{Name: "group1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true}:
+	case group == datastructs.Group{
+		Name:      "group1",
+		Variables: "{\"var1\": \"val1\"}",
+		Enabled:   true,
+		Monitored: true,
+	}:
 		return 0, nil
 	// Update existing group
-	case group == datastructs.Group{Name: "group1", Variables: "{\"var1\": \"val1\", \"var2\": \"val2\"}", Enabled: true, Monitored: true}:
+	case group == datastructs.Group{
+		Name:      "group1",
+		Variables: "{\"var1\": \"val1\", \"var2\": \"val2\"}",
+		Enabled:   true,
+		Monitored: true,
+	}:
 		return 1, nil
 	// Insert new group
 	case group.Name != "" && group.Name != "group1" && group.Name != "group2" && group.Name != "group3":
@@ -92,7 +142,16 @@ func (d dbMock) selectHost(hostname string, ip string, id int) (returnedHost dat
 	switch {
 	// Existing record
 	case hostname == "host1" || ip == "1.1.1.1" || id == 1:
-		return datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Domain: "local", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true, Groups: []string{}}, nil
+		return datastructs.Host{
+			ID:        1,
+			Hostname:  "host1",
+			Host:      "1.1.1.1",
+			Domain:    "local",
+			Variables: "{\"var1\": \"val1\"}",
+			Enabled:   true,
+			Monitored: true,
+			Groups:    []string{},
+		}, nil
 	// Error missing param
 	case hostname == "" && ip == "" && id == 0:
 		return returnedHost, fmt.Errorf("missing param")
@@ -103,19 +162,43 @@ func (d dbMock) selectHost(hostname string, ip string, id int) (returnedHost dat
 }
 
 func (d dbMock) getHosts() (hosts []datastructs.Host, err error) {
-	return []datastructs.Host{datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Domain: "local", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true, Groups: []string{}}, datastructs.Host{ID: 2, Hostname: "host2", Host: "2.2.2.2", Domain: "local", Variables: "{\"var2\": \"val2\"}", Enabled: true, Monitored: false, Groups: []string{}}}, nil
+	return []datastructs.Host{
+		datastructs.Host{
+			ID:        1,
+			Hostname:  "host1",
+			Host:      "1.1.1.1",
+			Domain:    "local",
+			Variables: "{\"var1\": \"val1\"}",
+			Enabled:   true,
+			Monitored: true,
+			Groups:    []string{},
+		},
+		datastructs.Host{
+			ID:        2,
+			Hostname:  "host2",
+			Host:      "2.2.2.2",
+			Domain:    "local",
+			Variables: "{\"var2\": \"val2\"}",
+			Enabled:   true,
+			Monitored: false,
+			Groups:    []string{},
+		},
+	}, nil
 }
 
 func (d dbMock) insertHost(host datastructs.Host) (affected int64, err error) {
 	switch {
 	// insert existing host without changes
-	case host.ID == 1 && host.Hostname == "host1" && host.Host == "1.1.1.1" && host.Variables == "{\"var1\": \"val1\"}" && host.Enabled == true && host.Monitored == true:
+	case host.ID == 1 && host.Hostname == "host1" && host.Host == "1.1.1.1" &&
+		host.Variables == "{\"var1\": \"val1\"}" && host.Enabled == true && host.Monitored == true:
 		return affected, nil
 	// Update existing host (Monitored)
-	case host.ID == 1 && host.Hostname == "host1" && host.Host == "1.1.1.1" && host.Variables == "{\"var1\": \"val1\"}" && host.Enabled == true && host.Monitored == false:
+	case host.ID == 1 && host.Hostname == "host1" && host.Host == "1.1.1.1" &&
+		host.Variables == "{\"var1\": \"val1\"}" && host.Enabled == true && host.Monitored == false:
 		return 1, nil
 	// Insert new host
-	case host.Hostname != "" && host.Hostname != "host1" && host.Hostname != "host2" && host.Host != "" && host.Host != "1.1.1.1" && host.Host != "2.2.2.2":
+	case host.Hostname != "" && host.Hostname != "host1" && host.Hostname != "host2" &&
+		host.Host != "" && host.Host != "1.1.1.1" && host.Host != "2.2.2.2":
 		return 1, nil
 	// We can get here in case the host HostName or Host is empty
 	default:
@@ -201,12 +284,23 @@ func (d dbMock) selectChildGroup(child, parent int) (childGroups []datastructs.C
 }
 
 func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroup, err error) {
-	return []datastructs.ChildGroup{datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2}, datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3}}, nil
+	return []datastructs.ChildGroup{
+		datastructs.ChildGroup{
+			ID:     1,
+			Child:  1,
+			Parent: 2,
+		},
+		datastructs.ChildGroup{
+			ID:     2,
+			Child:  2,
+			Parent: 3,
+		},
+	}, nil
 }
 
-func (d dbMock) deleteChildGroup(ChildGroup datastructs.ChildGroup) (affected int64, err error) {
+func (d dbMock) deleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
 	switch {
-	case ChildGroup.Child == 1 || ChildGroup.Parent == 2:
+	case childGroup.Child == 1 || childGroup.Parent == 2:
 		return 1, nil
 	default:
 		return 0, nil

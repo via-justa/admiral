@@ -9,6 +9,7 @@ import (
 
 func TestCreateHostGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		host  datastructs.Host
 		group datastructs.Group
@@ -54,6 +55,7 @@ func TestCreateHostGroup(t *testing.T) {
 
 func TestViewHostGroupByHost(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		hostID int
 	}
@@ -68,8 +70,14 @@ func TestViewHostGroupByHost(t *testing.T) {
 			args: args{
 				hostID: 1,
 			},
-			wantHostGroup: []datastructs.HostGroup{datastructs.HostGroup{ID: 1, Host: 1, Group: 1}},
-			wantErr:       false,
+			wantHostGroup: []datastructs.HostGroup{
+				datastructs.HostGroup{
+					ID:    1,
+					Host:  1,
+					Group: 1,
+				},
+			},
+			wantErr: false,
 		},
 		{
 			name: "Get none-existing host-groups",
@@ -96,6 +104,7 @@ func TestViewHostGroupByHost(t *testing.T) {
 
 func TestViewHostGroupByGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		groupID int
 	}
@@ -110,8 +119,14 @@ func TestViewHostGroupByGroup(t *testing.T) {
 			args: args{
 				groupID: 1,
 			},
-			wantHostGroup: []datastructs.HostGroup{datastructs.HostGroup{ID: 1, Host: 1, Group: 1}},
-			wantErr:       false,
+			wantHostGroup: []datastructs.HostGroup{
+				datastructs.HostGroup{
+					ID:    1,
+					Host:  1,
+					Group: 1,
+				},
+			},
+			wantErr: false,
 		},
 		{
 			name: "Get none-existing host-groups",
@@ -138,15 +153,22 @@ func TestViewHostGroupByGroup(t *testing.T) {
 
 func TestListHostGroup(t *testing.T) {
 	db = dbMock{}
+
 	tests := []struct {
 		name           string
 		wantHostGroups []datastructs.HostGroup
 		wantErr        bool
 	}{
 		{
-			name:           "List host-group",
-			wantHostGroups: []datastructs.HostGroup{datastructs.HostGroup{ID: 1, Host: 1, Group: 1}},
-			wantErr:        false,
+			name: "List host-group",
+			wantHostGroups: []datastructs.HostGroup{
+				datastructs.HostGroup{
+					ID:    1,
+					Host:  1,
+					Group: 1,
+				},
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -165,6 +187,7 @@ func TestListHostGroup(t *testing.T) {
 
 func TestDeleteHostGroup(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		hostGroup datastructs.HostGroup
 	}

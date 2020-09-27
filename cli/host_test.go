@@ -9,6 +9,7 @@ import (
 
 func TestCreateHost(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		host datastructs.Host
 	}
@@ -20,21 +21,42 @@ func TestCreateHost(t *testing.T) {
 		{
 			name: "Insert host",
 			args: args{
-				host: datastructs.Host{ID: 2, Hostname: "host3", Host: "3.3.3.3", Variables: "{\"var3\": \"val3\"}", Enabled: true, Monitored: false},
+				host: datastructs.Host{
+					ID:        2,
+					Hostname:  "host3",
+					Host:      "3.3.3.3",
+					Variables: "{\"var3\": \"val3\"}",
+					Enabled:   true,
+					Monitored: false,
+				},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Insert Existing host without change",
 			args: args{
-				host: datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true},
+				host: datastructs.Host{
+					ID:        1,
+					Hostname:  "host1",
+					Host:      "1.1.1.1",
+					Variables: "{\"var1\": \"val1\"}",
+					Enabled:   true,
+					Monitored: true,
+				},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Change Existing host",
 			args: args{
-				host: datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: false},
+				host: datastructs.Host{
+					ID:        1,
+					Hostname:  "host1",
+					Host:      "1.1.1.1",
+					Variables: "{\"var1\": \"val1\"}",
+					Enabled:   true,
+					Monitored: false,
+				},
 			},
 			wantErr: false,
 		},
@@ -64,6 +86,7 @@ func TestCreateHost(t *testing.T) {
 
 func TestViewHostByHostname(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		hostname string
 	}
@@ -78,8 +101,17 @@ func TestViewHostByHostname(t *testing.T) {
 			args: args{
 				hostname: "host1",
 			},
-			wantHost: datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Domain: "local", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true, Groups: []string{"group1", "group2", "group3"}},
-			wantErr:  false,
+			wantHost: datastructs.Host{
+				ID:        1,
+				Hostname:  "host1",
+				Host:      "1.1.1.1",
+				Domain:    "local",
+				Variables: "{\"var1\": \"val1\"}",
+				Enabled:   true,
+				Monitored: true,
+				Groups:    []string{"group1", "group2", "group3"},
+			},
+			wantErr: false,
 		},
 		{
 			name: "None existing host",
@@ -114,6 +146,7 @@ func TestViewHostByHostname(t *testing.T) {
 
 func TestViewHostByIP(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		ip string
 	}
@@ -128,8 +161,17 @@ func TestViewHostByIP(t *testing.T) {
 			args: args{
 				ip: "1.1.1.1",
 			},
-			wantHost: datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Domain: "local", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true, Groups: []string{"group1", "group2", "group3"}},
-			wantErr:  false,
+			wantHost: datastructs.Host{
+				ID:        1,
+				Hostname:  "host1",
+				Host:      "1.1.1.1",
+				Domain:    "local",
+				Variables: "{\"var1\": \"val1\"}",
+				Enabled:   true,
+				Monitored: true,
+				Groups:    []string{"group1", "group2", "group3"},
+			},
+			wantErr: false,
 		},
 		{
 			name: "None existing host",
@@ -164,6 +206,7 @@ func TestViewHostByIP(t *testing.T) {
 
 func TestViewHostByID(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		id int
 	}
@@ -178,8 +221,17 @@ func TestViewHostByID(t *testing.T) {
 			args: args{
 				id: 1,
 			},
-			wantHost: datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Domain: "local", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true, Groups: []string{"group1", "group2", "group3"}},
-			wantErr:  false,
+			wantHost: datastructs.Host{
+				ID:        1,
+				Hostname:  "host1",
+				Host:      "1.1.1.1",
+				Domain:    "local",
+				Variables: "{\"var1\": \"val1\"}",
+				Enabled:   true,
+				Monitored: true,
+				Groups:    []string{"group1", "group2", "group3"},
+			},
+			wantErr: false,
 		},
 		{
 			name: "None existing host",
@@ -214,15 +266,37 @@ func TestViewHostByID(t *testing.T) {
 
 func TestListHosts(t *testing.T) {
 	db = dbMock{}
+
 	tests := []struct {
 		name      string
 		wantHosts []datastructs.Host
 		wantErr   bool
 	}{
 		{
-			name:      "List hosts",
-			wantHosts: []datastructs.Host{datastructs.Host{ID: 1, Hostname: "host1", Host: "1.1.1.1", Domain: "local", Variables: "{\"var1\": \"val1\"}", Enabled: true, Monitored: true, Groups: []string{"group1", "group2", "group3"}}, datastructs.Host{ID: 2, Hostname: "host2", Host: "2.2.2.2", Domain: "local", Variables: "{\"var2\": \"val2\"}", Enabled: true, Monitored: false, Groups: []string{}}},
-			wantErr:   false,
+			name: "List hosts",
+			wantHosts: []datastructs.Host{
+				datastructs.Host{
+					ID:        1,
+					Hostname:  "host1",
+					Host:      "1.1.1.1",
+					Domain:    "local",
+					Variables: "{\"var1\": \"val1\"}",
+					Enabled:   true,
+					Monitored: true,
+					Groups:    []string{"group1", "group2", "group3"},
+				},
+				datastructs.Host{
+					ID:        2,
+					Hostname:  "host2",
+					Host:      "2.2.2.2",
+					Domain:    "local",
+					Variables: "{\"var2\": \"val2\"}",
+					Enabled:   true,
+					Monitored: false,
+					Groups:    []string{},
+				},
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -241,6 +315,7 @@ func TestListHosts(t *testing.T) {
 
 func TestDeleteHost(t *testing.T) {
 	db = dbMock{}
+
 	type args struct {
 		host datastructs.Host
 	}

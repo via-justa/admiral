@@ -10,7 +10,6 @@ import (
 
 func init() {
 	rootCmd.AddCommand(genInventory)
-
 }
 
 var genInventory = &cobra.Command{

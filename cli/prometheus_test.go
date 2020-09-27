@@ -10,6 +10,7 @@ var promSD = `[{"targets":["host1.local"],"labels":{"groups":["group1","group2",
 
 func TestGenPrometheusSDFile(t *testing.T) {
 	db = dbMock{}
+
 	tests := []struct {
 		name           string
 		wantPromSDFile []byte
