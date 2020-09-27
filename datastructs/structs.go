@@ -57,5 +57,5 @@ type Prometheus struct {
 	Targets []string `json:"targets"`
 	Lables  struct {
 		Groups []string `json:"groups"`
-	} `json:"lables"`
+	} `json:"labels"`
 }

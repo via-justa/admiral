@@ -10,5 +10,4 @@ func main() {
 	cmd.AppVersion = appVersion
 
 	cmd.Execute()
-
 }

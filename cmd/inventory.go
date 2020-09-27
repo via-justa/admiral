@@ -10,7 +10,6 @@ import (
 
 func init() {
 	rootCmd.AddCommand(genInventory)
-
 }
 
 var genInventory = &cobra.Command{
@@ -20,9 +19,7 @@ var genInventory = &cobra.Command{
 }
 
 func genInventoryFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-
-	inv, err := client.GenInventory()
+	inv, err := cli.GenInventory()
 	if err != nil {
 		log.Fatal(err)
 	}

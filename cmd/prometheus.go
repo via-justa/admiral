@@ -10,7 +10,6 @@ import (
 
 func init() {
 	rootCmd.AddCommand(genPromSDFile)
-
 }
 
 var genPromSDFile = &cobra.Command{
@@ -20,9 +19,7 @@ var genPromSDFile = &cobra.Command{
 }
 
 func genPromSDFileFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-
-	prom, err := client.GenPrometheusSDFile()
+	prom, err := cli.GenPrometheusSDFile()
 	if err != nil {
 		log.Fatal(err)
 	}

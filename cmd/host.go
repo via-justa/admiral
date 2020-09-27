@@ -56,16 +56,18 @@ var createHost = &cobra.Command{
 }
 
 func createHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var host datastructs.Host
+
 	if jsonPath != "" {
 		hostF, err := ioutil.ReadFile(jsonPath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if len(hostF) <= 0 {
+
+		if len(hostF) == 0 {
 			log.Fatal("File is empty or could not be found")
 		}
+
 		err = json.Unmarshal(hostF, &host)
 		if err != nil {
 			log.Fatal(err)
@@ -81,14 +83,15 @@ func createHostFunc(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := client.CreateHost(host); err != nil {
+	if err := cli.CreateHost(host); err != nil {
 		log.Fatal(err)
 	}
 
-	createdHost, err := client.ViewHostByHostname(host.Hostname)
+	createdHost, err := cli.ViewHostByHostname(host.Hostname)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	printHosts([]datastructs.Host{createdHost})
 }
 
@@ -100,28 +103,30 @@ var viewHost = &cobra.Command{
 }
 
 func viewHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var host datastructs.Host
+
 	var err error
 
-	if len(name) > 0 {
-		host, err = client.ViewHostByHostname(name)
+	switch {
+	case len(name) > 0:
+		host, err = cli.ViewHostByHostname(name)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if len(ip) > 0 {
-		host, err = client.ViewHostByIP(ip)
+	case len(ip) > 0:
+		host, err = cli.ViewHostByIP(ip)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if id != 0 {
-		host, err = client.ViewHostByID(id)
+	case id != 0:
+		host, err = cli.ViewHostByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
+
 	printHosts([]datastructs.Host{host})
 }
 
@@ -133,29 +138,31 @@ var deleteHost = &cobra.Command{
 }
 
 func deleteHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var host datastructs.Host
+
 	var err error
 
-	if len(name) > 0 {
-		host, err = client.ViewHostByHostname(name)
+	switch {
+	case len(name) > 0:
+		host, err = cli.ViewHostByHostname(name)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if len(ip) > 0 {
-		host, err = client.ViewHostByIP(ip)
+	case len(ip) > 0:
+		host, err = cli.ViewHostByIP(ip)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if id != 0 {
-		host, err = client.ViewHostByID(id)
+	case id != 0:
+		host, err = cli.ViewHostByID(id)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
-	affected, err := client.DeleteHost(host)
+
+	affected, err := cli.DeleteHost(host)
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -170,9 +177,7 @@ var listHost = &cobra.Command{
 }
 
 func listHostFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-
-	hosts, err := client.ListHosts()
+	hosts, err := cli.ListHosts()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -194,9 +199,12 @@ func printHosts(hosts []datastructs.Host) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	tbl.Separator = " | "
+
 	for _, host := range hosts {
-		err = tbl.AddRow(host.ID, host.Host, host.Hostname, host.Domain, host.Enabled, host.Monitored, strings.Join(host.Groups, ","), host.Variables)
+		err = tbl.AddRow(host.ID, host.Host, host.Hostname, host.Domain, host.Enabled,
+			host.Monitored, strings.Join(host.Groups, ","), host.Variables)
 		if err != nil {
 			log.Fatal(err)
 		}

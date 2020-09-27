@@ -3,32 +3,26 @@ package cli
 import (
 	"encoding/json"
 
-	"github.com/via-justa/admiral/database"
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func (conf *Config) GenInventory() ([]byte, error) {
-	db, err := database.Connect(conf.Database)
+func GenInventory() ([]byte, error) {
+	hosts, err := db.getHosts()
 	if err != nil {
 		return nil, err
 	}
 
-	hosts, err := db.GetHosts()
+	groups, err := db.getGroups()
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := db.GetGroups()
+	childGroups, err := db.getChildGroups()
 	if err != nil {
 		return nil, err
 	}
 
-	childGroups, err := db.GetChildGroups()
-	if err != nil {
-		return nil, err
-	}
-
-	hostGroups, err := db.GetHostGroups()
+	hostGroups, err := db.getHostGroups()
 	if err != nil {
 		return nil, err
 	}
@@ -39,10 +33,12 @@ func (conf *Config) GenInventory() ([]byte, error) {
 	for _, host := range hosts {
 		if host.Enabled {
 			var hostVars datastructs.InventoryVars
+
 			err := json.Unmarshal([]byte(host.Variables), &hostVars)
 			if err != nil {
 				return nil, err
 			}
+
 			inventoryHosts[host.Hostname+"."+host.Domain] = hostVars
 		}
 	}
@@ -59,7 +55,6 @@ func (conf *Config) GenInventory() ([]byte, error) {
 			// Get group children
 			for _, childGroup := range childGroups {
 				if childGroup.Parent == parent.ID {
-
 					// Get child group name
 					for _, child := range groups {
 						if childGroup.Child == child.ID {
@@ -71,6 +66,7 @@ func (conf *Config) GenInventory() ([]byte, error) {
 
 			// get group vars
 			var GroupVars datastructs.InventoryVars
+
 			err := json.Unmarshal([]byte(parent.Variables), &GroupVars)
 			if err != nil {
 				return nil, err
@@ -98,7 +94,8 @@ func (conf *Config) GenInventory() ([]byte, error) {
 	inv := datastructs.Inventory{}
 	inv.Meta.HostVars = inventoryHosts
 
-	// As we cannot skip the top level key, we do some black marshel magic to combine the groups and hosts into the inventory
+	// As we cannot skip the top level key, we do some black marshel
+	// magic to combine the groups and hosts into the inventory
 	var m map[string]interface{}
 
 	hostsBytes, _ := json.Marshal(inv)

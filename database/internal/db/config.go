@@ -1,19 +1,17 @@
-package cli
+package db
 
 import (
 	"log"
 
 	"github.com/spf13/viper"
-	"github.com/via-justa/admiral/database"
 )
 
 // Config configuration for admiral client
 type Config struct {
-	Database database.DatabaseConfig
+	Database DatabaseConfig
 }
 
 func NewConfig() *Config {
-
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("/etc/admiral")

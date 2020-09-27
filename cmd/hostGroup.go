@@ -25,7 +25,6 @@ func init() {
 
 	hostGroup.PersistentFlags().StringVarP(&name, "hostname", "n", "", "base hostname")
 	hostGroup.PersistentFlags().StringVarP(&groupName, "group", "g", "", "main group the host will be in")
-
 }
 
 type HostGroupByName struct {
@@ -46,21 +45,22 @@ var createHostGroup = &cobra.Command{
 }
 
 func createHostGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var hostGroupByName HostGroupByName
+
 	if jsonPath != "" {
 		hostGroupByNameF, err := ioutil.ReadFile(jsonPath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if len(hostGroupByNameF) <= 0 {
+
+		if len(hostGroupByNameF) == 0 {
 			log.Fatal("File is empty or could not be found")
 		}
+
 		err = json.Unmarshal(hostGroupByNameF, &hostGroupByName)
 		if err != nil {
 			log.Fatal(err)
 		}
-
 	} else {
 		hostGroupByName = HostGroupByName{
 			Host:  name,
@@ -68,24 +68,25 @@ func createHostGroupFunc(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	host, err := client.ViewHostByHostname(hostGroupByName.Host)
+	host, err := cli.ViewHostByHostname(hostGroupByName.Host)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	group, err := client.ViewGroupByName(hostGroupByName.Group)
+	group, err := cli.ViewGroupByName(hostGroupByName.Group)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := client.CreateHostGroup(host, group); err != nil {
+	if err := cli.CreateHostGroup(host, group); err != nil {
 		log.Fatal(err)
 	}
 
-	createdHostGroup, err := client.ViewHostGroupByHost(host.ID)
+	createdHostGroup, err := cli.ViewHostGroupByHost(host.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	printHostGroups(createdHostGroup)
 }
 
@@ -97,32 +98,33 @@ var viewHostGroup = &cobra.Command{
 }
 
 func viewHostGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var hostGroup []datastructs.HostGroup
 
-	if len(name) > 0 {
-		host, err := client.ViewHostByHostname(name)
+	switch {
+	case len(name) > 0:
+		host, err := cli.ViewHostByHostname(name)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		hostGroup, err = client.ViewHostGroupByHost(host.ID)
+		hostGroup, err = cli.ViewHostGroupByHost(host.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if len(groupName) > 0 {
-		group, err := client.ViewGroupByName(groupName)
+	case len(groupName) > 0:
+		group, err := cli.ViewGroupByName(groupName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		hostGroup, err = client.ViewHostGroupByGroup(group.ID)
+		hostGroup, err = cli.ViewHostGroupByGroup(group.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	default:
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
+
 	printHostGroups(hostGroup)
 }
 
@@ -134,20 +136,20 @@ var deleteHostGroup = &cobra.Command{
 }
 
 func deleteHostGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
 	var hostGroup datastructs.HostGroup
+
 	var err error
 
 	if len(name) == 0 || len(groupName) == 0 {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	host, err := client.ViewHostByHostname(name)
+	host, err := cli.ViewHostByHostname(name)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	group, err := client.ViewGroupByName(groupName)
+	group, err := cli.ViewGroupByName(groupName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -157,7 +159,7 @@ func deleteHostGroupFunc(cmd *cobra.Command, args []string) {
 		Group: group.ID,
 	}
 
-	affected, err := client.DeleteHostGroup(hostGroup)
+	affected, err := cli.DeleteHostGroup(hostGroup)
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -172,9 +174,7 @@ var listHostGroup = &cobra.Command{
 }
 
 func listHostGroupFunc(cmd *cobra.Command, args []string) {
-	client := cli.NewConfig()
-
-	hostGroups, err := client.ListHostGroup()
+	hostGroups, err := cli.ListHostGroup()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +183,6 @@ func listHostGroupFunc(cmd *cobra.Command, args []string) {
 }
 
 func printHostGroups(hostGroups []datastructs.HostGroup) {
-	client := cli.NewConfig()
 	tbl, err := prettytable.NewTable([]prettytable.Column{
 		{Header: "ID"},
 		{Header: "Group", MinWidth: 12},
@@ -192,10 +191,12 @@ func printHostGroups(hostGroups []datastructs.HostGroup) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	tbl.Separator = " | "
+
 	for _, hostGroup := range hostGroups {
-		group, _ := client.ViewGroupByID(hostGroup.Group)
-		host, _ := client.ViewHostByID(hostGroup.Host)
+		group, _ := cli.ViewGroupByID(hostGroup.Group)
+		host, _ := cli.ViewHostByID(hostGroup.Host)
 
 		err = tbl.AddRow(hostGroup.ID, group.Name, host.Hostname)
 		if err != nil {

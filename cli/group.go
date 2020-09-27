@@ -3,61 +3,44 @@ package cli
 import (
 	"fmt"
 
-	"github.com/via-justa/admiral/database"
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func (conf *Config) CreateGroup(group datastructs.Group) error {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return err
-	}
-
-	i, err := db.InsertGroup(group)
+func CreateGroup(group datastructs.Group) error {
+	i, err := db.insertGroup(group)
 	if err != nil {
 		return err
 	} else if i == 0 {
-		return fmt.Errorf("No lines affected")
+		return fmt.Errorf("no lines affected")
 	}
 
 	return nil
 }
 
-func (conf *Config) ViewGroupByName(name string) (group datastructs.Group, err error) {
-	db, err := database.Connect(conf.Database)
+func ViewGroupByName(name string) (group datastructs.Group, err error) {
+	group, err = db.selectGroup(name, 0)
 	if err != nil {
 		return group, err
-	}
-
-	group, err = db.SelectGroup(name, 0)
-	if err != nil {
-		return group, err
+	} else if group == (datastructs.Group{}) {
+		return group, fmt.Errorf("requested group does not exists")
 	}
 
 	return group, nil
 }
 
-func (conf *Config) ViewGroupByID(id int) (group datastructs.Group, err error) {
-	db, err := database.Connect(conf.Database)
+func ViewGroupByID(id int) (group datastructs.Group, err error) {
+	group, err = db.selectGroup("", id)
 	if err != nil {
 		return group, err
-	}
-
-	group, err = db.SelectGroup("", id)
-	if err != nil {
-		return group, err
+	} else if group == (datastructs.Group{}) {
+		return group, fmt.Errorf("requested group does not exists")
 	}
 
 	return group, nil
 }
 
-func (conf *Config) ListGroups() (groups []datastructs.Group, err error) {
-	db, err := database.Connect(conf.Database)
-	if err != nil {
-		return groups, err
-	}
-
-	groups, err = db.GetGroups()
+func ListGroups() (groups []datastructs.Group, err error) {
+	groups, err = db.getGroups()
 	if err != nil {
 		return groups, err
 	}
@@ -65,15 +48,12 @@ func (conf *Config) ListGroups() (groups []datastructs.Group, err error) {
 	return groups, nil
 }
 
-func (conf *Config) DeleteGroup(group datastructs.Group) (affected int64, err error) {
-	db, err := database.Connect(conf.Database)
+func DeleteGroup(group datastructs.Group) (affected int64, err error) {
+	affected, err = db.deleteGroup(group)
 	if err != nil {
 		return affected, err
-	}
-
-	affected, err = db.DeleteGroup(group)
-	if err != nil {
-		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("no record matched")
 	}
 
 	return affected, nil
