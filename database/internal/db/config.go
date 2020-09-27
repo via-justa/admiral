@@ -11,6 +11,7 @@ type Config struct {
 	Database DatabaseConfig
 }
 
+// NewConfig initialize new configuration
 func NewConfig() *Config {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")

@@ -27,7 +27,7 @@ func init() {
 	hostGroup.PersistentFlags().StringVarP(&groupName, "group", "g", "", "main group the host will be in")
 }
 
-type HostGroupByName struct {
+type hostGroupByNameStruct struct {
 	Host  string
 	Group string
 }
@@ -45,7 +45,7 @@ var createHostGroup = &cobra.Command{
 }
 
 func createHostGroupFunc(cmd *cobra.Command, args []string) {
-	var hostGroupByName HostGroupByName
+	var hostGroupByName hostGroupByNameStruct
 
 	if jsonPath != "" {
 		hostGroupByNameF, err := ioutil.ReadFile(jsonPath)
@@ -62,7 +62,7 @@ func createHostGroupFunc(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	} else {
-		hostGroupByName = HostGroupByName{
+		hostGroupByName = hostGroupByNameStruct{
 			Host:  name,
 			Group: groupName,
 		}
@@ -78,7 +78,7 @@ func createHostGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err := cli.CreateHostGroup(host, group); err != nil {
+	if err = cli.CreateHostGroup(&host, group); err != nil {
 		log.Fatal(err)
 	}
 
@@ -204,5 +204,6 @@ func printHostGroups(hostGroups []datastructs.HostGroup) {
 		}
 	}
 
+	// nolint: errcheck,gosec
 	tbl.Print()
 }

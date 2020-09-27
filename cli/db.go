@@ -8,8 +8,8 @@ import (
 type dbInterface interface {
 	selectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error)
 	getHosts() (hosts []datastructs.Host, err error)
-	insertHost(host datastructs.Host) (affected int64, err error)
-	deleteHost(host datastructs.Host) (affected int64, err error)
+	insertHost(host *datastructs.Host) (affected int64, err error)
+	deleteHost(host *datastructs.Host) (affected int64, err error)
 	selectGroup(name string, id int) (returnedGroup datastructs.Group, err error)
 	getGroups() (groups []datastructs.Group, err error)
 	insertGroup(group datastructs.Group) (affected int64, err error)
@@ -40,11 +40,11 @@ func (d dbReal) getHosts() (hosts []datastructs.Host, err error) {
 	return database.GetHosts()
 }
 
-func (d dbReal) insertHost(host datastructs.Host) (affected int64, err error) {
+func (d dbReal) insertHost(host *datastructs.Host) (affected int64, err error) {
 	return database.InsertHost(host)
 }
 
-func (d dbReal) deleteHost(host datastructs.Host) (affected int64, err error) {
+func (d dbReal) deleteHost(host *datastructs.Host) (affected int64, err error) {
 	return database.DeleteHost(host)
 }
 

@@ -83,7 +83,7 @@ func createHostFunc(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := cli.CreateHost(host); err != nil {
+	if err := cli.CreateHost(&host); err != nil {
 		log.Fatal(err)
 	}
 
@@ -162,7 +162,7 @@ func deleteHostFunc(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	affected, err := cli.DeleteHost(host)
+	affected, err := cli.DeleteHost(&host)
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -210,5 +210,6 @@ func printHosts(hosts []datastructs.Host) {
 		}
 	}
 
+	// nolint: errcheck,gosec
 	tbl.Print()
 }

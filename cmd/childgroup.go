@@ -28,7 +28,7 @@ func init() {
 	childGroup.PersistentFlags().StringVarP(&childName, "child", "c", "", "child group name")
 }
 
-type ChildGroupByName struct {
+type childGroupByNameStruct struct {
 	Parent string
 	Child  string
 }
@@ -46,7 +46,7 @@ var createChildGroup = &cobra.Command{
 }
 
 func createChildGroupFunc(cmd *cobra.Command, args []string) {
-	var childGroupByName ChildGroupByName
+	var childGroupByName childGroupByNameStruct
 
 	if jsonPath != "" {
 		childGroupByNameF, err := ioutil.ReadFile(jsonPath)
@@ -63,7 +63,7 @@ func createChildGroupFunc(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	} else {
-		childGroupByName = ChildGroupByName{
+		childGroupByName = childGroupByNameStruct{
 			Parent: parentName,
 			Child:  childName,
 		}
@@ -79,7 +79,7 @@ func createChildGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err := cli.CreateChildGroup(parentGroup, childGroup); err != nil {
+	if err = cli.CreateChildGroup(parentGroup, childGroup); err != nil {
 		log.Fatal(err)
 	}
 
@@ -193,6 +193,7 @@ func printChildGroups(childGroups []datastructs.ChildGroup) {
 		log.Fatal(err)
 	}
 
+	// nolint: goconst
 	tbl.Separator = " | "
 
 	for _, childGroup := range childGroups {
@@ -205,5 +206,6 @@ func printChildGroups(childGroups []datastructs.ChildGroup) {
 		}
 	}
 
+	// nolint: errcheck,gosec
 	tbl.Print()
 }

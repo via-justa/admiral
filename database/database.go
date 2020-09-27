@@ -25,7 +25,7 @@ func GetHosts() (hosts []datastructs.Host, err error) {
 }
 
 // InsertHost accept Host to insert or update and return the number of affected rows and error if exists
-func InsertHost(host datastructs.Host) (affected int64, err error) {
+func InsertHost(host *datastructs.Host) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
@@ -33,7 +33,7 @@ func InsertHost(host datastructs.Host) (affected int64, err error) {
 }
 
 // DeleteHost accept Host to delete and return the number of affected rows and error if exists
-func DeleteHost(host datastructs.Host) (affected int64, err error) {
+func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 

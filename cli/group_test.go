@@ -13,6 +13,7 @@ func TestCreateGroup(t *testing.T) {
 	type args struct {
 		group datastructs.Group
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -62,6 +63,7 @@ func TestCreateGroup(t *testing.T) {
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := CreateGroup(tt.args.group); (err != nil) != tt.wantErr {
@@ -77,6 +79,7 @@ func TestViewGroupByName(t *testing.T) {
 	type args struct {
 		name string
 	}
+
 	tests := []struct {
 		name      string
 		args      args
@@ -114,6 +117,7 @@ func TestViewGroupByName(t *testing.T) {
 			wantErr:   true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotGroup, err := ViewGroupByName(tt.args.name)
@@ -134,6 +138,7 @@ func TestViewGroupByID(t *testing.T) {
 	type args struct {
 		id int
 	}
+
 	tests := []struct {
 		name      string
 		args      args
@@ -171,6 +176,7 @@ func TestViewGroupByID(t *testing.T) {
 			wantErr:   true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotGroup, err := ViewGroupByID(tt.args.id)
@@ -221,6 +227,7 @@ func TestListGroups(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotGroups, err := ListGroups()
@@ -241,6 +248,7 @@ func TestDeleteGroup(t *testing.T) {
 	type args struct {
 		group datastructs.Group
 	}
+
 	tests := []struct {
 		name         string
 		args         args
@@ -264,6 +272,7 @@ func TestDeleteGroup(t *testing.T) {
 			wantErr:      true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAffected, err := DeleteGroup(tt.args.group)

@@ -14,6 +14,7 @@ func TestCreateChildGroup(t *testing.T) {
 		parent datastructs.Group
 		child  datastructs.Group
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -75,6 +76,7 @@ func TestViewChildGroupsByParent(t *testing.T) {
 	type args struct {
 		parentID int
 	}
+
 	tests := []struct {
 		name            string
 		args            args
@@ -100,6 +102,7 @@ func TestViewChildGroupsByParent(t *testing.T) {
 			wantErr:         true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotChildGroups, err := ViewChildGroupsByParent(tt.args.parentID)
@@ -120,6 +123,7 @@ func TestViewChildGroupsByChild(t *testing.T) {
 	type args struct {
 		childID int
 	}
+
 	tests := []struct {
 		name            string
 		args            args
@@ -196,6 +200,7 @@ func TestDeleteChildGroup(t *testing.T) {
 	type args struct {
 		childGroup datastructs.ChildGroup
 	}
+
 	tests := []struct {
 		name         string
 		args         args
@@ -219,6 +224,7 @@ func TestDeleteChildGroup(t *testing.T) {
 			wantErr:      true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAffected, err := DeleteChildGroup(tt.args.childGroup)

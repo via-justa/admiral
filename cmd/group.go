@@ -186,5 +186,6 @@ func printGroups(groups []datastructs.Group) {
 		}
 	}
 
+	// nolint: errcheck,gosec
 	tbl.Print()
 }

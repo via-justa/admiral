@@ -6,6 +6,7 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+// GenPrometheusSDFile return the entire inventory in Prometheus static file acceptable json structure
 func GenPrometheusSDFile() (promSDFile []byte, err error) {
 	hostsWithGroups := []datastructs.Host{}
 
@@ -16,7 +17,11 @@ func GenPrometheusSDFile() (promSDFile []byte, err error) {
 
 	for _, host := range hosts {
 		if host.Monitored {
-			updated, err := getHostGroups(host)
+			var updated datastructs.Host
+
+			this := host
+
+			updated, err = getHostGroups(&this)
 			if err != nil {
 				return nil, err
 			}

@@ -6,7 +6,8 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func CreateHost(host datastructs.Host) error {
+// CreateHost accept host to create
+func CreateHost(host *datastructs.Host) error {
 	i, err := db.insertHost(host)
 	if err != nil {
 		return err
@@ -17,6 +18,7 @@ func CreateHost(host datastructs.Host) error {
 	return nil
 }
 
+// ViewHostByHostname accept hostname of host and return the host struct
 func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
 	selected, err := db.selectHost(hostname, "", 0)
 	if err != nil {
@@ -25,7 +27,7 @@ func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
 		return host, fmt.Errorf("requested host does not exists")
 	}
 
-	host, err = getHostGroups(selected)
+	host, err = getHostGroups(&selected)
 	if err != nil {
 		return host, err
 	}
@@ -33,6 +35,7 @@ func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
 	return host, nil
 }
 
+// ViewHostByIP accept IP of host and return the host struct
 func ViewHostByIP(ip string) (host datastructs.Host, err error) {
 	selected, err := db.selectHost("", ip, 0)
 	if err != nil {
@@ -41,7 +44,7 @@ func ViewHostByIP(ip string) (host datastructs.Host, err error) {
 		return host, fmt.Errorf("requested host does not exists")
 	}
 
-	host, err = getHostGroups(selected)
+	host, err = getHostGroups(&selected)
 	if err != nil {
 		return host, err
 	}
@@ -49,6 +52,7 @@ func ViewHostByIP(ip string) (host datastructs.Host, err error) {
 	return host, nil
 }
 
+// ViewHostByID accept ID of host and return the host struct
 func ViewHostByID(id int) (host datastructs.Host, err error) {
 	selected, err := db.selectHost("", "", id)
 	if err != nil {
@@ -57,7 +61,7 @@ func ViewHostByID(id int) (host datastructs.Host, err error) {
 		return host, fmt.Errorf("requested host does not exists")
 	}
 
-	host, err = getHostGroups(selected)
+	host, err = getHostGroups(&selected)
 	if err != nil {
 		return host, err
 	}
@@ -65,6 +69,7 @@ func ViewHostByID(id int) (host datastructs.Host, err error) {
 	return host, nil
 }
 
+// ListHosts return all existing hosts
 func ListHosts() (hosts []datastructs.Host, err error) {
 	selected, err := db.getHosts()
 	if err != nil {
@@ -72,18 +77,21 @@ func ListHosts() (hosts []datastructs.Host, err error) {
 	}
 
 	for _, host := range selected {
-		host, err = getHostGroups(host)
+		this := host
+
+		hostWithGroups, err := getHostGroups(&this)
 		if err != nil {
 			return hosts, err
 		}
 
-		hosts = append(hosts, host)
+		hosts = append(hosts, hostWithGroups)
 	}
 
 	return hosts, nil
 }
 
-func DeleteHost(host datastructs.Host) (affected int64, err error) {
+// DeleteHost accept host to remove
+func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	affected, err = db.deleteHost(host)
 	if err != nil {
 		return affected, err
@@ -94,7 +102,7 @@ func DeleteHost(host datastructs.Host) (affected int64, err error) {
 	return affected, nil
 }
 
-func getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
+func getHostGroups(host *datastructs.Host) (res datastructs.Host, err error) {
 	hostGroups, err := db.selectHostGroup(host.ID, 0)
 	if err != nil {
 		return res, err
@@ -127,5 +135,5 @@ func getHostGroups(host datastructs.Host) (res datastructs.Host, err error) {
 
 	host.Groups = groupsName
 
-	return host, nil
+	return *host, nil
 }

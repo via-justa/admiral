@@ -25,7 +25,7 @@ func markdownFunc(cmd *cobra.Command, args []string) {
 	path := "./docs"
 
 	// Make sure folder exist
-	if err := os.MkdirAll(path, 0774); err != nil {
+	if err := os.MkdirAll(path, 0750); err != nil {
 		log.Fatal(err)
 	}
 

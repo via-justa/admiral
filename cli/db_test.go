@@ -141,6 +141,7 @@ func (d dbMock) deleteGroup(group datastructs.Group) (affected int64, err error)
 func (d dbMock) selectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
 	switch {
 	// Existing record
+	// nolint: goconst
 	case hostname == "host1" || ip == "1.1.1.1" || id == 1:
 		return datastructs.Host{
 			ID:        1,
@@ -186,7 +187,8 @@ func (d dbMock) getHosts() (hosts []datastructs.Host, err error) {
 	}, nil
 }
 
-func (d dbMock) insertHost(host datastructs.Host) (affected int64, err error) {
+// nolint: gocognit
+func (d dbMock) insertHost(host *datastructs.Host) (affected int64, err error) {
 	switch {
 	// insert existing host without changes
 	case host.ID == 1 && host.Hostname == "host1" && host.Host == "1.1.1.1" &&
@@ -206,7 +208,7 @@ func (d dbMock) insertHost(host datastructs.Host) (affected int64, err error) {
 	}
 }
 
-func (d dbMock) deleteHost(host datastructs.Host) (affected int64, err error) {
+func (d dbMock) deleteHost(host *datastructs.Host) (affected int64, err error) {
 	switch {
 	case host.ID == 1 || host.ID == 2:
 		return 1, nil

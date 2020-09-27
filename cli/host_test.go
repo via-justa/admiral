@@ -11,8 +11,9 @@ func TestCreateHost(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		host datastructs.Host
+		host *datastructs.Host
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -21,7 +22,7 @@ func TestCreateHost(t *testing.T) {
 		{
 			name: "Insert host",
 			args: args{
-				host: datastructs.Host{
+				host: &datastructs.Host{
 					ID:        2,
 					Hostname:  "host3",
 					Host:      "3.3.3.3",
@@ -35,7 +36,7 @@ func TestCreateHost(t *testing.T) {
 		{
 			name: "Insert Existing host without change",
 			args: args{
-				host: datastructs.Host{
+				host: &datastructs.Host{
 					ID:        1,
 					Hostname:  "host1",
 					Host:      "1.1.1.1",
@@ -49,7 +50,7 @@ func TestCreateHost(t *testing.T) {
 		{
 			name: "Change Existing host",
 			args: args{
-				host: datastructs.Host{
+				host: &datastructs.Host{
 					ID:        1,
 					Hostname:  "host1",
 					Host:      "1.1.1.1",
@@ -63,18 +64,19 @@ func TestCreateHost(t *testing.T) {
 		{
 			name: "Missing host HostName",
 			args: args{
-				host: datastructs.Host{Hostname: ""},
+				host: &datastructs.Host{Hostname: ""},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Missing host Host",
 			args: args{
-				host: datastructs.Host{Host: ""},
+				host: &datastructs.Host{Host: ""},
 			},
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := CreateHost(tt.args.host); (err != nil) != tt.wantErr {
@@ -90,6 +92,7 @@ func TestViewHostByHostname(t *testing.T) {
 	type args struct {
 		hostname string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -130,6 +133,7 @@ func TestViewHostByHostname(t *testing.T) {
 			wantErr:  true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHost, err := ViewHostByHostname(tt.args.hostname)
@@ -150,6 +154,7 @@ func TestViewHostByIP(t *testing.T) {
 	type args struct {
 		ip string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -190,6 +195,7 @@ func TestViewHostByIP(t *testing.T) {
 			wantErr:  true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHost, err := ViewHostByIP(tt.args.ip)
@@ -210,6 +216,7 @@ func TestViewHostByID(t *testing.T) {
 	type args struct {
 		id int
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -250,6 +257,7 @@ func TestViewHostByID(t *testing.T) {
 			wantErr:  true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHost, err := ViewHostByID(tt.args.id)
@@ -299,6 +307,7 @@ func TestListHosts(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHosts, err := ListHosts()
@@ -319,6 +328,7 @@ func TestDeleteHost(t *testing.T) {
 	type args struct {
 		host datastructs.Host
 	}
+
 	tests := []struct {
 		name         string
 		args         args
@@ -342,9 +352,10 @@ func TestDeleteHost(t *testing.T) {
 			wantErr:      true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotAffected, err := DeleteHost(tt.args.host)
+			gotAffected, err := DeleteHost(&tt.args.host)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DeleteHost() error = %v, wantErr %v", err, tt.wantErr)
 				return

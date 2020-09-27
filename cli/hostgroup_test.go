@@ -11,9 +11,10 @@ func TestCreateHostGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		host  datastructs.Host
+		host  *datastructs.Host
 		group datastructs.Group
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -22,7 +23,7 @@ func TestCreateHostGroup(t *testing.T) {
 		{
 			name: "Insert New",
 			args: args{
-				host:  datastructs.Host{ID: 2},
+				host:  &datastructs.Host{ID: 2},
 				group: datastructs.Group{ID: 2},
 			},
 			wantErr: false,
@@ -30,7 +31,7 @@ func TestCreateHostGroup(t *testing.T) {
 		{
 			name: "Insert Duplicate",
 			args: args{
-				host:  datastructs.Host{ID: 1},
+				host:  &datastructs.Host{ID: 1},
 				group: datastructs.Group{ID: 1},
 			},
 			wantErr: true,
@@ -38,12 +39,13 @@ func TestCreateHostGroup(t *testing.T) {
 		{
 			name: "Insert none-existing",
 			args: args{
-				host:  datastructs.Host{ID: 3},
+				host:  &datastructs.Host{ID: 3},
 				group: datastructs.Group{ID: 3},
 			},
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := CreateHostGroup(tt.args.host, tt.args.group); (err != nil) != tt.wantErr {
@@ -59,6 +61,7 @@ func TestViewHostGroupByHost(t *testing.T) {
 	type args struct {
 		hostID int
 	}
+
 	tests := []struct {
 		name          string
 		args          args
@@ -88,6 +91,7 @@ func TestViewHostGroupByHost(t *testing.T) {
 			wantErr:       true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHostGroup, err := ViewHostGroupByHost(tt.args.hostID)
@@ -108,6 +112,7 @@ func TestViewHostGroupByGroup(t *testing.T) {
 	type args struct {
 		groupID int
 	}
+
 	tests := []struct {
 		name          string
 		args          args
@@ -137,6 +142,7 @@ func TestViewHostGroupByGroup(t *testing.T) {
 			wantErr:       true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHostGroup, err := ViewHostGroupByGroup(tt.args.groupID)
@@ -171,6 +177,7 @@ func TestListHostGroup(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotHostGroups, err := ListHostGroup()
@@ -191,6 +198,7 @@ func TestDeleteHostGroup(t *testing.T) {
 	type args struct {
 		hostGroup datastructs.HostGroup
 	}
+
 	tests := []struct {
 		name         string
 		args         args
@@ -214,6 +222,7 @@ func TestDeleteHostGroup(t *testing.T) {
 			wantErr:      true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAffected, err := DeleteHostGroup(tt.args.hostGroup)

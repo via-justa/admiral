@@ -6,6 +6,7 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+// CreateGroup accept group to create
 func CreateGroup(group datastructs.Group) error {
 	i, err := db.insertGroup(group)
 	if err != nil {
@@ -17,6 +18,7 @@ func CreateGroup(group datastructs.Group) error {
 	return nil
 }
 
+// ViewGroupByName accept group name and return the group struct
 func ViewGroupByName(name string) (group datastructs.Group, err error) {
 	group, err = db.selectGroup(name, 0)
 	if err != nil {
@@ -28,6 +30,7 @@ func ViewGroupByName(name string) (group datastructs.Group, err error) {
 	return group, nil
 }
 
+// ViewGroupByID accept group ID and return the group struct
 func ViewGroupByID(id int) (group datastructs.Group, err error) {
 	group, err = db.selectGroup("", id)
 	if err != nil {
@@ -39,6 +42,7 @@ func ViewGroupByID(id int) (group datastructs.Group, err error) {
 	return group, nil
 }
 
+// ListGroups return all existing groups
 func ListGroups() (groups []datastructs.Group, err error) {
 	groups, err = db.getGroups()
 	if err != nil {
@@ -48,6 +52,7 @@ func ListGroups() (groups []datastructs.Group, err error) {
 	return groups, nil
 }
 
+// DeleteGroup accept group to remove
 func DeleteGroup(group datastructs.Group) (affected int64, err error) {
 	affected, err = db.deleteGroup(group)
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 )
 
 var (
+	// AppVersion is set in build time to the latest application version
 	AppVersion string
-	DebugLevel bool
 
 	jsonPath  string
 	name      string
@@ -44,7 +44,6 @@ db = "ansible"`,
 
 // nolint:errcheck
 func init() {
-	rootCmd.PersistentFlags().BoolVar(&DebugLevel, "debug", false, "Sets log level to debug")
 	rootCmd.PersistentFlags().StringVar(&jsonPath, "file", "", "Path to JSON encoded file")
 }
 

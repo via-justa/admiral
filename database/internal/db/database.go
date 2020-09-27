@@ -1,10 +1,9 @@
+// nolint: rowserrcheck,lll,golint
 package db
 
 import (
 	"database/sql"
-	"encoding/base64"
 	"fmt"
-	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -12,7 +11,7 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
-//Database specific configurations from file
+//DatabaseConfig specific configurations from file
 type DatabaseConfig struct {
 	User     string
 	Password string
@@ -24,8 +23,6 @@ type DatabaseConfig struct {
 type Database struct {
 	Conn *sqlx.DB
 }
-
-var SQLFile string
 
 // Connect returns a Database connection
 func Connect(conf DatabaseConfig) (Database, error) {
@@ -53,46 +50,6 @@ func Connect(conf DatabaseConfig) (Database, error) {
 	}
 
 	return db, err
-}
-
-// Initialize bootstraps the storage DB
-func Initialize(conf DatabaseConfig) error {
-	var db Database
-
-	dbConfig := mysql.Config{
-		User:                 conf.User,
-		Passwd:               conf.Password,
-		Net:                  "tcp",
-		Addr:                 conf.Host,
-		AllowNativePasswords: true,
-	}
-
-	var err error
-
-	db.Conn, err = sqlx.Open("mysql", dbConfig.FormatDSN())
-	if err != nil {
-		return err
-	}
-
-	err = db.Conn.Ping()
-	if err != nil {
-		return err
-	}
-
-	sqlfile, err := base64.StdEncoding.DecodeString(SQLFile)
-	if err != nil {
-		return err
-	}
-
-	queries := strings.Split(string(sqlfile), "$$\n")
-	for _, query := range queries[1:] {
-		_, err = db.Conn.Exec(query)
-		if err != nil {
-			return err
-		}
-	}
-
-	return err
 }
 
 // Hosts
@@ -155,7 +112,7 @@ func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
 }
 
 // InsertHost accept Host to insert or update and return the number of affected rows and error if exists
-func (db *Database) InsertHost(host datastructs.Host) (affected int64, err error) {
+func (db *Database) InsertHost(host *datastructs.Host) (affected int64, err error) {
 	sql := `INSERT INTO host (host, hostname, domain, variables, enabled, monitored) VALUES (?,?,?,?,?,?) 
 	ON DUPLICATE KEY UPDATE variables=?, enabled=?, monitored=?`
 
@@ -170,7 +127,7 @@ func (db *Database) InsertHost(host datastructs.Host) (affected int64, err error
 }
 
 // DeleteHost accept Host to delete and return the number of affected rows and error if exists
-func (db *Database) DeleteHost(host datastructs.Host) (affected int64, err error) {
+func (db *Database) DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	res, err := db.Conn.Exec("DELETE FROM host WHERE id=?", host.ID)
 	if err != nil {
 		return 0, err

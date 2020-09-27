@@ -6,6 +6,7 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+// CreateChildGroup accept parent and child groups to create new child-group relationship
 func CreateChildGroup(parent datastructs.Group, child datastructs.Group) error {
 	if child.ID == parent.ID {
 		return fmt.Errorf("child and parent cannot be the same group")
@@ -34,6 +35,7 @@ func CreateChildGroup(parent datastructs.Group, child datastructs.Group) error {
 	return nil
 }
 
+// ViewChildGroupsByParent accept parent group ID and return all child-group relationship for that group
 func ViewChildGroupsByParent(parentID int) (childGroups []datastructs.ChildGroup, err error) {
 	childGroups, err = db.selectChildGroup(0, parentID)
 	if err != nil {
@@ -45,6 +47,7 @@ func ViewChildGroupsByParent(parentID int) (childGroups []datastructs.ChildGroup
 	return childGroups, nil
 }
 
+// ViewChildGroupsByChild accept child group ID and return all child-group relationship for that group
 func ViewChildGroupsByChild(childID int) (childGroups []datastructs.ChildGroup, err error) {
 	childGroups, err = db.selectChildGroup(childID, 0)
 	if err != nil {
@@ -56,6 +59,7 @@ func ViewChildGroupsByChild(childID int) (childGroups []datastructs.ChildGroup, 
 	return childGroups, nil
 }
 
+// ListChildGroups return all child-group relationships
 func ListChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	childGroups, err = db.getChildGroups()
 	if err != nil {
@@ -67,6 +71,7 @@ func ListChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	return childGroups, nil
 }
 
+// DeleteChildGroup accept child-group relationship to remove
 func DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
 	affected, err = db.deleteChildGroup(childGroup)
 	if err != nil {

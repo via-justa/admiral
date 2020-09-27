@@ -6,7 +6,8 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func CreateHostGroup(host datastructs.Host, group datastructs.Group) error {
+// CreateHostGroup accept host and group and create new relationship
+func CreateHostGroup(host *datastructs.Host, group datastructs.Group) error {
 	hostGroup := datastructs.HostGroup{
 		Host:  host.ID,
 		Group: group.ID,
@@ -22,6 +23,7 @@ func CreateHostGroup(host datastructs.Host, group datastructs.Group) error {
 	return nil
 }
 
+// ViewHostGroupByHost accept host ID and return all host-group relationships for the host
 func ViewHostGroupByHost(hostID int) (hostGroup []datastructs.HostGroup, err error) {
 	hostGroup, err = db.selectHostGroup(hostID, 0)
 	if err != nil {
@@ -33,6 +35,7 @@ func ViewHostGroupByHost(hostID int) (hostGroup []datastructs.HostGroup, err err
 	return hostGroup, nil
 }
 
+// ViewHostGroupByGroup accept group ID and return all host-group relationships for the group
 func ViewHostGroupByGroup(groupID int) (hostGroup []datastructs.HostGroup, err error) {
 	hostGroup, err = db.selectHostGroup(0, groupID)
 	if err != nil {
@@ -44,6 +47,7 @@ func ViewHostGroupByGroup(groupID int) (hostGroup []datastructs.HostGroup, err e
 	return hostGroup, nil
 }
 
+// ListHostGroup list all existing host-group relationships
 func ListHostGroup() (hostGroups []datastructs.HostGroup, err error) {
 	hostGroups, err = db.getHostGroups()
 	if err != nil {
@@ -53,6 +57,7 @@ func ListHostGroup() (hostGroups []datastructs.HostGroup, err error) {
 	return hostGroups, nil
 }
 
+// DeleteHostGroup accept hostGroup to remove
 func DeleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
 	affected, err = db.deleteHostGroup(hostGroup)
 	if err != nil {

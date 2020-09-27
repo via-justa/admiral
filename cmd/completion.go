@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -25,6 +26,8 @@ To configure your bash shell to load completions for each session add to your ba
 }
 
 func completionCmdFunc(cmd *cobra.Command, args []string) {
-	//nolint:errcheck
-	rootCmd.GenBashCompletion(os.Stdout)
+	err := rootCmd.GenBashCompletion(os.Stdout)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
