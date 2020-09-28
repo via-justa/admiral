@@ -23,7 +23,7 @@ func ViewGroupByName(name string) (group datastructs.Group, err error) {
 	group, err = db.selectGroup(name, 0)
 	if err != nil {
 		return group, err
-	} else if group == (datastructs.Group{}) {
+	} else if group.ID == 0 {
 		return group, fmt.Errorf("requested group does not exists")
 	}
 
@@ -35,7 +35,7 @@ func ViewGroupByID(id int) (group datastructs.Group, err error) {
 	group, err = db.selectGroup("", id)
 	if err != nil {
 		return group, err
-	} else if group == (datastructs.Group{}) {
+	} else if group.ID == 0 {
 		return group, fmt.Errorf("requested group does not exists")
 	}
 

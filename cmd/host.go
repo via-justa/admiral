@@ -37,6 +37,7 @@ func init() {
 	viewHost.Flags().StringVar(&ip, "ip", "", "host ip")
 	viewHost.Flags().IntVar(&id, "id", 0, "host id")
 	viewHost.Flags().StringVarP(&name, "hostname", "n", "", "base hostname")
+	viewHost.Flags().BoolVar(&toJSON, "json", false, "print as json")
 
 	deleteHost.Flags().StringVar(&ip, "ip", "", "host ip")
 	deleteHost.Flags().IntVar(&id, "id", 0, "host id")
@@ -69,6 +70,11 @@ func createHostFunc(cmd *cobra.Command, args []string) {
 		}
 
 		err = json.Unmarshal(hostF, &host)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = host.MarshalVars()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -127,7 +133,21 @@ func viewHostFunc(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	printHosts([]datastructs.Host{host})
+	if toJSON {
+		err = host.UnmarshalVars()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		hostB, err := json.MarshalIndent(host, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("%s\n", hostB)
+	} else {
+		printHosts([]datastructs.Host{host})
+	}
 }
 
 var deleteHost = &cobra.Command{

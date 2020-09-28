@@ -16,6 +16,7 @@ var (
 	monitor   bool
 	variables string
 	id        int
+	toJSON    bool
 )
 
 var (

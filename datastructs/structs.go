@@ -1,24 +1,86 @@
 package datastructs
 
+import (
+	"encoding/json"
+)
+
 // Host represents inventory host
 type Host struct {
-	ID        int      `json:"id" db:"id"`
-	Host      string   `json:"ip" db:"host"`
-	Hostname  string   `json:"hostname" db:"hostname"`
-	Domain    string   `json:"domain" db:"domain"`
-	Variables string   `json:"variables" db:"variables"`
-	Enabled   bool     `json:"enable" db:"enabled"`
-	Monitored bool     `json:"monitor" db:"monitored"`
-	Groups    []string `json:"groups" db:"groups"`
+	ID              int           `json:"id" db:"id"`
+	Host            string        `json:"ip" db:"host"`
+	Hostname        string        `json:"hostname" db:"hostname"`
+	Domain          string        `json:"domain" db:"domain"`
+	Variables       string        `json:"-" db:"variables"`
+	PrettyVariables InventoryVars `json:"variables"`
+	Enabled         bool          `json:"enable" db:"enabled"`
+	Monitored       bool          `json:"monitor" db:"monitored"`
+	Groups          []string      `json:"groups" db:"groups"`
+}
+
+// UnmarshalVars convert string json `Host.Variables` to json value of
+// `Host.PrettyVariables`
+func (h *Host) UnmarshalVars() error {
+	var vars InventoryVars
+
+	err := json.Unmarshal([]byte(h.Variables), &vars)
+	if err != nil {
+		return err
+	}
+
+	h.PrettyVariables = vars
+
+	return nil
+}
+
+// MarshalVars convert json value of `Host.PrettyVariables` to string in
+// `Host.Variables`
+func (h *Host) MarshalVars() error {
+	varsB, err := json.Marshal(h.PrettyVariables)
+	if err != nil {
+		return err
+	}
+
+	h.Variables = string(varsB)
+
+	return nil
 }
 
 // Group represent inventory group
 type Group struct {
-	ID        int    `json:"id" db:"id"`
-	Name      string `json:"name" db:"name"`
-	Variables string `json:"variables" db:"variables"`
-	Enabled   bool   `json:"enable" db:"enabled"`
-	Monitored bool   `json:"monitor" db:"monitored"`
+	ID              int           `json:"id" db:"id"`
+	Name            string        `json:"name" db:"name"`
+	Variables       string        `json:"-" db:"variables"`
+	PrettyVariables InventoryVars `json:"variables"`
+	Enabled         bool          `json:"enable" db:"enabled"`
+	Monitored       bool          `json:"monitor" db:"monitored"`
+}
+
+// UnmarshalVars convert string json `Group.Variables` to json value of
+// `Group.PrettyVariables`
+func (g *Group) UnmarshalVars() error {
+	var vars InventoryVars
+
+	err := json.Unmarshal([]byte(g.Variables), &vars)
+	if err != nil {
+		return err
+	}
+
+	g.PrettyVariables = vars
+
+	return nil
+}
+
+// MarshalVars convert json value of `Group.PrettyVariables` to string in
+// `Group.Variables`
+func (g *Group) MarshalVars() error {
+	varsB, err := json.Marshal(g.PrettyVariables)
+	if err != nil {
+		return err
+	}
+
+	g.Variables = string(varsB)
+
+	return nil
 }
 
 // ChildGroup represent child-group relationship

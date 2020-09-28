@@ -26,6 +26,7 @@ func init() {
 
 	viewGroup.Flags().IntVar(&id, "id", 0, "group id")
 	viewGroup.Flags().StringVarP(&name, "name", "n", "", "group name")
+	viewGroup.Flags().BoolVar(&toJSON, "json", false, "print as json")
 
 	deleteGroup.Flags().IntVar(&id, "id", 0, "group id")
 	deleteGroup.Flags().StringVarP(&name, "name", "n", "", "group name")
@@ -57,6 +58,11 @@ func createGroupFunc(cmd *cobra.Command, args []string) {
 		}
 
 		err = json.Unmarshal(groupF, &group)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = group.MarshalVars()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -112,7 +118,21 @@ func viewGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	printGroups([]datastructs.Group{group})
+	if toJSON {
+		err = group.UnmarshalVars()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		groupB, err := json.MarshalIndent(group, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("%s\n", groupB)
+	} else {
+		printGroups([]datastructs.Group{group})
+	}
 }
 
 var deleteGroup = &cobra.Command{
