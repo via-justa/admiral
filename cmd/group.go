@@ -16,6 +16,7 @@ func init() {
 	rootCmd.AddCommand(group)
 	group.AddCommand(createGroup)
 	group.AddCommand(viewGroup)
+	group.AddCommand(editGroup)
 	group.AddCommand(deleteGroup)
 	group.AddCommand(listGroup)
 
@@ -27,6 +28,9 @@ func init() {
 	viewGroup.Flags().IntVar(&id, "id", 0, "group id")
 	viewGroup.Flags().StringVarP(&name, "name", "n", "", "group name")
 	viewGroup.Flags().BoolVar(&toJSON, "json", false, "print as json")
+
+	editGroup.Flags().IntVar(&id, "id", 0, "group id")
+	editGroup.Flags().StringVarP(&name, "name", "n", "", "group name")
 
 	deleteGroup.Flags().IntVar(&id, "id", 0, "group id")
 	deleteGroup.Flags().StringVarP(&name, "name", "n", "", "group name")
@@ -132,6 +136,39 @@ func viewGroupFunc(cmd *cobra.Command, args []string) {
 		fmt.Printf("%s\n", groupB)
 	} else {
 		printGroups([]datastructs.Group{group})
+	}
+}
+
+var editGroup = &cobra.Command{
+	Use:   "edit",
+	Short: "interactively edit group",
+	Long:  "interactively edit group by name (-n,--name) or group id (--id)",
+	Run:   editGroupFunc,
+}
+
+func editGroupFunc(cmd *cobra.Command, args []string) {
+	var group datastructs.Group
+
+	var err error
+
+	switch {
+	case len(name) > 0:
+		group, err = cli.ViewGroupByName(name)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case id != 0:
+		group, err = cli.ViewGroupByID(id)
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("Missing selector flag use --help to get available options")
+	}
+
+	err = cli.EditGroup(group)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 

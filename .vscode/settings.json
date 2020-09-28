@@ -1,3 +1,18 @@
 {
-    "go.lintTool": "golangci-lint"
+    "go.lintTool": "golangci-lint",
+    "cSpell.words": [
+        "coverallsapp",
+        "covermode",
+        "coverprofile",
+        "datastructs",
+        "golangci",
+        "gosec",
+        "infile",
+        "jandelgado",
+        "justa",
+        "lcov",
+        "nolint",
+        "outfile",
+        "tatsushid"
+    ]
 }
