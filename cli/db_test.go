@@ -39,6 +39,7 @@ type dbMock struct{}
 func (d dbMock) selectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
 	switch {
 	// Existing record group1
+	// nolint: go-lint
 	case name == "group1" || id == 1:
 		return datastructs.Group{
 			ID:        1,
@@ -103,20 +104,13 @@ func (d dbMock) getGroups() (groups []datastructs.Group, err error) {
 func (d dbMock) insertGroup(group datastructs.Group) (affected int64, err error) {
 	switch {
 	// insert existing group without changes
-	case group == datastructs.Group{
-		Name:      "group1",
-		Variables: "{\"var1\": \"val1\"}",
-		Enabled:   true,
-		Monitored: true,
-	}:
+	// nolint: go-lint
+	case group.Name == "group1" && group.Variables == "{\"var1\": \"val1\"}" &&
+		group.Enabled == true && group.Monitored == true:
 		return 0, nil
 	// Update existing group
-	case group == datastructs.Group{
-		Name:      "group1",
-		Variables: "{\"var1\": \"val1\", \"var2\": \"val2\"}",
-		Enabled:   true,
-		Monitored: true,
-	}:
+	case group.Name == "group1" && group.Variables == "{\"var1\": \"val1\", \"var2\": \"val2\"}" &&
+		group.Enabled == true && group.Monitored == true:
 		return 1, nil
 	// Insert new group
 	case group.Name != "" && group.Name != "group1" && group.Name != "group2" && group.Name != "group3":
