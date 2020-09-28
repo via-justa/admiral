@@ -23,6 +23,7 @@ func init() {
 	rootCmd.AddCommand(host)
 	host.AddCommand(createHost)
 	host.AddCommand(viewHost)
+	host.AddCommand(editHost)
 	host.AddCommand(deleteHost)
 	host.AddCommand(listHost)
 
@@ -38,6 +39,10 @@ func init() {
 	viewHost.Flags().IntVar(&id, "id", 0, "host id")
 	viewHost.Flags().StringVarP(&name, "hostname", "n", "", "base hostname")
 	viewHost.Flags().BoolVar(&toJSON, "json", false, "print as json")
+
+	editHost.Flags().StringVar(&ip, "ip", "", "host ip")
+	editHost.Flags().IntVar(&id, "id", 0, "host id")
+	editHost.Flags().StringVarP(&name, "hostname", "n", "", "base hostname")
 
 	deleteHost.Flags().StringVar(&ip, "ip", "", "host ip")
 	deleteHost.Flags().IntVar(&id, "id", 0, "host id")
@@ -147,6 +152,44 @@ func viewHostFunc(cmd *cobra.Command, args []string) {
 		fmt.Printf("%s\n", hostB)
 	} else {
 		printHosts([]datastructs.Host{host})
+	}
+}
+
+var editHost = &cobra.Command{
+	Use:   "edit",
+	Short: "interactively edit host",
+	Long:  "interactively edit host by hostname (-n,--hostname) ip (--ip) or host id (--id)",
+	Run:   editHostFunc,
+}
+
+func editHostFunc(cmd *cobra.Command, args []string) {
+	var host datastructs.Host
+
+	var err error
+
+	switch {
+	case len(name) > 0:
+		host, err = cli.ViewHostByHostname(name)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case len(ip) > 0:
+		host, err = cli.ViewHostByIP(ip)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case id != 0:
+		host, err = cli.ViewHostByID(id)
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("Missing selector flag use --help to get available options")
+	}
+
+	err = cli.EditHost(&host)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
