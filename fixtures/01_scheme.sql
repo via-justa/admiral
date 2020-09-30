@@ -50,47 +50,51 @@ CREATE TABLE `hostgroups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `inventory` AS
-select
+ALGORITHM = UNDEFINED VIEW `hostgroup_view` AS
+SELECT
+    `hostgroups`.`id` AS `relationship_id`,
+    `host`.`hostname` AS `host`,
+    `hostgroups`.`host_id` AS `host_id`,
     `group`.`name` AS `group`,
-    `host`.`hostname` AS `hostname`,
-    ifnull(concat(`host`.`hostname`, '.', `host`.`domain`), `host`.`host`) AS `host`,
-    `host`.`variables` AS `host_vars`
-from
-    (`group`
-left join (`host`
-left join `hostgroups` on
-    ((`host`.`id` = `hostgroups`.`host_id`))) on
-    ((`hostgroups`.`group_id` = `group`.`id`)))
-where
-    ((`host`.`enabled` = 1)
-    and (`group`.`enabled` = 1))
-order by
-    `host`.`hostname`;
+    `hostgroups`.`group_id` AS `group_id`
+FROM `hostgroups`
+LEFT JOIN `group`
+    ON `hostgroups`.`group_id` = `group`.`id`
+LEFT JOIN `host`
+    ON `hostgroups`.`host_id` = `host`.`id`
+WHERE `host`.`enabled` = 1
+GROUP BY `host`.`hostname`
+ORDER BY `group`.`name`;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `children` AS
-select
+ALGORITHM = UNDEFINED VIEW `childgroups_view` AS
+SELECT
     `childgroups`.`id` AS `relationship_id`,
     `gparent`.`name` AS `parent`,
     `gparent`.`id` AS `parent_id`,
     `gchild`.`name` AS `child`,
     `gchild`.`id` AS `child_id`
-from
-    (((`childgroups`
-left join `group` `gparent` on
-    ((`childgroups`.`parent_id` = `gparent`.`id`)))
-left join `group` `gchild` on
-    ((`childgroups`.`child_id` = `gchild`.`id`)))
-left join `inventory` on
-    ((`gchild`.`name` = `inventory`.`group`)))
-where
-    ((`gparent`.`enabled` = 1)
-    and (`gchild`.`enabled` = 1)
-    and (`inventory`.`hostname` is not null))
-group by
+FROM `childgroups`
+LEFT JOIN `group` `gparent`
+	ON `childgroups`.`parent_id` = `gparent`.`id`
+LEFT JOIN `group` `gchild`
+	ON `childgroups`.`child_id` = `gchild`.`id`
+WHERE `gparent`.`enabled` = 1
+    AND `gchild`.`enabled` = 1
+GROUP BY
     `gparent`.`name`,
     `gchild`.`name`
-order by
-    `gparent`.`name`;
+ORDER BY `gparent`.`name`;
 
+CREATE OR REPLACE
+ALGORITHM = UNDEFINED VIEW `inventory` AS
+SELECT 
+    ifnull(concat(`host`.`hostname`, '.', `host`.`domain`), `host`.`host`) AS `host`,
+    `host`.`variables` AS `host_vars`,
+    GROUP_CONCAT(DISTINCT hostgroup_view.`group` SEPARATOR ', ') AS direct_group
+FROM `host` 
+LEFT JOIN `hostgroup_view` 
+    ON	host.id = hostgroup_view.host_id
+WHERE `host`.`enabled` = 1
+GROUP BY host.`hostname`
+ORDER BY `host`.`hostname`;

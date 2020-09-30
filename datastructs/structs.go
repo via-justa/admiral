@@ -106,6 +106,15 @@ type HostGroup struct {
 	Group int `json:"group_id" db:"group_id"`
 }
 
+// HostGroupView represents host-group view data
+type HostGroupView struct {
+	ID      int    `json:"id" db:"relationship_id"`
+	Host    string `json:"host" db:"host"`
+	HostID  int    `json:"host_id" db:"host_id"`
+	Group   string `json:"group" db:"group"`
+	GroupID int    `json:"group_id" db:"group_id"`
+}
+
 // Inventory struct
 
 // InventoryVars is map used to cast inventory json vars to Ansible inventory host / group vars

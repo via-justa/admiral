@@ -82,7 +82,7 @@ func createHostGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	createdHostGroup, err := cli.ViewHostGroupByHost(host.ID)
+	createdHostGroup, err := cli.ViewHostGroupByHost(host.Hostname)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,26 +98,18 @@ var viewHostGroup = &cobra.Command{
 }
 
 func viewHostGroupFunc(cmd *cobra.Command, args []string) {
-	var hostGroup []datastructs.HostGroup
+	var hostGroup []datastructs.HostGroupView
+
+	var err error
 
 	switch {
 	case len(name) > 0:
-		host, err := cli.ViewHostByHostname(name)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		hostGroup, err = cli.ViewHostGroupByHost(host.ID)
+		hostGroup, err = cli.ViewHostGroupByHost(name)
 		if err != nil {
 			log.Fatal(err)
 		}
 	case len(groupName) > 0:
-		group, err := cli.ViewGroupByName(groupName)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		hostGroup, err = cli.ViewHostGroupByGroup(group.ID)
+		hostGroup, err = cli.ViewHostGroupByGroup(groupName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -182,11 +174,13 @@ func listHostGroupFunc(cmd *cobra.Command, args []string) {
 	printHostGroups(hostGroups)
 }
 
-func printHostGroups(hostGroups []datastructs.HostGroup) {
+func printHostGroups(hostGroups []datastructs.HostGroupView) {
 	tbl, err := prettytable.NewTable([]prettytable.Column{
 		{Header: "ID"},
 		{Header: "Group", MinWidth: 12},
+		{Header: "Group ID", MinWidth: 12},
 		{Header: "Hostname", MinWidth: 12},
+		{Header: "Host ID", MinWidth: 12},
 	}...)
 	if err != nil {
 		log.Fatal(err)
@@ -195,10 +189,7 @@ func printHostGroups(hostGroups []datastructs.HostGroup) {
 	tbl.Separator = " | "
 
 	for _, hostGroup := range hostGroups {
-		group, _ := cli.ViewGroupByID(hostGroup.Group)
-		host, _ := cli.ViewHostByID(hostGroup.Host)
-
-		err = tbl.AddRow(hostGroup.ID, group.Name, host.Hostname)
+		err = tbl.AddRow(hostGroup.ID, hostGroup.Group, hostGroup.GroupID, hostGroup.Host, hostGroup.HostID)
 		if err != nil {
 			log.Fatal(err)
 		}

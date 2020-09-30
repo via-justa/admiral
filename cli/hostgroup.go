@@ -24,8 +24,8 @@ func CreateHostGroup(host *datastructs.Host, group datastructs.Group) error {
 }
 
 // ViewHostGroupByHost accept host ID and return all host-group relationships for the host
-func ViewHostGroupByHost(hostID int) (hostGroup []datastructs.HostGroup, err error) {
-	hostGroup, err = db.selectHostGroup(hostID, 0)
+func ViewHostGroupByHost(host string) (hostGroup []datastructs.HostGroupView, err error) {
+	hostGroup, err = db.selectHostGroup(host, "")
 	if err != nil {
 		return hostGroup, err
 	} else if hostGroup == nil {
@@ -36,8 +36,8 @@ func ViewHostGroupByHost(hostID int) (hostGroup []datastructs.HostGroup, err err
 }
 
 // ViewHostGroupByGroup accept group ID and return all host-group relationships for the group
-func ViewHostGroupByGroup(groupID int) (hostGroup []datastructs.HostGroup, err error) {
-	hostGroup, err = db.selectHostGroup(0, groupID)
+func ViewHostGroupByGroup(group string) (hostGroup []datastructs.HostGroupView, err error) {
+	hostGroup, err = db.selectHostGroup("", group)
 	if err != nil {
 		return hostGroup, err
 	} else if hostGroup == nil {
@@ -48,7 +48,7 @@ func ViewHostGroupByGroup(groupID int) (hostGroup []datastructs.HostGroup, err e
 }
 
 // ListHostGroup list all existing host-group relationships
-func ListHostGroup() (hostGroups []datastructs.HostGroup, err error) {
+func ListHostGroup() (hostGroups []datastructs.HostGroupView, err error) {
 	hostGroups, err = db.getHostGroups()
 	if err != nil {
 		return hostGroups, err

@@ -143,7 +143,7 @@ func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 }
 
 func getHostGroups(host *datastructs.Host) (res datastructs.Host, err error) {
-	hostGroups, err := db.selectHostGroup(host.ID, 0)
+	hostGroups, err := db.selectHostGroup(host.Hostname, "")
 	if err != nil {
 		return res, err
 	}
@@ -153,7 +153,7 @@ func getHostGroups(host *datastructs.Host) (res datastructs.Host, err error) {
 	// loop over direct host groups to get parents
 	for _, hostGroup := range hostGroups {
 		// add group to list
-		group, err := db.selectGroup("", hostGroup.Group)
+		group, err := db.selectGroup("", hostGroup.GroupID)
 		if err != nil {
 			return res, err
 		}

@@ -10,7 +10,7 @@ type inventoryData struct {
 	hosts       []datastructs.Host
 	groups      []datastructs.Group
 	childGroups []datastructs.ChildGroupView
-	hostGroups  []datastructs.HostGroup
+	hostGroups  []datastructs.HostGroupView
 }
 
 func getInventoryData() (inv inventoryData, err error) {
@@ -50,9 +50,9 @@ func (inv *inventoryData) getChildren(parent datastructs.Group) (children []stri
 
 func (inv *inventoryData) getGroupHosts(parent datastructs.Group) (groupHosts []string) {
 	for _, hostGroup := range inv.hostGroups {
-		if hostGroup.Group == parent.ID {
+		if hostGroup.GroupID == parent.ID {
 			for _, host := range inv.hosts {
-				if hostGroup.Host == host.ID {
+				if hostGroup.HostID == host.ID {
 					groupHosts = append(groupHosts, host.Hostname+"."+host.Domain)
 				}
 			}

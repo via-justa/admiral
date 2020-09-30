@@ -22,8 +22,8 @@ type dbInterface interface {
 	insertChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error)
 	deleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error)
 	// HOstGroups
-	selectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error)
-	getHostGroups() (hostGroups []datastructs.HostGroup, err error)
+	selectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error)
+	getHostGroups() (hostGroups []datastructs.HostGroupView, err error)
 	insertHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error)
 	deleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error)
 }
@@ -84,11 +84,11 @@ func (d dbReal) deleteChildGroup(childGroup datastructs.ChildGroup) (affected in
 	return database.DeleteChildGroup(childGroup)
 }
 
-func (d dbReal) selectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error) {
+func (d dbReal) selectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error) {
 	return database.SelectHostGroup(host, group)
 }
 
-func (d dbReal) getHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+func (d dbReal) getHostGroups() (hostGroups []datastructs.HostGroupView, err error) {
 	return database.GetHostGroups()
 }
 
