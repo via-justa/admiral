@@ -9,7 +9,7 @@ import (
 type inventoryData struct {
 	hosts       []datastructs.Host
 	groups      []datastructs.Group
-	childGroups []datastructs.ChildGroup
+	childGroups []datastructs.ChildGroupView
 	hostGroups  []datastructs.HostGroup
 }
 
@@ -40,13 +40,8 @@ func getInventoryData() (inv inventoryData, err error) {
 func (inv *inventoryData) getChildren(parent datastructs.Group) (children []string) {
 	// Get group children
 	for _, childGroup := range inv.childGroups {
-		if childGroup.Parent == parent.ID {
-			// Get child group name
-			for _, child := range inv.groups {
-				if childGroup.Child == child.ID {
-					children = append(children, child.Name)
-				}
-			}
+		if childGroup.ParentID == parent.ID {
+			children = append(children, childGroup.Child)
 		}
 	}
 

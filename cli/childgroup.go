@@ -12,7 +12,7 @@ func CreateChildGroup(parent datastructs.Group, child datastructs.Group) error {
 		return fmt.Errorf("child and parent cannot be the same group")
 	}
 
-	b, err := isRelationshipLoop(child.ID, parent.ID)
+	b, err := isRelationshipLoop(child.Name, parent.Name)
 	if err != nil {
 		return err
 	} else if b {
@@ -36,8 +36,8 @@ func CreateChildGroup(parent datastructs.Group, child datastructs.Group) error {
 }
 
 // ViewChildGroupsByParent accept parent group ID and return all child-group relationship for that group
-func ViewChildGroupsByParent(parentID int) (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.selectChildGroup(0, parentID)
+func ViewChildGroupsByParent(parent string) (childGroups []datastructs.ChildGroupView, err error) {
+	childGroups, err = db.selectChildGroup("", parent)
 	if err != nil {
 		return childGroups, err
 	} else if childGroups == nil {
@@ -48,8 +48,8 @@ func ViewChildGroupsByParent(parentID int) (childGroups []datastructs.ChildGroup
 }
 
 // ViewChildGroupsByChild accept child group ID and return all child-group relationship for that group
-func ViewChildGroupsByChild(childID int) (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.selectChildGroup(childID, 0)
+func ViewChildGroupsByChild(child string) (childGroups []datastructs.ChildGroupView, err error) {
+	childGroups, err = db.selectChildGroup(child, "")
 	if err != nil {
 		return childGroups, err
 	} else if childGroups == nil {
@@ -60,7 +60,7 @@ func ViewChildGroupsByChild(childID int) (childGroups []datastructs.ChildGroup, 
 }
 
 // ListChildGroups return all child-group relationships
-func ListChildGroups() (childGroups []datastructs.ChildGroup, err error) {
+func ListChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
 	childGroups, err = db.getChildGroups()
 	if err != nil {
 		return childGroups, err
@@ -83,8 +83,9 @@ func DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err er
 	return affected, nil
 }
 
-func getParents(child int, parents []int) ([]int, error) {
-	childGroups, err := db.selectChildGroup(child, 0)
+// getParents return list of parents names
+func getParents(child string, parents []string) ([]string, error) {
+	childGroups, err := db.selectChildGroup(child, "")
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +103,9 @@ func getParents(child int, parents []int) ([]int, error) {
 	return parents, nil
 }
 
-func getChildren(parent int, children []int) ([]int, error) {
-	parentGroups, err := db.selectChildGroup(0, parent)
+// getChildren return list of children names
+func getChildren(parent string, children []string) ([]string, error) {
+	parentGroups, err := db.selectChildGroup("", parent)
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +123,8 @@ func getChildren(parent int, children []int) ([]int, error) {
 	return children, nil
 }
 
-func isRelationshipLoop(child, parent int) (bool, error) {
-	children, err := getChildren(child, []int{})
+func isRelationshipLoop(child, parent string) (bool, error) {
+	children, err := getChildren(child, []string{})
 	if err != nil {
 		return false, err
 	}

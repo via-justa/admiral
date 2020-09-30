@@ -148,15 +148,19 @@ func getHostGroups(host *datastructs.Host) (res datastructs.Host, err error) {
 		return res, err
 	}
 
-	groups := []int{}
-	groupsName := []string{}
+	groups := []string{}
 
 	// loop over direct host groups to get parents
 	for _, hostGroup := range hostGroups {
 		// add group to list
-		groups = append(groups, hostGroup.Group)
+		group, err := db.selectGroup("", hostGroup.Group)
+		if err != nil {
+			return res, err
+		}
 
-		parents, err := getParents(hostGroup.Group, []int{})
+		groups = append(groups, group.Name)
+
+		parents, err := getParents(group.Name, []string{})
 		if err != nil {
 			return res, err
 		}
@@ -164,16 +168,7 @@ func getHostGroups(host *datastructs.Host) (res datastructs.Host, err error) {
 		groups = append(groups, parents...)
 	}
 
-	for _, g := range groups {
-		group, err := db.selectGroup("", g)
-		if err != nil {
-			return res, err
-		}
-
-		groupsName = append(groupsName, group.Name)
-	}
-
-	host.Groups = groupsName
+	host.Groups = groups
 
 	return *host, nil
 }

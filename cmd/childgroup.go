@@ -83,7 +83,7 @@ func createChildGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	createdChildGroup, err := cli.ViewChildGroupsByChild(childGroup.ID)
+	createdChildGroup, err := cli.ViewChildGroupsByChild(childGroup.Name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,7 +99,7 @@ var viewChildGroup = &cobra.Command{
 }
 
 func viewChildGroupFunc(cmd *cobra.Command, args []string) {
-	var childGroups []datastructs.ChildGroup
+	var childGroups []datastructs.ChildGroupView
 
 	switch {
 	case len(parentName) > 0:
@@ -108,7 +108,7 @@ func viewChildGroupFunc(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		childGroups, err = cli.ViewChildGroupsByParent(group.ID)
+		childGroups, err = cli.ViewChildGroupsByParent(group.Name)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -118,7 +118,7 @@ func viewChildGroupFunc(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		childGroups, err = cli.ViewChildGroupsByChild(group.ID)
+		childGroups, err = cli.ViewChildGroupsByChild(group.Name)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -183,11 +183,13 @@ func listChildGroupFunc(cmd *cobra.Command, args []string) {
 	printChildGroups(childGroups)
 }
 
-func printChildGroups(childGroups []datastructs.ChildGroup) {
+func printChildGroups(childGroups []datastructs.ChildGroupView) {
 	tbl, err := prettytable.NewTable([]prettytable.Column{
 		{Header: "ID"},
 		{Header: "Parent", MinWidth: 12},
+		{Header: "Parent ID", MinWidth: 12},
 		{Header: "Child", MinWidth: 12},
+		{Header: "Child ID", MinWidth: 12},
 	}...)
 	if err != nil {
 		log.Fatal(err)
@@ -197,10 +199,7 @@ func printChildGroups(childGroups []datastructs.ChildGroup) {
 	tbl.Separator = " | "
 
 	for _, childGroup := range childGroups {
-		pGroup, _ := cli.ViewGroupByID(childGroup.Parent)
-		cGroup, _ := cli.ViewGroupByID(childGroup.Child)
-
-		err = tbl.AddRow(childGroup.ID, pGroup.Name, cGroup.Name)
+		err = tbl.AddRow(childGroup.ID, childGroup.Parent, childGroup.ParentID, childGroup.Child, childGroup.ChildID)
 		if err != nil {
 			log.Fatal(err)
 		}

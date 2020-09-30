@@ -71,8 +71,11 @@ order by
 CREATE OR REPLACE
 ALGORITHM = UNDEFINED VIEW `children` AS
 select
+    `childgroups`.`id` AS `relationship_id`,
     `gparent`.`name` AS `parent`,
-    `gchild`.`name` AS `child`
+    `gparent`.`id` AS `parent_id`,
+    `gchild`.`name` AS `child`,
+    `gchild`.`id` AS `child_id`
 from
     (((`childgroups`
 left join `group` `gparent` on

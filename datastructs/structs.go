@@ -90,6 +90,15 @@ type ChildGroup struct {
 	Parent int `json:"parent_id" db:"parent_id"`
 }
 
+// ChildGroupView represent child-group view data
+type ChildGroupView struct {
+	ID       int    `json:"id" db:"relationship_id"`
+	Child    string `json:"child" db:"child"`
+	ChildID  int    `json:"child_id" db:"child_id"`
+	Parent   string `json:"parent" db:"parent"`
+	ParentID int    `json:"parent_id" db:"parent_id"`
+}
+
 // HostGroup represents host-group relationship
 type HostGroup struct {
 	ID    int `json:"id" db:"id"`

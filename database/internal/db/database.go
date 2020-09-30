@@ -220,10 +220,10 @@ func (db *Database) DeleteGroup(group datastructs.Group) (affected int64, err er
 // If child is provided will return slice of parent ids
 // If parent is provided will return slice of child ids
 // will error if none is provided
-func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error) {
+func (db *Database) SelectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error) {
 	switch {
-	case child != 0:
-		rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups WHERE child_id=?", child)
+	case child != "":
+		rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM children WHERE child=?", child)
 		if err == sql.ErrNoRows {
 			return childGroups, nil
 		} else if err != nil {
@@ -231,8 +231,8 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 		}
 
 		for rows.Next() {
-			childGroup := new(datastructs.ChildGroup)
-			if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.Child); err != nil {
+			childGroup := new(datastructs.ChildGroupView)
+			if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID, &childGroup.Child, &childGroup.ChildID); err != nil {
 				return childGroups, err
 			}
 
@@ -240,8 +240,8 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 		}
 
 		return childGroups, nil
-	case parent != 0:
-		rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups WHERE parent_id=?", parent)
+	case parent != "":
+		rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM children WHERE parent=?", parent)
 		if err == sql.ErrNoRows {
 			return childGroups, nil
 		} else if err != nil {
@@ -249,8 +249,8 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 		}
 
 		for rows.Next() {
-			childGroup := new(datastructs.ChildGroup)
-			if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.Child); err != nil {
+			childGroup := new(datastructs.ChildGroupView)
+			if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID, &childGroup.Child, &childGroup.ChildID); err != nil {
 				return childGroups, err
 			}
 
@@ -264,8 +264,8 @@ func (db *Database) SelectChildGroup(child, parent int) (childGroups []datastruc
 }
 
 // GetChildGroups return all child groups relationships in the inventory
-func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
-	rows, err := db.Conn.Query("SELECT id, parent_id, child_id FROM childgroups")
+func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
+	rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM children")
 	if err == sql.ErrNoRows {
 		return childGroups, nil
 	} else if err != nil {
@@ -273,8 +273,8 @@ func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroup, err 
 	}
 
 	for rows.Next() {
-		childGroup := new(datastructs.ChildGroup)
-		if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.Child); err != nil {
+		childGroup := new(datastructs.ChildGroupView)
+		if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID, &childGroup.Child, &childGroup.ChildID); err != nil {
 			return childGroups, err
 		}
 
