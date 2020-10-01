@@ -63,7 +63,6 @@ LEFT JOIN `group`
 LEFT JOIN `host`
     ON `hostgroups`.`host_id` = `host`.`id`
 WHERE `host`.`enabled` = 1
-GROUP BY `host`.`hostname`
 ORDER BY `group`.`name`;
 
 CREATE OR REPLACE
@@ -81,9 +80,6 @@ LEFT JOIN `group` `gchild`
 	ON `childgroups`.`child_id` = `gchild`.`id`
 WHERE `gparent`.`enabled` = 1
     AND `gchild`.`enabled` = 1
-GROUP BY
-    `gparent`.`name`,
-    `gchild`.`name`
 ORDER BY `gparent`.`name`;
 
 CREATE OR REPLACE
