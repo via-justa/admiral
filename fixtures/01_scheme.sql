@@ -84,13 +84,39 @@ ORDER BY `gparent`.`name`;
 
 CREATE OR REPLACE
 ALGORITHM = UNDEFINED VIEW `inventory` AS
-SELECT 
-    ifnull(concat(`host`.`hostname`, '.', `host`.`domain`), `host`.`host`) AS `host`,
-    `host`.`variables` AS `host_vars`,
-    GROUP_CONCAT(DISTINCT hostgroup_view.`group` SEPARATOR ', ') AS direct_group
-FROM `host` 
-LEFT JOIN `hostgroup_view` 
-    ON	host.id = hostgroup_view.host_id
-WHERE `host`.`enabled` = 1
-GROUP BY host.`hostname`
-ORDER BY `host`.`hostname`;
+WITH RECURSIVE inherited (child_id, parent_id) AS (
+SELECT
+	child_id,
+	parent_id
+from
+	childgroups_view cv
+UNION ALL
+SELECT
+	cv.child_id,
+	i.parent_id
+FROM
+	inherited i
+JOIN childgroups_view cv ON
+	i.child_id = cv.parent_id )
+SELECT
+	ifnull(concat(host.hostname, '.', host.domain),
+	host.host) AS host,
+	host.variables AS host_vars,
+	GROUP_CONCAT(DISTINCT g1.name) AS direct_group,
+	GROUP_CONCAT(DISTINCT g2.name) AS inherited_groups
+FROM
+	host
+LEFT JOIN hostgroup_view hv ON
+	host.id = hv.host_id
+LEFT JOIN inherited i ON
+	hv.group_id = i.child_id
+LEFT JOIN `group` g1 ON
+	hv.group_id = g1.id
+LEFT JOIN `group` g2 ON
+	i.parent_id = g2.id
+WHERE
+	host.enabled = 1
+GROUP BY
+	host.hostname
+ORDER BY
+	host.hostname;
