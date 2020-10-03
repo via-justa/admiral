@@ -35,11 +35,10 @@ type dbMock struct{}
 //  2|       2|        3|
 
 // Group
-
+// nolint: goconst
 func (d dbMock) selectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
 	switch {
 	// Existing record group1
-	// nolint: go-lint
 	case name == "group1" || id == 1:
 		return datastructs.Group{
 			ID:        1,

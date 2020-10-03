@@ -5,14 +5,19 @@
         "covermode",
         "coverprofile",
         "datastructs",
+        "gocognit",
+        "goconst",
         "golangci",
+        "golint",
         "gosec",
         "infile",
         "jandelgado",
+        "jmoiron",
         "justa",
         "lcov",
         "nolint",
         "outfile",
+        "sqlx",
         "tatsushid"
     ]
 }
