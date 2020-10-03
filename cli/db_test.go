@@ -138,14 +138,15 @@ func (d dbMock) selectHost(hostname string, ip string, id int) (returnedHost dat
 	// nolint: goconst
 	case hostname == "host1" || ip == "1.1.1.1" || id == 1:
 		return datastructs.Host{
-			ID:        1,
-			Hostname:  "host1",
-			Host:      "1.1.1.1",
-			Domain:    "local",
-			Variables: "{\"var1\": \"val1\"}",
-			Enabled:   true,
-			Monitored: true,
-			Groups:    []string{},
+			ID:              1,
+			Hostname:        "host1",
+			Host:            "1.1.1.1",
+			Domain:          "local",
+			Variables:       "{\"var1\": \"val1\"}",
+			Enabled:         true,
+			Monitored:       true,
+			DirectGroup:     "group1",
+			InheritedGroups: "group2,group3",
 		}, nil
 	// Error missing param
 	case hostname == "" && ip == "" && id == 0:
@@ -159,24 +160,26 @@ func (d dbMock) selectHost(hostname string, ip string, id int) (returnedHost dat
 func (d dbMock) getHosts() (hosts []datastructs.Host, err error) {
 	return []datastructs.Host{
 		datastructs.Host{
-			ID:        1,
-			Hostname:  "host1",
-			Host:      "1.1.1.1",
-			Domain:    "local",
-			Variables: "{\"var1\": \"val1\"}",
-			Enabled:   true,
-			Monitored: true,
-			Groups:    []string{},
+			ID:              1,
+			Hostname:        "host1",
+			Host:            "1.1.1.1",
+			Domain:          "local",
+			Variables:       "{\"var1\": \"val1\"}",
+			Enabled:         true,
+			Monitored:       true,
+			DirectGroup:     "group1",
+			InheritedGroups: "group2,group3",
 		},
 		datastructs.Host{
-			ID:        2,
-			Hostname:  "host2",
-			Host:      "2.2.2.2",
-			Domain:    "local",
-			Variables: "{\"var2\": \"val2\"}",
-			Enabled:   true,
-			Monitored: false,
-			Groups:    []string{},
+			ID:              2,
+			Hostname:        "host2",
+			Host:            "2.2.2.2",
+			Domain:          "local",
+			Variables:       "{\"var2\": \"val2\"}",
+			Enabled:         true,
+			Monitored:       false,
+			DirectGroup:     "",
+			InheritedGroups: "",
 		},
 	}, nil
 }
@@ -226,19 +229,21 @@ func (d dbMock) insertHostGroup(hostGroup datastructs.HostGroup) (affected int64
 	}
 }
 
-func (d dbMock) selectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error) {
+func (d dbMock) selectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error) {
 	switch {
 	// Existing record
-	case host == 1 || group == 1:
-		return []datastructs.HostGroup{datastructs.HostGroup{ID: 1, Host: 1, Group: 1}}, nil
+	case host == "host1" || group == "group1":
+		return []datastructs.HostGroupView{
+			datastructs.HostGroupView{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
 	// The rest of the request should return empty
 	default:
 		return hostGroups, nil
 	}
 }
 
-func (d dbMock) getHostGroups() (hostGroups []datastructs.HostGroup, err error) {
-	return []datastructs.HostGroup{datastructs.HostGroup{ID: 1, Host: 1, Group: 1}}, nil
+func (d dbMock) getHostGroups() (hostGroups []datastructs.HostGroupView, err error) {
+	return []datastructs.HostGroupView{
+		datastructs.HostGroupView{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
 }
 
 func (d dbMock) deleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
@@ -265,31 +270,29 @@ func (d dbMock) insertChildGroup(childGroup datastructs.ChildGroup) (affected in
 	}
 }
 
-func (d dbMock) selectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error) {
+func (d dbMock) selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error) {
 	switch {
 	// Existing record 1 - group 1 is child of group 2
-	case child == 1 || parent == 2:
-		return []datastructs.ChildGroup{datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2}}, nil
+	case child == "group1" || parent == "group2":
+		return []datastructs.ChildGroupView{
+			datastructs.ChildGroupView{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"}}, nil
 	// Existing record 2 - group 2 is child of group 3
-	case child == 2 || parent == 3:
-		return []datastructs.ChildGroup{datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3}}, nil
+	case child == "group2" || parent == "group3":
+		return []datastructs.ChildGroupView{
+			datastructs.ChildGroupView{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"}}, nil
 	// The rest of the request should return empty
 	default:
 		return childGroups, nil
 	}
 }
 
-func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroup, err error) {
-	return []datastructs.ChildGroup{
-		datastructs.ChildGroup{
-			ID:     1,
-			Child:  1,
-			Parent: 2,
+func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
+	return []datastructs.ChildGroupView{
+		datastructs.ChildGroupView{
+			ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2",
 		},
-		datastructs.ChildGroup{
-			ID:     2,
-			Child:  2,
-			Parent: 3,
+		datastructs.ChildGroupView{
+			ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3",
 		},
 	}, nil
 }
