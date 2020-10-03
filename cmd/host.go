@@ -264,9 +264,9 @@ func printHosts(hosts []datastructs.Host) {
 
 	tbl.Separator = " | "
 
-	for _, host := range hosts {
-		err = tbl.AddRow(host.ID, host.Host, host.Hostname, host.Domain, host.Enabled,
-			host.Monitored, host.DirectGroup, host.InheritedGroups)
+	for i := range hosts {
+		err = tbl.AddRow(hosts[i].ID, hosts[i].Host, hosts[i].Hostname, hosts[i].Domain, hosts[i].Enabled,
+			hosts[i].Monitored, hosts[i].DirectGroup, hosts[i].InheritedGroups)
 		if err != nil {
 			log.Fatal(err)
 		}
