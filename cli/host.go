@@ -21,16 +21,11 @@ func CreateHost(host *datastructs.Host) error {
 
 // ViewHostByHostname accept hostname of host and return the host struct
 func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
-	selected, err := db.selectHost(hostname, "", 0)
+	host, err = db.selectHost(hostname, "", 0)
 	if err != nil {
 		return host, err
-	} else if selected.Hostname == "" {
+	} else if host.Hostname == "" {
 		return host, fmt.Errorf("requested host does not exists")
-	}
-
-	host, err = getHostGroups(&selected)
-	if err != nil {
-		return host, err
 	}
 
 	return host, nil
@@ -38,16 +33,11 @@ func ViewHostByHostname(hostname string) (host datastructs.Host, err error) {
 
 // ViewHostByIP accept IP of host and return the host struct
 func ViewHostByIP(ip string) (host datastructs.Host, err error) {
-	selected, err := db.selectHost("", ip, 0)
+	host, err = db.selectHost("", ip, 0)
 	if err != nil {
 		return host, err
-	} else if selected.Hostname == "" {
+	} else if host.Hostname == "" {
 		return host, fmt.Errorf("requested host does not exists")
-	}
-
-	host, err = getHostGroups(&selected)
-	if err != nil {
-		return host, err
 	}
 
 	return host, nil
@@ -55,16 +45,11 @@ func ViewHostByIP(ip string) (host datastructs.Host, err error) {
 
 // ViewHostByID accept ID of host and return the host struct
 func ViewHostByID(id int) (host datastructs.Host, err error) {
-	selected, err := db.selectHost("", "", id)
+	host, err = db.selectHost("", "", id)
 	if err != nil {
 		return host, err
-	} else if selected.Hostname == "" {
+	} else if host.Hostname == "" {
 		return host, fmt.Errorf("requested host does not exists")
-	}
-
-	host, err = getHostGroups(&selected)
-	if err != nil {
-		return host, err
 	}
 
 	return host, nil
@@ -72,20 +57,9 @@ func ViewHostByID(id int) (host datastructs.Host, err error) {
 
 // ListHosts return all existing hosts
 func ListHosts() (hosts []datastructs.Host, err error) {
-	selected, err := db.getHosts()
+	hosts, err = db.getHosts()
 	if err != nil {
 		return hosts, err
-	}
-
-	for _, host := range selected {
-		this := host
-
-		hostWithGroups, err := getHostGroups(&this)
-		if err != nil {
-			return hosts, err
-		}
-
-		hosts = append(hosts, hostWithGroups)
 	}
 
 	return hosts, nil
@@ -140,35 +114,4 @@ func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	}
 
 	return affected, nil
-}
-
-func getHostGroups(host *datastructs.Host) (res datastructs.Host, err error) {
-	hostGroups, err := db.selectHostGroup(host.Hostname, "")
-	if err != nil {
-		return res, err
-	}
-
-	groups := []string{}
-
-	// loop over direct host groups to get parents
-	for _, hostGroup := range hostGroups {
-		// add group to list
-		group, err := db.selectGroup("", hostGroup.GroupID)
-		if err != nil {
-			return res, err
-		}
-
-		groups = append(groups, group.Name)
-
-		parents, err := getParents(group.Name, []string{})
-		if err != nil {
-			return res, err
-		}
-
-		groups = append(groups, parents...)
-	}
-
-	host.Groups = groups
-
-	return *host, nil
 }

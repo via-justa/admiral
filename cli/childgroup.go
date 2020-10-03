@@ -83,26 +83,6 @@ func DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err er
 	return affected, nil
 }
 
-// getParents return list of parents names
-func getParents(child string, parents []string) ([]string, error) {
-	childGroups, err := db.selectChildGroup(child, "")
-	if err != nil {
-		return nil, err
-	}
-
-	for _, group := range childGroups {
-		parents = append(parents, group.Parent)
-		child = group.Parent
-
-		parents, err = getParents(child, parents)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return parents, nil
-}
-
 // getChildren return list of children names
 func getChildren(parent string, children []string) ([]string, error) {
 	parentGroups, err := db.selectChildGroup("", parent)

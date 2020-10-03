@@ -6,7 +6,8 @@ import (
 
 // Host represents inventory host
 type Host struct {
-	ID              int           `json:"id" db:"id"`
+	ID              int           `json:"-" db:"id"`
+	HostID          int           `json:"id" db:"host_id"`
 	Host            string        `json:"ip" db:"host"`
 	Hostname        string        `json:"hostname" db:"hostname"`
 	Domain          string        `json:"domain" db:"domain"`
@@ -14,7 +15,8 @@ type Host struct {
 	PrettyVariables InventoryVars `json:"variables"`
 	Enabled         bool          `json:"enable" db:"enabled"`
 	Monitored       bool          `json:"monitor" db:"monitored"`
-	Groups          []string      `json:"groups" db:"groups"`
+	DirectGroup     string        `json:"direct_group" db:"direct_group"`
+	InheritedGroups string        `json:"inherited_groups" db:"inherited_groups"`
 }
 
 // UnmarshalVars convert string json `Host.Variables` to json value of

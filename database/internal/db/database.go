@@ -59,7 +59,7 @@ func Connect(conf DatabaseConfig) (Database, error) {
 func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
 	switch {
 	case len(hostname) != 0:
-		err = db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE hostname=?", hostname)
+		err = db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE hostname=?", hostname)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
 		} else if err != nil {
@@ -68,7 +68,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 
 		return returnedHost, nil
 	case len(ip) != 0:
-		err := db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE host=?", ip)
+		err := db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE host=?", ip)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
 		} else if err != nil {
@@ -77,7 +77,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 
 		return returnedHost, nil
 	case id != 0:
-		err := db.Conn.Get(&returnedHost, "SELECT id, host, hostname, domain, variables, enabled, monitored FROM host WHERE id=?", id)
+		err := db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE id=?", id)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
 		} else if err != nil {
@@ -92,7 +92,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 
 // GetHosts return all hosts in the inventory
 func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
-	rows, err := db.Conn.Query("SELECT id, host, hostname, domain, variables, enabled, monitored FROM host")
+	rows, err := db.Conn.Query("SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view")
 	if err == sql.ErrNoRows {
 		return hosts, nil
 	} else if err != nil {
@@ -101,7 +101,7 @@ func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
 
 	for rows.Next() {
 		host := new(datastructs.Host)
-		if err = rows.Scan(&host.ID, &host.Host, &host.Hostname, &host.Domain, &host.Variables, &host.Enabled, &host.Monitored); err != nil {
+		if err = rows.Scan(&host.ID, &host.Host, &host.Hostname, &host.Domain, &host.Variables, &host.Enabled, &host.Monitored, &host.DirectGroup, &host.InheritedGroups); err != nil {
 			return hosts, err
 		}
 
@@ -114,9 +114,10 @@ func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
 // InsertHost accept Host to insert or update and return the number of affected rows and error if exists
 func (db *Database) InsertHost(host *datastructs.Host) (affected int64, err error) {
 	sql := `INSERT INTO host (host, hostname, domain, variables, enabled, monitored) VALUES (?,?,?,?,?,?) 
-	ON DUPLICATE KEY UPDATE variables=?, enabled=?, monitored=?`
+	ON DUPLICATE KEY UPDATE host=?, hostname=?, domain=?, variables=?, enabled=?, monitored=?`
 
-	res, err := db.Conn.Exec(sql, host.Host, host.Hostname, host.Domain, host.Variables, host.Enabled, host.Monitored, host.Variables, host.Enabled, host.Monitored)
+	res, err := db.Conn.Exec(sql, host.Host, host.Hostname, host.Domain, host.Variables, host.Enabled, host.Monitored,
+		host.Host, host.Hostname, host.Domain, host.Variables, host.Enabled, host.Monitored)
 	if err != nil {
 		return 0, err
 	}
