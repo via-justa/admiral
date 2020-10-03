@@ -83,7 +83,7 @@ WHERE `gparent`.`enabled` = 1
 ORDER BY `gparent`.`name`;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `inventory` AS
+ALGORITHM = UNDEFINED VIEW `host_view` AS
 WITH RECURSIVE inherited (child_id, parent_id) AS (
 SELECT
 	child_id,
@@ -99,11 +99,15 @@ FROM
 JOIN childgroups_view cv ON
 	i.child_id = cv.parent_id )
 SELECT
-	ifnull(concat(host.hostname, '.', host.domain),
-	host.host) AS host,
-	host.variables AS host_vars,
-	GROUP_CONCAT(DISTINCT g1.name) AS direct_group,
-	GROUP_CONCAT(DISTINCT g2.name) AS inherited_groups
+	`host`.`id` AS `host_id`,
+    `host`.`hostname` AS `hostname`,
+    `host`.`domain` AS `domain`,
+    `host`.`host` AS `host`,
+    `host`.`enabled` AS `enabled`,
+    `host`.`monitored` AS `monitored`,
+    `host`.`variables` AS `variables`,
+    ifnull(group_concat(distinct `g1`.`name` separator ','),"") AS `direct_group`,
+    ifnull(group_concat(distinct `g2`.`name` separator ','),"") AS `inherited_groups`
 FROM
 	host
 LEFT JOIN hostgroup_view hv ON
@@ -114,8 +118,6 @@ LEFT JOIN `group` g1 ON
 	hv.group_id = g1.id
 LEFT JOIN `group` g2 ON
 	i.parent_id = g2.id
-WHERE
-	host.enabled = 1
 GROUP BY
 	host.hostname
 ORDER BY
