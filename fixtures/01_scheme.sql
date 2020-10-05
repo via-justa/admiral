@@ -50,44 +50,75 @@ CREATE TABLE `hostgroups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `inventory` AS
-select
+ALGORITHM = UNDEFINED VIEW `hostgroup_view` AS
+SELECT
+    `hostgroups`.`id` AS `relationship_id`,
+    `host`.`hostname` AS `host`,
+    `hostgroups`.`host_id` AS `host_id`,
     `group`.`name` AS `group`,
-    `host`.`hostname` AS `hostname`,
-    ifnull(concat(`host`.`hostname`, '.', `host`.`domain`), `host`.`host`) AS `host`,
-    `host`.`variables` AS `host_vars`
-from
-    (`group`
-left join (`host`
-left join `hostgroups` on
-    ((`host`.`id` = `hostgroups`.`host_id`))) on
-    ((`hostgroups`.`group_id` = `group`.`id`)))
-where
-    ((`host`.`enabled` = 1)
-    and (`group`.`enabled` = 1))
-order by
-    `host`.`hostname`;
+    `hostgroups`.`group_id` AS `group_id`
+FROM `hostgroups`
+LEFT JOIN `group`
+    ON `hostgroups`.`group_id` = `group`.`id`
+LEFT JOIN `host`
+    ON `hostgroups`.`host_id` = `host`.`id`
+WHERE `host`.`enabled` = 1
+ORDER BY `group`.`name`;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `children` AS
-select
+ALGORITHM = UNDEFINED VIEW `childgroups_view` AS
+SELECT
+    `childgroups`.`id` AS `relationship_id`,
     `gparent`.`name` AS `parent`,
-    `gchild`.`name` AS `child`
-from
-    (((`childgroups`
-left join `group` `gparent` on
-    ((`childgroups`.`parent_id` = `gparent`.`id`)))
-left join `group` `gchild` on
-    ((`childgroups`.`child_id` = `gchild`.`id`)))
-left join `inventory` on
-    ((`gchild`.`name` = `inventory`.`group`)))
-where
-    ((`gparent`.`enabled` = 1)
-    and (`gchild`.`enabled` = 1)
-    and (`inventory`.`hostname` is not null))
-group by
-    `gparent`.`name`,
-    `gchild`.`name`
-order by
-    `gparent`.`name`;
+    `gparent`.`id` AS `parent_id`,
+    `gchild`.`name` AS `child`,
+    `gchild`.`id` AS `child_id`
+FROM `childgroups`
+LEFT JOIN `group` `gparent`
+	ON `childgroups`.`parent_id` = `gparent`.`id`
+LEFT JOIN `group` `gchild`
+	ON `childgroups`.`child_id` = `gchild`.`id`
+WHERE `gparent`.`enabled` = 1
+    AND `gchild`.`enabled` = 1
+ORDER BY `gparent`.`name`;
 
+CREATE OR REPLACE
+ALGORITHM = UNDEFINED VIEW `host_view` AS
+WITH RECURSIVE inherited (child_id, parent_id) AS (
+SELECT
+	child_id,
+	parent_id
+from
+	childgroups_view cv
+UNION ALL
+SELECT
+	cv.child_id,
+	i.parent_id
+FROM
+	inherited i
+JOIN childgroups_view cv ON
+	i.child_id = cv.parent_id )
+SELECT
+	`host`.`id` AS `host_id`,
+    `host`.`hostname` AS `hostname`,
+    `host`.`domain` AS `domain`,
+    `host`.`host` AS `host`,
+    `host`.`enabled` AS `enabled`,
+    `host`.`monitored` AS `monitored`,
+    `host`.`variables` AS `variables`,
+    ifnull(group_concat(distinct `g1`.`name` separator ','),"") AS `direct_group`,
+    ifnull(group_concat(distinct `g2`.`name` separator ','),"") AS `inherited_groups`
+FROM
+	host
+LEFT JOIN hostgroup_view hv ON
+	host.id = hv.host_id
+LEFT JOIN inherited i ON
+	hv.group_id = i.child_id
+LEFT JOIN `group` g1 ON
+	hv.group_id = g1.id
+LEFT JOIN `group` g2 ON
+	i.parent_id = g2.id
+GROUP BY
+	host.hostname
+ORDER BY
+	host.hostname;

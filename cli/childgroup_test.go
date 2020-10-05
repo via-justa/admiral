@@ -55,8 +55,8 @@ func TestCreateChildGroup(t *testing.T) {
 		{
 			name: "Relationship loop",
 			args: args{
-				parent: datastructs.Group{ID: 1},
-				child:  datastructs.Group{ID: 3},
+				parent: datastructs.Group{ID: 1, Name: "group1"},
+				child:  datastructs.Group{ID: 3, Name: "group3"},
 			},
 			wantErr: true,
 		},
@@ -74,29 +74,29 @@ func TestViewChildGroupsByParent(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		parentID int
+		parent string
 	}
 
 	tests := []struct {
 		name            string
 		args            args
-		wantChildGroups []datastructs.ChildGroup
+		wantChildGroups []datastructs.ChildGroupView
 		wantErr         bool
 	}{
 		{
 			name: "Get child-groups",
 			args: args{
-				parentID: 3,
+				parent: "group3",
 			},
-			wantChildGroups: []datastructs.ChildGroup{
-				datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3},
+			wantChildGroups: []datastructs.ChildGroupView{
+				datastructs.ChildGroupView{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Get none-existing child-groups",
 			args: args{
-				parentID: 1,
+				parent: "group1",
 			},
 			wantChildGroups: nil,
 			wantErr:         true,
@@ -105,7 +105,7 @@ func TestViewChildGroupsByParent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotChildGroups, err := ViewChildGroupsByParent(tt.args.parentID)
+			gotChildGroups, err := ViewChildGroupsByParent(tt.args.parent)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ViewChildGroupsByParent() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -121,29 +121,29 @@ func TestViewChildGroupsByChild(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		childID int
+		child string
 	}
 
 	tests := []struct {
 		name            string
 		args            args
-		wantChildGroups []datastructs.ChildGroup
+		wantChildGroups []datastructs.ChildGroupView
 		wantErr         bool
 	}{
 		{
 			name: "Get child-groups",
 			args: args{
-				childID: 1,
+				child: "group1",
 			},
-			wantChildGroups: []datastructs.ChildGroup{
-				datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2},
+			wantChildGroups: []datastructs.ChildGroupView{
+				datastructs.ChildGroupView{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Get none-existing child-groups",
 			args: args{
-				childID: 3,
+				child: "group3",
 			},
 			wantChildGroups: nil,
 			wantErr:         true,
@@ -151,7 +151,7 @@ func TestViewChildGroupsByChild(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotChildGroups, err := ViewChildGroupsByChild(tt.args.childID)
+			gotChildGroups, err := ViewChildGroupsByChild(tt.args.child)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ViewChildGroupsByChild() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -168,14 +168,14 @@ func TestListChildGroups(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		wantChildGroups []datastructs.ChildGroup
+		wantChildGroups []datastructs.ChildGroupView
 		wantErr         bool
 	}{
 		{
 			name: "List child-groups",
-			wantChildGroups: []datastructs.ChildGroup{
-				datastructs.ChildGroup{ID: 1, Child: 1, Parent: 2},
-				datastructs.ChildGroup{ID: 2, Child: 2, Parent: 3},
+			wantChildGroups: []datastructs.ChildGroupView{
+				datastructs.ChildGroupView{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"},
+				datastructs.ChildGroupView{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"},
 			},
 			wantErr: false,
 		},

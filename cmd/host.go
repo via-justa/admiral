@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tatsushid/go-prettytable"
@@ -256,8 +255,8 @@ func printHosts(hosts []datastructs.Host) {
 		{Header: "domain", MinWidth: 12},
 		{Header: "Enabled", MinWidth: 12},
 		{Header: "Monitored", MinWidth: 12},
-		{Header: "Groups", MinWidth: 12},
-		{Header: "Variables", MinWidth: 12},
+		{Header: "Direct Groups", MinWidth: 12},
+		{Header: "Inherited Groups", MinWidth: 12},
 	}...)
 	if err != nil {
 		log.Fatal(err)
@@ -265,9 +264,9 @@ func printHosts(hosts []datastructs.Host) {
 
 	tbl.Separator = " | "
 
-	for _, host := range hosts {
-		err = tbl.AddRow(host.ID, host.Host, host.Hostname, host.Domain, host.Enabled,
-			host.Monitored, strings.Join(host.Groups, ","), host.Variables)
+	for i := range hosts {
+		err = tbl.AddRow(hosts[i].ID, hosts[i].Host, hosts[i].Hostname, hosts[i].Domain, hosts[i].Enabled,
+			hosts[i].Monitored, hosts[i].DirectGroup, hosts[i].InheritedGroups)
 		if err != nil {
 			log.Fatal(err)
 		}

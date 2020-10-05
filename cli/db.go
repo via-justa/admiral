@@ -6,20 +6,24 @@ import (
 )
 
 type dbInterface interface {
+	// hosts
 	selectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error)
 	getHosts() (hosts []datastructs.Host, err error)
 	insertHost(host *datastructs.Host) (affected int64, err error)
 	deleteHost(host *datastructs.Host) (affected int64, err error)
+	// groups
 	selectGroup(name string, id int) (returnedGroup datastructs.Group, err error)
 	getGroups() (groups []datastructs.Group, err error)
 	insertGroup(group datastructs.Group) (affected int64, err error)
 	deleteGroup(group datastructs.Group) (affected int64, err error)
-	selectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error)
-	getChildGroups() (childGroups []datastructs.ChildGroup, err error)
+	// childGroups
+	selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error)
+	getChildGroups() (childGroups []datastructs.ChildGroupView, err error)
 	insertChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error)
 	deleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error)
-	selectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error)
-	getHostGroups() (hostGroups []datastructs.HostGroup, err error)
+	// HOstGroups
+	selectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error)
+	getHostGroups() (hostGroups []datastructs.HostGroupView, err error)
 	insertHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error)
 	deleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error)
 }
@@ -64,11 +68,11 @@ func (d dbReal) deleteGroup(group datastructs.Group) (affected int64, err error)
 	return database.DeleteGroup(group)
 }
 
-func (d dbReal) selectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error) {
+func (d dbReal) selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error) {
 	return database.SelectChildGroup(child, parent)
 }
 
-func (d dbReal) getChildGroups() (childGroups []datastructs.ChildGroup, err error) {
+func (d dbReal) getChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
 	return database.GetChildGroups()
 }
 
@@ -80,11 +84,11 @@ func (d dbReal) deleteChildGroup(childGroup datastructs.ChildGroup) (affected in
 	return database.DeleteChildGroup(childGroup)
 }
 
-func (d dbReal) selectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error) {
+func (d dbReal) selectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error) {
 	return database.SelectHostGroup(host, group)
 }
 
-func (d dbReal) getHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+func (d dbReal) getHostGroups() (hostGroups []datastructs.HostGroupView, err error) {
 	return database.GetHostGroups()
 }
 

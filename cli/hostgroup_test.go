@@ -59,25 +59,27 @@ func TestViewHostGroupByHost(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		hostID int
+		host string
 	}
 
 	tests := []struct {
 		name          string
 		args          args
-		wantHostGroup []datastructs.HostGroup
+		wantHostGroup []datastructs.HostGroupView
 		wantErr       bool
 	}{
 		{
 			name: "Get Host-group",
 			args: args{
-				hostID: 1,
+				host: "host1",
 			},
-			wantHostGroup: []datastructs.HostGroup{
-				datastructs.HostGroup{
-					ID:    1,
-					Host:  1,
-					Group: 1,
+			wantHostGroup: []datastructs.HostGroupView{
+				datastructs.HostGroupView{
+					ID:      1,
+					Host:    "host1",
+					HostID:  1,
+					Group:   "group1",
+					GroupID: 1,
 				},
 			},
 			wantErr: false,
@@ -85,7 +87,7 @@ func TestViewHostGroupByHost(t *testing.T) {
 		{
 			name: "Get none-existing host-groups",
 			args: args{
-				hostID: 2,
+				host: "host2",
 			},
 			wantHostGroup: nil,
 			wantErr:       true,
@@ -94,7 +96,7 @@ func TestViewHostGroupByHost(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotHostGroup, err := ViewHostGroupByHost(tt.args.hostID)
+			gotHostGroup, err := ViewHostGroupByHost(tt.args.host)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ViewHostGroupByHost() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -110,25 +112,27 @@ func TestViewHostGroupByGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		groupID int
+		group string
 	}
 
 	tests := []struct {
 		name          string
 		args          args
-		wantHostGroup []datastructs.HostGroup
+		wantHostGroup []datastructs.HostGroupView
 		wantErr       bool
 	}{
 		{
 			name: "Get Host-group",
 			args: args{
-				groupID: 1,
+				group: "group1",
 			},
-			wantHostGroup: []datastructs.HostGroup{
-				datastructs.HostGroup{
-					ID:    1,
-					Host:  1,
-					Group: 1,
+			wantHostGroup: []datastructs.HostGroupView{
+				datastructs.HostGroupView{
+					ID:      1,
+					Host:    "host1",
+					HostID:  1,
+					Group:   "group1",
+					GroupID: 1,
 				},
 			},
 			wantErr: false,
@@ -136,7 +140,7 @@ func TestViewHostGroupByGroup(t *testing.T) {
 		{
 			name: "Get none-existing host-groups",
 			args: args{
-				groupID: 2,
+				group: "group2",
 			},
 			wantHostGroup: nil,
 			wantErr:       true,
@@ -145,7 +149,7 @@ func TestViewHostGroupByGroup(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotHostGroup, err := ViewHostGroupByGroup(tt.args.groupID)
+			gotHostGroup, err := ViewHostGroupByGroup(tt.args.group)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ViewHostGroupByGroup() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -162,16 +166,18 @@ func TestListHostGroup(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		wantHostGroups []datastructs.HostGroup
+		wantHostGroups []datastructs.HostGroupView
 		wantErr        bool
 	}{
 		{
 			name: "List host-group",
-			wantHostGroups: []datastructs.HostGroup{
-				datastructs.HostGroup{
-					ID:    1,
-					Host:  1,
-					Group: 1,
+			wantHostGroups: []datastructs.HostGroupView{
+				datastructs.HostGroupView{
+					ID:      1,
+					HostID:  1,
+					Host:    "host1",
+					GroupID: 1,
+					Group:   "group1",
 				},
 			},
 			wantErr: false,

@@ -81,7 +81,7 @@ func DeleteGroup(group datastructs.Group) (affected int64, err error) {
 // If child is provided will return slice of parent ids
 // If parent is provided will return slice of child ids
 // will error if none is provided
-func SelectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, err error) {
+func SelectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
@@ -89,7 +89,7 @@ func SelectChildGroup(child, parent int) (childGroups []datastructs.ChildGroup, 
 }
 
 // GetChildGroups return all child groups relationships in the inventory
-func GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
+func GetChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
@@ -118,7 +118,7 @@ func DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err er
 // If host is provided will return slice of groups ids
 // If group is provided will return slice of hosts ids
 // will error if none is provided
-func SelectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err error) {
+func SelectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
@@ -126,7 +126,7 @@ func SelectHostGroup(host, group int) (hostGroups []datastructs.HostGroup, err e
 }
 
 // GetHostGroups return all host groups relationships in the inventory
-func GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+func GetHostGroups() (hostGroups []datastructs.HostGroupView, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 

@@ -7,10 +7,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: local
     volumes:
-      - ./fixtures/scheme.sql:/docker-entrypoint-initdb.d/scheme.sql
-      - db:/var/lib/mysql
+      - ./fixtures/:/docker-entrypoint-initdb.d/
     ports:
       - 3306:3306
-
-volumes:
-  db:

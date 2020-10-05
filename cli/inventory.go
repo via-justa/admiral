@@ -9,8 +9,8 @@ import (
 type inventoryData struct {
 	hosts       []datastructs.Host
 	groups      []datastructs.Group
-	childGroups []datastructs.ChildGroup
-	hostGroups  []datastructs.HostGroup
+	childGroups []datastructs.ChildGroupView
+	hostGroups  []datastructs.HostGroupView
 }
 
 func getInventoryData() (inv inventoryData, err error) {
@@ -40,13 +40,8 @@ func getInventoryData() (inv inventoryData, err error) {
 func (inv *inventoryData) getChildren(parent datastructs.Group) (children []string) {
 	// Get group children
 	for _, childGroup := range inv.childGroups {
-		if childGroup.Parent == parent.ID {
-			// Get child group name
-			for _, child := range inv.groups {
-				if childGroup.Child == child.ID {
-					children = append(children, child.Name)
-				}
-			}
+		if childGroup.ParentID == parent.ID {
+			children = append(children, childGroup.Child)
 		}
 	}
 
@@ -54,11 +49,11 @@ func (inv *inventoryData) getChildren(parent datastructs.Group) (children []stri
 }
 
 func (inv *inventoryData) getGroupHosts(parent datastructs.Group) (groupHosts []string) {
-	for _, hostGroup := range inv.hostGroups {
-		if hostGroup.Group == parent.ID {
-			for _, host := range inv.hosts {
-				if hostGroup.Host == host.ID {
-					groupHosts = append(groupHosts, host.Hostname+"."+host.Domain)
+	for i := range inv.hostGroups {
+		if inv.hostGroups[i].GroupID == parent.ID {
+			for j := range inv.hosts {
+				if inv.hostGroups[i].HostID == inv.hosts[j].ID {
+					groupHosts = append(groupHosts, inv.hosts[j].Hostname+"."+inv.hosts[j].Domain)
 				}
 			}
 		}
@@ -105,16 +100,16 @@ func GenInventory() ([]byte, error) {
 	// generate inventory hosts
 	inventoryHosts := datastructs.InventoryHosts{}
 
-	for _, host := range invData.hosts {
-		if host.Enabled {
+	for i := range invData.hosts {
+		if invData.hosts[i].Enabled {
 			var hostVars datastructs.InventoryVars
 
-			err = json.Unmarshal([]byte(host.Variables), &hostVars)
+			err = json.Unmarshal([]byte(invData.hosts[i].Variables), &hostVars)
 			if err != nil {
 				return nil, err
 			}
 
-			inventoryHosts[host.Hostname+"."+host.Domain] = hostVars
+			inventoryHosts[invData.hosts[i].Hostname+"."+invData.hosts[i].Domain] = hostVars
 		}
 	}
 
