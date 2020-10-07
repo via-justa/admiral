@@ -10,7 +10,7 @@ CREATE TABLE `group` (
   `monitored` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `group_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `childgroups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -35,7 +35,7 @@ CREATE TABLE `host` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `host_host` (`host`),
   UNIQUE KEY `host_hostname` (`hostname`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `hostgroups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
