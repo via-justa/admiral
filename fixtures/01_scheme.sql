@@ -8,6 +8,8 @@ CREATE TABLE `group` (
   `variables` varchar(8192) NOT NULL DEFAULT '{}',
   `enabled` tinyint(1) NOT NULL DEFAULT '0',
   `monitored` tinyint(1) NOT NULL DEFAULT '0',
+  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `group_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -29,9 +31,11 @@ CREATE TABLE `host` (
   `host` varchar(255) NOT NULL,
   `hostname` varchar(255) NOT NULL,
   `domain` varchar(250) DEFAULT NULL,
-  `variables` varchar(8192) NOT NULL DEFAULT '{}',
+  `variables` longtext NOT NULL DEFAULT '{}',
   `enabled` tinyint(1) NOT NULL,
   `monitored` tinyint(1) NOT NULL DEFAULT '0',
+  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `host_host` (`host`),
   UNIQUE KEY `host_hostname` (`hostname`)
