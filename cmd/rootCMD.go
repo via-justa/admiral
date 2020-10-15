@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/via-justa/admiral/release"
 )
 
 var (
@@ -48,6 +49,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&jsonPath, "file", "", "Path to JSON encoded file")
 
 	log.SetFlags(0)
+
+	release.CheckForUpdates(AppVersion)
 }
 
 //Execute starts the program

@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/google/go-github/v32 v32.1.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/spf13/cobra v1.0.0
