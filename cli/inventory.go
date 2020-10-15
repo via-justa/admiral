@@ -109,6 +109,8 @@ func GenInventory() ([]byte, error) {
 				return nil, err
 			}
 
+			hostVars["ansible_ssh_host"] = invData.hosts[i].Host
+
 			inventoryHosts[invData.hosts[i].Hostname+"."+invData.hosts[i].Domain] = hostVars
 		}
 	}
