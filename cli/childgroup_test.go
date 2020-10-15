@@ -11,8 +11,8 @@ func TestCreateChildGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		parent datastructs.Group
-		child  datastructs.Group
+		parent *datastructs.Group
+		child  *datastructs.Group
 	}
 
 	tests := []struct {
@@ -23,40 +23,40 @@ func TestCreateChildGroup(t *testing.T) {
 		{
 			name: "Insert New",
 			args: args{
-				parent: datastructs.Group{ID: 3},
-				child:  datastructs.Group{ID: 2},
+				parent: &datastructs.Group{ID: 3},
+				child:  &datastructs.Group{ID: 2},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Insert Duplicate",
 			args: args{
-				parent: datastructs.Group{ID: 2},
-				child:  datastructs.Group{ID: 1},
+				parent: &datastructs.Group{ID: 2},
+				child:  &datastructs.Group{ID: 1},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Insert none-existing",
 			args: args{
-				parent: datastructs.Group{ID: 5},
-				child:  datastructs.Group{ID: 1},
+				parent: &datastructs.Group{ID: 5},
+				child:  &datastructs.Group{ID: 1},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Child and Parent the same",
 			args: args{
-				parent: datastructs.Group{ID: 1},
-				child:  datastructs.Group{ID: 1},
+				parent: &datastructs.Group{ID: 1},
+				child:  &datastructs.Group{ID: 1},
 			},
 			wantErr: true,
 		},
 		{
 			name: "Relationship loop",
 			args: args{
-				parent: datastructs.Group{ID: 1, Name: "group1"},
-				child:  datastructs.Group{ID: 3, Name: "group3"},
+				parent: &datastructs.Group{ID: 1, Name: "group1"},
+				child:  &datastructs.Group{ID: 3, Name: "group3"},
 			},
 			wantErr: true,
 		},
@@ -198,7 +198,7 @@ func TestDeleteChildGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		childGroup datastructs.ChildGroup
+		childGroup *datastructs.ChildGroup
 	}
 
 	tests := []struct {
@@ -210,7 +210,7 @@ func TestDeleteChildGroup(t *testing.T) {
 		{
 			name: "delete child-group",
 			args: args{
-				childGroup: datastructs.ChildGroup{Child: 1, Parent: 2},
+				childGroup: &datastructs.ChildGroup{Child: 1, Parent: 2},
 			},
 			wantAffected: 1,
 			wantErr:      false,
@@ -218,7 +218,7 @@ func TestDeleteChildGroup(t *testing.T) {
 		{
 			name: "delete none-existing child-group",
 			args: args{
-				childGroup: datastructs.ChildGroup{Child: 2, Parent: 3},
+				childGroup: &datastructs.ChildGroup{Child: 2, Parent: 3},
 			},
 			wantAffected: 0,
 			wantErr:      true,

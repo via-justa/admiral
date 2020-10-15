@@ -1,5 +1,11 @@
 USE ansible
 
+-- Clean tables
+DELETE FROM `group`;
+DELETE FROM `host`;
+DELETE FROM `hostgroups`;
+DELETE FROM `childgroups`;
+
 -- Create groups
 INSERT INTO `group` (`id`,`name`,`variables`,`enabled`,`monitored`) VALUES (1,"group1","{\"group_var1\": {\"group_sub_var1\": \"group_sub_val1\"}}",1,1);
 INSERT INTO `group` (`id`,`name`,`variables`,`enabled`,`monitored`) VALUES (2,"group2","{\"group_var2\": \"group_val2\"}",1,1);

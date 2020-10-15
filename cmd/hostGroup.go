@@ -78,7 +78,7 @@ func createHostGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err = cli.CreateHostGroup(&host, group); err != nil {
+	if err = cli.CreateHostGroup(&host, &group); err != nil {
 		log.Fatal(err)
 	}
 
@@ -151,7 +151,7 @@ func deleteHostGroupFunc(cmd *cobra.Command, args []string) {
 		Group: group.ID,
 	}
 
-	affected, err := cli.DeleteHostGroup(hostGroup)
+	affected, err := cli.DeleteHostGroup(&hostGroup)
 	if err != nil {
 		log.Fatal(err)
 	} else {
