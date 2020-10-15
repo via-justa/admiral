@@ -228,6 +228,8 @@ func printGroups(groups []datastructs.Group) {
 		{Header: "name", MinWidth: 12},
 		{Header: "Enabled", MinWidth: 12},
 		{Header: "Monitored", MinWidth: 12},
+		{Header: "Children count", MinWidth: 12},
+		{Header: "Hosts count", MinWidth: 12},
 	}...)
 	if err != nil {
 		log.Fatal(err)
@@ -236,7 +238,7 @@ func printGroups(groups []datastructs.Group) {
 	tbl.Separator = " | "
 
 	for _, group := range groups {
-		err = tbl.AddRow(group.ID, group.Name, group.Enabled, group.Monitored)
+		err = tbl.AddRow(group.ID, group.Name, group.Enabled, group.Monitored, group.NumChildren, group.NumHosts)
 		if err != nil {
 			log.Fatal(err)
 		}

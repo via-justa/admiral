@@ -49,12 +49,15 @@ func (h *Host) MarshalVars() error {
 
 // Group represent inventory group
 type Group struct {
-	ID              int           `json:"id" db:"id"`
+	ID              int           `json:"-" db:"id"`
+	GroupID         int           `json:"id" db:"group_id"`
 	Name            string        `json:"name" db:"name"`
 	Variables       string        `json:"-" db:"variables"`
 	PrettyVariables InventoryVars `json:"variables"`
 	Enabled         bool          `json:"enable" db:"enabled"`
 	Monitored       bool          `json:"monitor" db:"monitored"`
+	NumChildren     int           `json:"-" db:"num_children"`
+	NumHosts        int           `json:"-" db:"num_hosts"`
 }
 
 // UnmarshalVars convert string json `Group.Variables` to json value of

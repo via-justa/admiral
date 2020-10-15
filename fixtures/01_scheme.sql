@@ -126,3 +126,18 @@ GROUP BY
 	host.hostname
 ORDER BY
 	host.hostname;
+
+CREATE OR REPLACE
+ALGORITHM = UNDEFINED VIEW groups_view AS
+SELECT 
+	g.id AS group_id,
+	g.name AS name,
+	g.enabled AS enabled,
+	g.monitored AS monitored,
+	g.variables AS variables,
+	COUNT(DISTINCT c.child_id) AS num_children,
+	COUNT(DISTINCT h.host_id) AS num_hosts  
+FROM `group` g 
+LEFT JOIN childgroups c ON g.id = c.parent_id 
+LEFT JOIN hostgroups h ON g.id = h.group_id 
+GROUP BY g.id;

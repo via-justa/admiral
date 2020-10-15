@@ -146,7 +146,7 @@ func (db *Database) DeleteHost(host *datastructs.Host) (affected int64, err erro
 func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
 	switch {
 	case len(name) != 0:
-		err = db.Conn.Get(&returnedGroup, "SELECT id, name, variables, enabled, monitored FROM `group` WHERE name=?", name)
+		err = db.Conn.Get(&returnedGroup, "SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view` WHERE name=?", name)
 		if err == sql.ErrNoRows {
 			return returnedGroup, nil
 		} else if err != nil {
@@ -155,7 +155,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 
 		return returnedGroup, nil
 	case id != 0:
-		err := db.Conn.Get(&returnedGroup, "SELECT id, name, variables, enabled, monitored FROM `group` WHERE id=?", id)
+		err := db.Conn.Get(&returnedGroup, "SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view` WHERE id=?", id)
 		if err == sql.ErrNoRows {
 			return returnedGroup, nil
 		} else if err != nil {
@@ -170,7 +170,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 
 // GetGroups return all groups in the inventory
 func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
-	rows, err := db.Conn.Query("SELECT id, name, variables, enabled, monitored FROM `group`")
+	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view`")
 	if err == sql.ErrNoRows {
 		return groups, nil
 	} else if err != nil {
@@ -179,7 +179,7 @@ func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
 
 	for rows.Next() {
 		group := new(datastructs.Group)
-		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored); err != nil {
+		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored, &group.NumChildren, &group.NumHosts); err != nil {
 			return groups, err
 		}
 
