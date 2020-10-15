@@ -338,7 +338,7 @@ func (db *Database) SelectHostGroup(host, group string) (hostGroups []datastruct
 
 		return hostGroups, nil
 	case group != "":
-		rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id, host, host_id FROM hostgroup_view WHERE group=?", group)
+		rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id, host, host_id FROM hostgroup_view WHERE `group`=?", group)
 		if err == sql.ErrNoRows {
 			return hostGroups, nil
 		} else if err != nil {
