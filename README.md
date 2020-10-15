@@ -20,7 +20,7 @@ For other Operating Systems you can build from source
 Installation
 ------------
 
--   Download the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
+-   Download and extract the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
 -   Add configuration file is detailed in the `Configuration File` section
 
 Configuration File
