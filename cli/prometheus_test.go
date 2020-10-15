@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var promSD = `[{"targets":["host1.local"],"labels":{"groups":["group1","group2","group3"]}}]`
+var promSD = `[{"targets":["host1.local"],"labels":{"group":"group1","inherited_groups":"group2,group3"}}]`
 
 func TestGenPrometheusSDFile(t *testing.T) {
 	db = dbMock{}
@@ -32,7 +32,7 @@ func TestGenPrometheusSDFile(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(gotPromSDFile, tt.wantPromSDFile) {
-				t.Errorf("GenPrometheusSDFile() = %v, want %v", gotPromSDFile, tt.wantPromSDFile)
+				t.Errorf("GenPrometheusSDFile() = %s, want %s", gotPromSDFile, tt.wantPromSDFile)
 			}
 		})
 	}

@@ -149,6 +149,7 @@ type Inventory struct {
 type Prometheus struct {
 	Targets []string `json:"targets"`
 	Lables  struct {
-		Groups []string `json:"groups"`
+		Group           string `json:"group"`
+		InheritedGroups string `json:"inherited_groups"`
 	} `json:"labels"`
 }
