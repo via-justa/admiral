@@ -37,7 +37,7 @@ func getInventoryData() (inv inventoryData, err error) {
 	return inv, nil
 }
 
-func (inv *inventoryData) getChildren(parent datastructs.Group) (children []string) {
+func (inv *inventoryData) getChildren(parent *datastructs.Group) (children []string) {
 	// Get group children
 	for _, childGroup := range inv.childGroups {
 		if childGroup.ParentID == parent.ID {
@@ -48,7 +48,7 @@ func (inv *inventoryData) getChildren(parent datastructs.Group) (children []stri
 	return children
 }
 
-func (inv *inventoryData) getGroupHosts(parent datastructs.Group) (groupHosts []string) {
+func (inv *inventoryData) getGroupHosts(parent *datastructs.Group) (groupHosts []string) {
 	for i := range inv.hostGroups {
 		if inv.hostGroups[i].GroupID == parent.ID {
 			for j := range inv.hosts {
@@ -67,7 +67,8 @@ func (inv *inventoryData) buildInventoryGroups() (datastructs.InventoryGroups, e
 
 	for _, parent := range inv.groups {
 		if parent.Enabled {
-			children := inv.getChildren(parent)
+			p := parent
+			children := inv.getChildren(&p)
 
 			// get group vars
 			var GroupVars datastructs.InventoryVars
@@ -77,7 +78,7 @@ func (inv *inventoryData) buildInventoryGroups() (datastructs.InventoryGroups, e
 				return nil, err
 			}
 
-			groupHosts := inv.getGroupHosts(parent)
+			groupHosts := inv.getGroupHosts(&p)
 
 			inventoryGroups[parent.Name] = datastructs.InventoryGroupsData{
 				Children: children,

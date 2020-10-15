@@ -12,7 +12,7 @@ func TestCreateHostGroup(t *testing.T) {
 
 	type args struct {
 		host  *datastructs.Host
-		group datastructs.Group
+		group *datastructs.Group
 	}
 
 	tests := []struct {
@@ -24,7 +24,7 @@ func TestCreateHostGroup(t *testing.T) {
 			name: "Insert New",
 			args: args{
 				host:  &datastructs.Host{ID: 2},
-				group: datastructs.Group{ID: 2},
+				group: &datastructs.Group{ID: 2},
 			},
 			wantErr: false,
 		},
@@ -32,7 +32,7 @@ func TestCreateHostGroup(t *testing.T) {
 			name: "Insert Duplicate",
 			args: args{
 				host:  &datastructs.Host{ID: 1},
-				group: datastructs.Group{ID: 1},
+				group: &datastructs.Group{ID: 1},
 			},
 			wantErr: true,
 		},
@@ -40,7 +40,7 @@ func TestCreateHostGroup(t *testing.T) {
 			name: "Insert none-existing",
 			args: args{
 				host:  &datastructs.Host{ID: 3},
-				group: datastructs.Group{ID: 3},
+				group: &datastructs.Group{ID: 3},
 			},
 			wantErr: true,
 		},
@@ -202,7 +202,7 @@ func TestDeleteHostGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		hostGroup datastructs.HostGroup
+		hostGroup *datastructs.HostGroup
 	}
 
 	tests := []struct {
@@ -214,7 +214,7 @@ func TestDeleteHostGroup(t *testing.T) {
 		{
 			name: "delete host-group",
 			args: args{
-				hostGroup: datastructs.HostGroup{Host: 1, Group: 1},
+				hostGroup: &datastructs.HostGroup{Host: 1, Group: 1},
 			},
 			wantAffected: 1,
 			wantErr:      false,
@@ -222,7 +222,7 @@ func TestDeleteHostGroup(t *testing.T) {
 		{
 			name: "delete none-existing host-group",
 			args: args{
-				hostGroup: datastructs.HostGroup{Host: 2, Group: 2},
+				hostGroup: &datastructs.HostGroup{Host: 2, Group: 2},
 			},
 			wantAffected: 0,
 			wantErr:      true,

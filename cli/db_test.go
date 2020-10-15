@@ -100,7 +100,7 @@ func (d dbMock) getGroups() (groups []datastructs.Group, err error) {
 	}, nil
 }
 
-func (d dbMock) insertGroup(group datastructs.Group) (affected int64, err error) {
+func (d dbMock) insertGroup(group *datastructs.Group) (affected int64, err error) {
 	switch {
 	// insert existing group without changes
 	// nolint: go-lint
@@ -120,7 +120,7 @@ func (d dbMock) insertGroup(group datastructs.Group) (affected int64, err error)
 	}
 }
 
-func (d dbMock) deleteGroup(group datastructs.Group) (affected int64, err error) {
+func (d dbMock) deleteGroup(group *datastructs.Group) (affected int64, err error) {
 	switch {
 	case group.ID == 1 || group.ID == 2 || group.ID == 3:
 		return 1, nil
@@ -215,7 +215,7 @@ func (d dbMock) deleteHost(host *datastructs.Host) (affected int64, err error) {
 
 // Host-group
 
-func (d dbMock) insertHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
+func (d dbMock) insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	switch {
 	// Duplicate record
 	case hostGroup.Host == 1 && hostGroup.Group == 1:
@@ -245,7 +245,7 @@ func (d dbMock) getHostGroups() (hostGroups []datastructs.HostGroupView, err err
 		datastructs.HostGroupView{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
 }
 
-func (d dbMock) deleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
+func (d dbMock) deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	switch {
 	case hostGroup.Host == 1 || hostGroup.Group == 1:
 		return 1, nil
@@ -256,7 +256,7 @@ func (d dbMock) deleteHostGroup(hostGroup datastructs.HostGroup) (affected int64
 
 // Child-group
 
-func (d dbMock) insertChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
+func (d dbMock) insertChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	switch {
 	// Duplicate record
 	case childGroup.Child == 1 && childGroup.Parent == 2:
@@ -296,7 +296,7 @@ func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroupView, err 
 	}, nil
 }
 
-func (d dbMock) deleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
+func (d dbMock) deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	switch {
 	case childGroup.Child == 1 || childGroup.Parent == 2:
 		return 1, nil

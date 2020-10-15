@@ -8,7 +8,7 @@ import (
 )
 
 // CreateGroup accept group to create
-func CreateGroup(group datastructs.Group) error {
+func CreateGroup(group *datastructs.Group) error {
 	i, err := db.insertGroup(group)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func ListGroups() (groups []datastructs.Group, err error) {
 }
 
 // EditGroup accept group to edit
-func EditGroup(group datastructs.Group) error {
+func EditGroup(group *datastructs.Group) error {
 	err := group.UnmarshalVars()
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func EditGroup(group datastructs.Group) error {
 		return err
 	}
 
-	i, err := db.insertGroup(modifiedGroup)
+	i, err := db.insertGroup(&modifiedGroup)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -93,7 +93,7 @@ func EditGroup(group datastructs.Group) error {
 }
 
 // DeleteGroup accept group to remove
-func DeleteGroup(group datastructs.Group) (affected int64, err error) {
+func DeleteGroup(group *datastructs.Group) (affected int64, err error) {
 	affected, err = db.deleteGroup(group)
 	if err != nil {
 		return affected, err

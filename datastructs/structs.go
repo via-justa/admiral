@@ -6,8 +6,7 @@ import (
 
 // Host represents inventory host
 type Host struct {
-	ID              int           `json:"-" db:"id"`
-	HostID          int           `json:"id" db:"host_id"`
+	ID              int           `json:"id" db:"host_id"`
 	Host            string        `json:"ip" db:"host"`
 	Hostname        string        `json:"hostname" db:"hostname"`
 	Domain          string        `json:"domain" db:"domain"`
@@ -49,8 +48,7 @@ func (h *Host) MarshalVars() error {
 
 // Group represent inventory group
 type Group struct {
-	ID              int           `json:"-" db:"id"`
-	GroupID         int           `json:"id" db:"group_id"`
+	ID              int           `json:"id" db:"group_id"`
 	Name            string        `json:"name" db:"name"`
 	Variables       string        `json:"-" db:"variables"`
 	PrettyVariables InventoryVars `json:"variables"`

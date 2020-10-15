@@ -46,6 +46,8 @@ db = "ansible"`,
 // nolint:errcheck
 func init() {
 	rootCmd.PersistentFlags().StringVar(&jsonPath, "file", "", "Path to JSON encoded file")
+
+	log.SetFlags(0)
 }
 
 //Execute starts the program

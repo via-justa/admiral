@@ -7,8 +7,8 @@ import (
 )
 
 // CreateHostGroup accept host and group and create new relationship
-func CreateHostGroup(host *datastructs.Host, group datastructs.Group) error {
-	hostGroup := datastructs.HostGroup{
+func CreateHostGroup(host *datastructs.Host, group *datastructs.Group) error {
+	hostGroup := &datastructs.HostGroup{
 		Host:  host.ID,
 		Group: group.ID,
 	}
@@ -58,7 +58,7 @@ func ListHostGroup() (hostGroups []datastructs.HostGroupView, err error) {
 }
 
 // DeleteHostGroup accept hostGroup to remove
-func DeleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
+func DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	affected, err = db.deleteHostGroup(hostGroup)
 	if err != nil {
 		return affected, err

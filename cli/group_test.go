@@ -11,7 +11,7 @@ func TestCreateGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		group datastructs.Group
+		group *datastructs.Group
 	}
 
 	tests := []struct {
@@ -22,7 +22,7 @@ func TestCreateGroup(t *testing.T) {
 		{
 			name: "Insert group",
 			args: args{
-				group: datastructs.Group{
+				group: &datastructs.Group{
 					Name:      "group4",
 					Variables: "{\"var4\": \"val4\"}",
 					Enabled:   true,
@@ -34,7 +34,7 @@ func TestCreateGroup(t *testing.T) {
 		{
 			name: "Insert Existing group without change",
 			args: args{
-				group: datastructs.Group{
+				group: &datastructs.Group{
 					Name:      "group1",
 					Variables: "{\"var1\": \"val1\"}",
 					Enabled:   true,
@@ -46,7 +46,7 @@ func TestCreateGroup(t *testing.T) {
 		{
 			name: "Change Existing group",
 			args: args{
-				group: datastructs.Group{
+				group: &datastructs.Group{
 					Name:      "group1",
 					Variables: "{\"var1\": \"val1\", \"var2\": \"val2\"}",
 					Enabled:   true,
@@ -58,7 +58,7 @@ func TestCreateGroup(t *testing.T) {
 		{
 			name: "Missing group name",
 			args: args{
-				group: datastructs.Group{Name: ""},
+				group: &datastructs.Group{Name: ""},
 			},
 			wantErr: true,
 		},
@@ -246,7 +246,7 @@ func TestDeleteGroup(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		group datastructs.Group
+		group *datastructs.Group
 	}
 
 	tests := []struct {
@@ -258,7 +258,7 @@ func TestDeleteGroup(t *testing.T) {
 		{
 			name: "Delete group",
 			args: args{
-				group: datastructs.Group{ID: 1},
+				group: &datastructs.Group{ID: 1},
 			},
 			wantAffected: 1,
 			wantErr:      false,
@@ -266,7 +266,7 @@ func TestDeleteGroup(t *testing.T) {
 		{
 			name: "Delete non-existing group",
 			args: args{
-				group: datastructs.Group{ID: 4},
+				group: &datastructs.Group{ID: 4},
 			},
 			wantAffected: 0,
 			wantErr:      true,

@@ -7,7 +7,7 @@ import (
 )
 
 // CreateChildGroup accept parent and child groups to create new child-group relationship
-func CreateChildGroup(parent datastructs.Group, child datastructs.Group) error {
+func CreateChildGroup(parent *datastructs.Group, child *datastructs.Group) error {
 	if child.ID == parent.ID {
 		return fmt.Errorf("child and parent cannot be the same group")
 	}
@@ -19,7 +19,7 @@ func CreateChildGroup(parent datastructs.Group, child datastructs.Group) error {
 		return fmt.Errorf("relationship loop detected")
 	}
 
-	childGroup := datastructs.ChildGroup{
+	childGroup := &datastructs.ChildGroup{
 		Parent: parent.ID,
 		Child:  child.ID,
 	}
@@ -72,7 +72,7 @@ func ListChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
 }
 
 // DeleteChildGroup accept child-group relationship to remove
-func DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
+func DeleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	affected, err = db.deleteChildGroup(childGroup)
 	if err != nil {
 		return affected, err

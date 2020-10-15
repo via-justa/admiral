@@ -79,7 +79,7 @@ func createChildGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err = cli.CreateChildGroup(parentGroup, childGroup); err != nil {
+	if err = cli.CreateChildGroup(&parentGroup, &childGroup); err != nil {
 		log.Fatal(err)
 	}
 
@@ -101,24 +101,16 @@ var viewChildGroup = &cobra.Command{
 func viewChildGroupFunc(cmd *cobra.Command, args []string) {
 	var childGroups []datastructs.ChildGroupView
 
+	var err error
+
 	switch {
 	case len(parentName) > 0:
-		group, err := cli.ViewGroupByName(parentName)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		childGroups, err = cli.ViewChildGroupsByParent(group.Name)
+		childGroups, err = cli.ViewChildGroupsByParent(parentName)
 		if err != nil {
 			log.Fatal(err)
 		}
 	case len(childName) > 0:
-		group, err := cli.ViewGroupByName(childName)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		childGroups, err = cli.ViewChildGroupsByChild(group.Name)
+		childGroups, err = cli.ViewChildGroupsByChild(childName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -160,7 +152,7 @@ func deleteChildGroupFunc(cmd *cobra.Command, args []string) {
 		Child:  cGroup.ID,
 	}
 
-	affected, err := cli.DeleteChildGroup(childGroup)
+	affected, err := cli.DeleteChildGroup(&childGroup)
 	if err != nil {
 		log.Fatal(err)
 	} else {

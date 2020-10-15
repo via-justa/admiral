@@ -83,7 +83,7 @@ func createGroupFunc(cmd *cobra.Command, args []string) {
 		group.Variables = "{}"
 	}
 
-	if err := cli.CreateGroup(group); err != nil {
+	if err := cli.CreateGroup(&group); err != nil {
 		log.Fatal(err)
 	}
 
@@ -166,7 +166,7 @@ func editGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	err = cli.EditGroup(group)
+	err = cli.EditGroup(&group)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -199,7 +199,7 @@ func deleteGroupFunc(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing selector flag use --help to get available options")
 	}
 
-	affected, err := cli.DeleteGroup(group)
+	affected, err := cli.DeleteGroup(&group)
 	if err != nil {
 		log.Fatal(err)
 	} else {

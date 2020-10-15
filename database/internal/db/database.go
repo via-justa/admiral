@@ -77,7 +77,7 @@ func (db *Database) SelectHost(hostname string, ip string, id int) (returnedHost
 
 		return returnedHost, nil
 	case id != 0:
-		err := db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE id=?", id)
+		err := db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE host_id=?", id)
 		if err == sql.ErrNoRows {
 			return returnedHost, nil
 		} else if err != nil {
@@ -155,7 +155,7 @@ func (db *Database) SelectGroup(name string, id int) (returnedGroup datastructs.
 
 		return returnedGroup, nil
 	case id != 0:
-		err := db.Conn.Get(&returnedGroup, "SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view` WHERE id=?", id)
+		err := db.Conn.Get(&returnedGroup, "SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view` WHERE group_id=?", id)
 		if err == sql.ErrNoRows {
 			return returnedGroup, nil
 		} else if err != nil {
@@ -190,10 +190,11 @@ func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
 }
 
 // InsertGroup accept Group to insert or update and return the number of affected rows and error if exists
-func (db *Database) InsertGroup(group datastructs.Group) (affected int64, err error) {
+func (db *Database) InsertGroup(group *datastructs.Group) (affected int64, err error) {
 	sql := "INSERT INTO `group` (name, variables, enabled, monitored) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE variables=?, enabled=?, monitored=?"
 
-	res, err := db.Conn.Exec(sql, group.Name, group.Variables, group.Enabled, group.Monitored, group.Variables, group.Enabled, group.Monitored)
+	res, err := db.Conn.Exec(sql, group.Name, group.Variables, group.Enabled,
+		group.Monitored, group.Variables, group.Enabled, group.Monitored)
 	if err != nil {
 		return 0, err
 	}
@@ -204,7 +205,7 @@ func (db *Database) InsertGroup(group datastructs.Group) (affected int64, err er
 }
 
 // DeleteGroup accept Group to delete and return the number of affected rows and error if exists
-func (db *Database) DeleteGroup(group datastructs.Group) (affected int64, err error) {
+func (db *Database) DeleteGroup(group *datastructs.Group) (affected int64, err error) {
 	res, err := db.Conn.Exec("DELETE FROM `group` WHERE id=?", group.ID)
 	if err != nil {
 		return 0, err
@@ -286,7 +287,7 @@ func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroupView, 
 }
 
 // InsertChildGroup accept ChildGroup to insert and return the number of affected rows and error if exists
-func (db *Database) InsertChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
+func (db *Database) InsertChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	sql := `INSERT INTO childgroups (child_id, parent_id) VALUES (?,?)`
 
 	res, err := db.Conn.Exec(sql, childGroup.Child, childGroup.Parent)
@@ -300,7 +301,7 @@ func (db *Database) InsertChildGroup(childGroup datastructs.ChildGroup) (affecte
 }
 
 // DeleteChildGroup accept ChildGroup to delete and return the number of affected rows and error if exists
-func (db *Database) DeleteChildGroup(childGroup datastructs.ChildGroup) (affected int64, err error) {
+func (db *Database) DeleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	res, err := db.Conn.Exec("DELETE FROM childgroups WHERE child_id=? and parent_id=?", childGroup.Child, childGroup.Parent)
 	if err != nil {
 		return 0, err
@@ -382,7 +383,7 @@ func (db *Database) GetHostGroups() (hostGroups []datastructs.HostGroupView, err
 }
 
 // InsertHostGroup accept HostGroup to insert and return the number of affected rows and error if exists
-func (db *Database) InsertHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
+func (db *Database) InsertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	sql := `INSERT INTO hostgroups (host_id, group_id) VALUES (?,?)`
 
 	res, err := db.Conn.Exec(sql, hostGroup.Host, hostGroup.Group)
@@ -396,7 +397,7 @@ func (db *Database) InsertHostGroup(hostGroup datastructs.HostGroup) (affected i
 }
 
 // DeleteHostGroup accept HostGroup to delete and return the number of affected rows and error if exists
-func (db *Database) DeleteHostGroup(hostGroup datastructs.HostGroup) (affected int64, err error) {
+func (db *Database) DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	res, err := db.Conn.Exec("DELETE FROM hostgroups WHERE host_id=? and group_id=?", hostGroup.Host, hostGroup.Group)
 	if err != nil {
 		return 0, err
