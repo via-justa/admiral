@@ -27,8 +27,8 @@ func GenPrometheusSDFile() (promSDFile []byte, err error) {
 					if groups[j].Enabled && groups[j].Monitored {
 						pHost := datastructs.Prometheus{}
 						pHost.Targets = []string{hosts[i].Hostname + "." + hosts[i].Domain}
-						pHost.Lables.Group = hosts[i].DirectGroup
-						pHost.Lables.InheritedGroups = hosts[i].InheritedGroups
+						pHost.Labels.Group = hosts[i].DirectGroup
+						pHost.Labels.InheritedGroups = hosts[i].InheritedGroups
 						prom = append(prom, pHost)
 					} else {
 						break
