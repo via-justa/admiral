@@ -149,7 +149,7 @@ type Inventory struct {
 // Prometheus is used to construct the inventory data in Prometheus static file structure
 type Prometheus struct {
 	Targets []string `json:"targets"`
-	Lables  struct {
+	Labels  struct {
 		Group           string `json:"group"`
 		InheritedGroups string `json:"inherited_groups"`
 	} `json:"labels"`

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/via-justa/admiral/release"
@@ -49,12 +50,14 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&jsonPath, "file", "", "Path to JSON encoded file")
 
 	log.SetFlags(0)
-
-	release.CheckForUpdates(AppVersion)
 }
 
 //Execute starts the program
 func Execute() {
+	if os.Args[1] != "inventory" && os.Args[1] != "prometheus" {
+		release.CheckForUpdates(AppVersion)
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
