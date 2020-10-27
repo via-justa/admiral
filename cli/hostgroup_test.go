@@ -65,7 +65,7 @@ func TestViewHostGroupByHost(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          args
-		wantHostGroup []datastructs.HostGroupView
+		wantHostGroup []datastructs.HostGroup
 		wantErr       bool
 	}{
 		{
@@ -73,8 +73,8 @@ func TestViewHostGroupByHost(t *testing.T) {
 			args: args{
 				host: "host1",
 			},
-			wantHostGroup: []datastructs.HostGroupView{
-				datastructs.HostGroupView{
+			wantHostGroup: []datastructs.HostGroup{
+				datastructs.HostGroup{
 					ID:      1,
 					Host:    "host1",
 					HostID:  1,
@@ -118,7 +118,7 @@ func TestViewHostGroupByGroup(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          args
-		wantHostGroup []datastructs.HostGroupView
+		wantHostGroup []datastructs.HostGroup
 		wantErr       bool
 	}{
 		{
@@ -126,8 +126,8 @@ func TestViewHostGroupByGroup(t *testing.T) {
 			args: args{
 				group: "group1",
 			},
-			wantHostGroup: []datastructs.HostGroupView{
-				datastructs.HostGroupView{
+			wantHostGroup: []datastructs.HostGroup{
+				datastructs.HostGroup{
 					ID:      1,
 					Host:    "host1",
 					HostID:  1,
@@ -166,13 +166,13 @@ func TestListHostGroup(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		wantHostGroups []datastructs.HostGroupView
+		wantHostGroups []datastructs.HostGroup
 		wantErr        bool
 	}{
 		{
 			name: "List host-group",
-			wantHostGroups: []datastructs.HostGroupView{
-				datastructs.HostGroupView{
+			wantHostGroups: []datastructs.HostGroup{
+				datastructs.HostGroup{
 					ID:      1,
 					HostID:  1,
 					Host:    "host1",
@@ -214,7 +214,7 @@ func TestDeleteHostGroup(t *testing.T) {
 		{
 			name: "delete host-group",
 			args: args{
-				hostGroup: &datastructs.HostGroup{Host: 1, Group: 1},
+				hostGroup: &datastructs.HostGroup{HostID: 1, GroupID: 1},
 			},
 			wantAffected: 1,
 			wantErr:      false,
@@ -222,7 +222,7 @@ func TestDeleteHostGroup(t *testing.T) {
 		{
 			name: "delete none-existing host-group",
 			args: args{
-				hostGroup: &datastructs.HostGroup{Host: 2, Group: 2},
+				hostGroup: &datastructs.HostGroup{HostID: 2, GroupID: 2},
 			},
 			wantAffected: 0,
 			wantErr:      true,

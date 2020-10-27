@@ -11,14 +11,6 @@ import (
 var (
 	// AppVersion is set in build time to the latest application version
 	AppVersion string
-
-	jsonPath  string
-	name      string
-	enable    bool
-	monitor   bool
-	variables string
-	id        int
-	toJSON    bool
 )
 
 var (
@@ -47,8 +39,6 @@ db = "ansible"`,
 
 // nolint:errcheck
 func init() {
-	rootCmd.PersistentFlags().StringVar(&jsonPath, "file", "", "Path to JSON encoded file")
-
 	log.SetFlags(0)
 }
 

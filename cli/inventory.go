@@ -9,8 +9,8 @@ import (
 type inventoryData struct {
 	hosts       []datastructs.Host
 	groups      []datastructs.Group
-	childGroups []datastructs.ChildGroupView
-	hostGroups  []datastructs.HostGroupView
+	childGroups []datastructs.ChildGroup
+	hostGroups  []datastructs.HostGroup
 }
 
 func getInventoryData() (inv inventoryData, err error) {

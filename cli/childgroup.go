@@ -20,8 +20,8 @@ func CreateChildGroup(parent *datastructs.Group, child *datastructs.Group) error
 	}
 
 	childGroup := &datastructs.ChildGroup{
-		Parent: parent.ID,
-		Child:  child.ID,
+		ParentID: parent.ID,
+		ChildID:  child.ID,
 	}
 
 	// TODO: check parent is not child of child (relationship loop)
@@ -35,8 +35,8 @@ func CreateChildGroup(parent *datastructs.Group, child *datastructs.Group) error
 	return nil
 }
 
-// ViewChildGroupsByParent accept parent group ID and return all child-group relationship for that group
-func ViewChildGroupsByParent(parent string) (childGroups []datastructs.ChildGroupView, err error) {
+// ViewChildGroupsByParent accept parent group name and return all child-group relationship for that group
+func ViewChildGroupsByParent(parent string) (childGroups []datastructs.ChildGroup, err error) {
 	childGroups, err = db.selectChildGroup("", parent)
 	if err != nil {
 		return childGroups, err
@@ -47,8 +47,8 @@ func ViewChildGroupsByParent(parent string) (childGroups []datastructs.ChildGrou
 	return childGroups, nil
 }
 
-// ViewChildGroupsByChild accept child group ID and return all child-group relationship for that group
-func ViewChildGroupsByChild(child string) (childGroups []datastructs.ChildGroupView, err error) {
+// ViewChildGroupsByChild accept child group name and return all child-group relationship for that group
+func ViewChildGroupsByChild(child string) (childGroups []datastructs.ChildGroup, err error) {
 	childGroups, err = db.selectChildGroup(child, "")
 	if err != nil {
 		return childGroups, err
@@ -59,8 +59,20 @@ func ViewChildGroupsByChild(child string) (childGroups []datastructs.ChildGroupV
 	return childGroups, nil
 }
 
+// ViewChildGroup accept child and parent group names and return all child-group relationship for that group
+func ViewChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error) {
+	childGroups, err = db.selectChildGroup(child, parent)
+	if err != nil {
+		return childGroups, err
+	} else if childGroups == nil {
+		return childGroups, fmt.Errorf("no record matched request")
+	}
+
+	return childGroups, nil
+}
+
 // ListChildGroups return all child-group relationships
-func ListChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
+func ListChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	childGroups, err = db.getChildGroups()
 	if err != nil {
 		return childGroups, err
@@ -116,4 +128,14 @@ func isRelationshipLoop(child, parent string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// ScanChildGroups search the database for all relationships of substring val
+func ScanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
+	childGroups, err = db.scanChildGroups(val)
+	if err != nil {
+		return childGroups, err
+	}
+
+	return childGroups, nil
 }
