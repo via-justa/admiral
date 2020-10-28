@@ -15,7 +15,7 @@ type Host struct {
 	Enabled         bool          `json:"enable" db:"enabled"`
 	Monitored       bool          `json:"monitor" db:"monitored"`
 	DirectGroup     string        `json:"direct_group" db:"direct_group"`
-	InheritedGroups string        `json:"inherited_groups" db:"inherited_groups"`
+	InheritedGroups string        `json:"-" db:"inherited_groups"`
 }
 
 // UnmarshalVars convert string json `Host.Variables` to json value of
@@ -88,13 +88,6 @@ func (g *Group) MarshalVars() error {
 
 // ChildGroup represent child-group relationship
 type ChildGroup struct {
-	ID     int `json:"id" db:"id"`
-	Child  int `json:"child_id" db:"child_id"`
-	Parent int `json:"parent_id" db:"parent_id"`
-}
-
-// ChildGroupView represent child-group view data
-type ChildGroupView struct {
 	ID       int    `json:"id" db:"relationship_id"`
 	Child    string `json:"child" db:"child"`
 	ChildID  int    `json:"child_id" db:"child_id"`
@@ -102,15 +95,8 @@ type ChildGroupView struct {
 	ParentID int    `json:"parent_id" db:"parent_id"`
 }
 
-// HostGroup represents host-group relationship
+// HostGroup represents host-group
 type HostGroup struct {
-	ID    int `json:"id" db:"id"`
-	Host  int `json:"host_id" db:"host_id"`
-	Group int `json:"group_id" db:"group_id"`
-}
-
-// HostGroupView represents host-group view data
-type HostGroupView struct {
 	ID      int    `json:"id" db:"relationship_id"`
 	Host    string `json:"host" db:"host"`
 	HostID  int    `json:"host_id" db:"host_id"`

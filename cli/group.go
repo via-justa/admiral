@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/via-justa/admiral/datastructs"
@@ -53,45 +52,6 @@ func ListGroups() (groups []datastructs.Group, err error) {
 	return groups, nil
 }
 
-// EditGroup accept group to edit
-func EditGroup(group *datastructs.Group) error {
-	err := group.UnmarshalVars()
-	if err != nil {
-		return err
-	}
-
-	groupB, err := json.MarshalIndent(group, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	modifiedGroupB, err := Edit(groupB)
-	if err != nil {
-		return err
-	}
-
-	var modifiedGroup datastructs.Group
-
-	err = json.Unmarshal(modifiedGroupB, &modifiedGroup)
-	if err != nil {
-		return err
-	}
-
-	err = modifiedGroup.MarshalVars()
-	if err != nil {
-		return err
-	}
-
-	i, err := db.insertGroup(&modifiedGroup)
-	if err != nil {
-		return err
-	} else if i == 0 {
-		return fmt.Errorf("no lines affected")
-	}
-
-	return nil
-}
-
 // DeleteGroup accept group to remove
 func DeleteGroup(group *datastructs.Group) (affected int64, err error) {
 	affected, err = db.deleteGroup(group)
@@ -102,4 +62,14 @@ func DeleteGroup(group *datastructs.Group) (affected int64, err error) {
 	}
 
 	return affected, nil
+}
+
+// ScanGroups search the database for all groups with substring val in name
+func ScanGroups(val string) (groups []datastructs.Group, err error) {
+	groups, err = db.scanGroups(val)
+	if err != nil {
+		return groups, err
+	}
+
+	return groups, nil
 }

@@ -129,6 +129,48 @@ func (d dbMock) deleteGroup(group *datastructs.Group) (affected int64, err error
 	}
 }
 
+func (d dbMock) scanGroups(val string) (groups []datastructs.Group, err error) {
+	switch {
+	// Existing record group1
+	case val == "group1":
+		return []datastructs.Group{
+			datastructs.Group{
+				ID:        1,
+				Name:      "group1",
+				Variables: "{\"var1\": \"val1\"}",
+				Enabled:   true,
+				Monitored: true,
+			},
+		}, nil
+	// Existing record group2
+	case val == "group2":
+		return []datastructs.Group{
+			datastructs.Group{
+				ID:        2,
+				Name:      "group2",
+				Variables: "{\"var2\": \"val2\"}",
+				Enabled:   true,
+				Monitored: true,
+			}}, nil
+	// Existing record group3
+	case val == "group3":
+		return []datastructs.Group{
+			datastructs.Group{
+				ID:        3,
+				Name:      "group3",
+				Variables: "{\"var3\": \"val3\"}",
+				Enabled:   true,
+				Monitored: true,
+			}}, nil
+	// Error missing param
+	case val == "":
+		return groups, fmt.Errorf("missing param")
+	// return empty if group does not exists
+	default:
+		return groups, nil
+	}
+}
+
 // Host
 
 func (d dbMock) selectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
@@ -213,41 +255,68 @@ func (d dbMock) deleteHost(host *datastructs.Host) (affected int64, err error) {
 	}
 }
 
+func (d dbMock) scanHosts(val string) (hosts []datastructs.Host, err error) {
+	switch {
+	// Existing record
+	// nolint: goconst
+	case val == "host1" || val == "1.1.1.1":
+		return []datastructs.Host{
+			datastructs.Host{
+				ID:              1,
+				Hostname:        "host1",
+				Host:            "1.1.1.1",
+				Domain:          "local",
+				Variables:       "{\"var1\": \"val1\"}",
+				Enabled:         true,
+				Monitored:       true,
+				DirectGroup:     "group1",
+				InheritedGroups: "group2,group3",
+			},
+		}, nil
+	// Error missing param
+	case val == "":
+		return hosts, fmt.Errorf("missing param")
+	// return empty if host does not exists
+	default:
+		return hosts, nil
+	}
+}
+
 // Host-group
 
 func (d dbMock) insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	switch {
 	// Duplicate record
-	case hostGroup.Host == 1 && hostGroup.Group == 1:
+	case hostGroup.HostID == 1 && hostGroup.GroupID == 1:
 		return 0, nil
 	// Simulate forign key missing
-	case hostGroup.Host >= 3 || hostGroup.Group >= 3:
+	case hostGroup.HostID >= 3 || hostGroup.GroupID >= 3:
 		return 0, fmt.Errorf("Group does not exist")
 	default:
 		return 1, nil
 	}
 }
 
-func (d dbMock) selectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error) {
+func (d dbMock) selectHostGroup(host, group string) (hostGroups []datastructs.HostGroup, err error) {
 	switch {
 	// Existing record
 	case host == "host1" || group == "group1":
-		return []datastructs.HostGroupView{
-			datastructs.HostGroupView{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
+		return []datastructs.HostGroup{
+			datastructs.HostGroup{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
 	// The rest of the request should return empty
 	default:
 		return hostGroups, nil
 	}
 }
 
-func (d dbMock) getHostGroups() (hostGroups []datastructs.HostGroupView, err error) {
-	return []datastructs.HostGroupView{
-		datastructs.HostGroupView{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
+func (d dbMock) getHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+	return []datastructs.HostGroup{
+		datastructs.HostGroup{ID: 1, HostID: 1, Host: "host1", GroupID: 1, Group: "group1"}}, nil
 }
 
 func (d dbMock) deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	switch {
-	case hostGroup.Host == 1 || hostGroup.Group == 1:
+	case hostGroup.HostID == 1 || hostGroup.GroupID == 1:
 		return 1, nil
 	default:
 		return 0, nil
@@ -259,38 +328,38 @@ func (d dbMock) deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int6
 func (d dbMock) insertChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	switch {
 	// Duplicate record
-	case childGroup.Child == 1 && childGroup.Parent == 2:
+	case childGroup.ChildID == 1 && childGroup.ParentID == 2:
 		return 0, nil
 	// Simulate forign key missing
-	case childGroup.Child > 3 || childGroup.Parent > 3:
+	case childGroup.ChildID > 3 || childGroup.ParentID > 3:
 		return 0, fmt.Errorf("Group does not exist")
 	default:
 		return 1, nil
 	}
 }
 
-func (d dbMock) selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error) {
+func (d dbMock) selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error) {
 	switch {
 	// Existing record 1 - group 1 is child of group 2
 	case child == "group1" || parent == "group2":
-		return []datastructs.ChildGroupView{
-			datastructs.ChildGroupView{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"}}, nil
+		return []datastructs.ChildGroup{
+			datastructs.ChildGroup{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"}}, nil
 	// Existing record 2 - group 2 is child of group 3
 	case child == "group2" || parent == "group3":
-		return []datastructs.ChildGroupView{
-			datastructs.ChildGroupView{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"}}, nil
+		return []datastructs.ChildGroup{
+			datastructs.ChildGroup{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"}}, nil
 	// The rest of the request should return empty
 	default:
 		return childGroups, nil
 	}
 }
 
-func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
-	return []datastructs.ChildGroupView{
-		datastructs.ChildGroupView{
+func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroup, err error) {
+	return []datastructs.ChildGroup{
+		datastructs.ChildGroup{
 			ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2",
 		},
-		datastructs.ChildGroupView{
+		datastructs.ChildGroup{
 			ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3",
 		},
 	}, nil
@@ -298,9 +367,25 @@ func (d dbMock) getChildGroups() (childGroups []datastructs.ChildGroupView, err 
 
 func (d dbMock) deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
 	switch {
-	case childGroup.Child == 1 || childGroup.Parent == 2:
+	case childGroup.ChildID == 1 || childGroup.ParentID == 2:
 		return 1, nil
 	default:
 		return 0, nil
+	}
+}
+
+func (d dbMock) scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
+	switch {
+	// Existing record 1 - group 1 is child of group 2
+	case val == "group1" || val == "group2":
+		return []datastructs.ChildGroup{
+			datastructs.ChildGroup{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"}}, nil
+	// Existing record 2 - group 2 is child of group 3
+	case val == "group2" || val == "group3":
+		return []datastructs.ChildGroup{
+			datastructs.ChildGroup{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"}}, nil
+	// The rest of the request should return empty
+	default:
+		return childGroups, nil
 	}
 }

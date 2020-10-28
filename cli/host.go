@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/via-justa/admiral/datastructs"
@@ -65,45 +64,6 @@ func ListHosts() (hosts []datastructs.Host, err error) {
 	return hosts, nil
 }
 
-// EditHost accept host to edit
-func EditHost(host *datastructs.Host) error {
-	err := host.UnmarshalVars()
-	if err != nil {
-		return err
-	}
-
-	hostB, err := json.MarshalIndent(host, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	modifiedHostB, err := Edit(hostB)
-	if err != nil {
-		return err
-	}
-
-	var modifiedHost datastructs.Host
-
-	err = json.Unmarshal(modifiedHostB, &modifiedHost)
-	if err != nil {
-		return err
-	}
-
-	err = modifiedHost.MarshalVars()
-	if err != nil {
-		return err
-	}
-
-	i, err := db.insertHost(&modifiedHost)
-	if err != nil {
-		return err
-	} else if i == 0 {
-		return fmt.Errorf("no lines affected")
-	}
-
-	return nil
-}
-
 // DeleteHost accept host to remove
 func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	affected, err = db.deleteHost(host)
@@ -114,4 +74,14 @@ func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	}
 
 	return affected, nil
+}
+
+// ScanHosts search the database for all hosts with substring val in hostname or host fields
+func ScanHosts(val string) (hosts []datastructs.Host, err error) {
+	hosts, err = db.scanHosts(val)
+	if err != nil {
+		return hosts, err
+	}
+
+	return hosts, nil
 }

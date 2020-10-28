@@ -80,7 +80,7 @@ func TestViewChildGroupsByParent(t *testing.T) {
 	tests := []struct {
 		name            string
 		args            args
-		wantChildGroups []datastructs.ChildGroupView
+		wantChildGroups []datastructs.ChildGroup
 		wantErr         bool
 	}{
 		{
@@ -88,8 +88,8 @@ func TestViewChildGroupsByParent(t *testing.T) {
 			args: args{
 				parent: "group3",
 			},
-			wantChildGroups: []datastructs.ChildGroupView{
-				datastructs.ChildGroupView{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"},
+			wantChildGroups: []datastructs.ChildGroup{
+				datastructs.ChildGroup{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"},
 			},
 			wantErr: false,
 		},
@@ -127,7 +127,7 @@ func TestViewChildGroupsByChild(t *testing.T) {
 	tests := []struct {
 		name            string
 		args            args
-		wantChildGroups []datastructs.ChildGroupView
+		wantChildGroups []datastructs.ChildGroup
 		wantErr         bool
 	}{
 		{
@@ -135,8 +135,8 @@ func TestViewChildGroupsByChild(t *testing.T) {
 			args: args{
 				child: "group1",
 			},
-			wantChildGroups: []datastructs.ChildGroupView{
-				datastructs.ChildGroupView{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"},
+			wantChildGroups: []datastructs.ChildGroup{
+				datastructs.ChildGroup{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"},
 			},
 			wantErr: false,
 		},
@@ -168,14 +168,14 @@ func TestListChildGroups(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		wantChildGroups []datastructs.ChildGroupView
+		wantChildGroups []datastructs.ChildGroup
 		wantErr         bool
 	}{
 		{
 			name: "List child-groups",
-			wantChildGroups: []datastructs.ChildGroupView{
-				datastructs.ChildGroupView{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"},
-				datastructs.ChildGroupView{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"},
+			wantChildGroups: []datastructs.ChildGroup{
+				datastructs.ChildGroup{ID: 1, ChildID: 1, Child: "group1", ParentID: 2, Parent: "group2"},
+				datastructs.ChildGroup{ID: 2, ChildID: 2, Child: "group2", ParentID: 3, Parent: "group3"},
 			},
 			wantErr: false,
 		},
@@ -210,7 +210,7 @@ func TestDeleteChildGroup(t *testing.T) {
 		{
 			name: "delete child-group",
 			args: args{
-				childGroup: &datastructs.ChildGroup{Child: 1, Parent: 2},
+				childGroup: &datastructs.ChildGroup{ChildID: 1, ParentID: 2},
 			},
 			wantAffected: 1,
 			wantErr:      false,
@@ -218,7 +218,7 @@ func TestDeleteChildGroup(t *testing.T) {
 		{
 			name: "delete none-existing child-group",
 			args: args{
-				childGroup: &datastructs.ChildGroup{Child: 2, Parent: 3},
+				childGroup: &datastructs.ChildGroup{ChildID: 2, ParentID: 3},
 			},
 			wantAffected: 0,
 			wantErr:      true,

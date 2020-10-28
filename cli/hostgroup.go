@@ -9,8 +9,8 @@ import (
 // CreateHostGroup accept host and group and create new relationship
 func CreateHostGroup(host *datastructs.Host, group *datastructs.Group) error {
 	hostGroup := &datastructs.HostGroup{
-		Host:  host.ID,
-		Group: group.ID,
+		HostID:  host.ID,
+		GroupID: group.ID,
 	}
 
 	i, err := db.insertHostGroup(hostGroup)
@@ -24,7 +24,7 @@ func CreateHostGroup(host *datastructs.Host, group *datastructs.Group) error {
 }
 
 // ViewHostGroupByHost accept host ID and return all host-group relationships for the host
-func ViewHostGroupByHost(host string) (hostGroup []datastructs.HostGroupView, err error) {
+func ViewHostGroupByHost(host string) (hostGroup []datastructs.HostGroup, err error) {
 	hostGroup, err = db.selectHostGroup(host, "")
 	if err != nil {
 		return hostGroup, err
@@ -36,7 +36,7 @@ func ViewHostGroupByHost(host string) (hostGroup []datastructs.HostGroupView, er
 }
 
 // ViewHostGroupByGroup accept group ID and return all host-group relationships for the group
-func ViewHostGroupByGroup(group string) (hostGroup []datastructs.HostGroupView, err error) {
+func ViewHostGroupByGroup(group string) (hostGroup []datastructs.HostGroup, err error) {
 	hostGroup, err = db.selectHostGroup("", group)
 	if err != nil {
 		return hostGroup, err
@@ -48,7 +48,7 @@ func ViewHostGroupByGroup(group string) (hostGroup []datastructs.HostGroupView, 
 }
 
 // ListHostGroup list all existing host-group relationships
-func ListHostGroup() (hostGroups []datastructs.HostGroupView, err error) {
+func ListHostGroup() (hostGroups []datastructs.HostGroup, err error) {
 	hostGroups, err = db.getHostGroups()
 	if err != nil {
 		return hostGroups, err
@@ -63,7 +63,7 @@ func DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err erro
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
-		return affected, fmt.Errorf("no record matched")
+		return affected, fmt.Errorf("no record matched request")
 	}
 
 	return affected, nil
