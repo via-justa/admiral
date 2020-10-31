@@ -118,6 +118,10 @@ func confirmedHost(host *datastructs.Host) (err error) {
 		return err
 	}
 
+	if host.DirectGroup == "" {
+		return fmt.Errorf("created host without group. please make sure to add the host to default group")
+	}
+
 	group, err = viewGroupByName(host.DirectGroup)
 	if err != nil {
 		return err
