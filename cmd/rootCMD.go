@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -44,8 +45,10 @@ func init() {
 
 //Execute starts the program
 func Execute() {
-	if os.Args[1] != "inventory" && os.Args[1] != "prometheus" {
-		release.CheckForUpdates(AppVersion)
+	if os.Args[1] != "inventory" && os.Args[1] != "prometheus" && os.Args[1] != "version" {
+		if msg := release.CheckForUpdates(AppVersion); msg != "" {
+			fmt.Println(release.CheckForUpdates(AppVersion))
+		}
 	}
 
 	if err := rootCmd.Execute(); err != nil {

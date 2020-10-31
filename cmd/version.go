@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/via-justa/admiral/release"
 )
 
 //nolint:errcheck
@@ -18,5 +19,9 @@ var versionCmd = &cobra.Command{
 }
 
 func versionCmdFunc(cmd *cobra.Command, args []string) {
-	fmt.Printf("Version: %v\n", AppVersion)
+	if msg := release.CheckForUpdates(AppVersion); msg != "" {
+		fmt.Println(release.CheckForUpdates(AppVersion))
+	} else {
+		fmt.Printf("Admiral version: %v\n", AppVersion)
+	}
 }
