@@ -125,16 +125,37 @@ ORDER BY
 	host.hostname;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW groups_view AS
+ALGORITHM = UNDEFINED VIEW `groups_view` AS 
+WITH RECURSIVE inherited(`child_id`, `parent_id`) AS (
+SELECT
+    `cv`.`child_id` AS `child_id`,
+    `cv`.`parent_id` AS `parent_id`
+FROM
+    `childgroups_view` `cv`
+UNION ALL
+SELECT
+    `cv`.`child_id` AS `child_id`,
+    `i`.`parent_id` AS `parent_id`
+FROM
+    `inherited` `i`
+JOIN `childgroups_view` `cv` ON `i`.`child_id` = `cv`.`parent_id`)
 SELECT 
-	g.id AS group_id,
-	g.name AS name,
-	g.enabled AS enabled,
-	g.monitored AS monitored,
-	g.variables AS variables,
-	COUNT(DISTINCT c.child_id) AS num_children,
-	COUNT(DISTINCT h.host_id) AS num_hosts  
-FROM `group` g 
-LEFT JOIN childgroups c ON g.id = c.parent_id 
-LEFT JOIN hostgroups h ON g.id = h.group_id 
-GROUP BY g.id;
+	`g1`.`id` AS `group_id`,
+    `g1`.`name` AS `name`,
+    `g1`.`enabled` AS `enabled`,
+    `g1`.`monitored` AS `monitored`,
+	COUNT(DISTINCT h.id) AS `num_hosts`,
+	COUNT(DISTINCT `g2`.`name`) AS `num_children`,
+	IFNULL(GROUP_CONCAT(DISTINCT `g2`.`name` SEPARATOR ','),'') AS `child_groups`,
+	`g1`.`variables` AS `variables`
+FROM `group` g1
+LEFT JOIN `inherited` `i` ON
+     `g1`.`id` = `i`.`parent_id`
+LEFT JOIN `group` `g2` ON
+     `i`.`child_id` = `g2`.`id`
+LEFT JOIN hostgroups hg ON
+	`hg`.`group_id` = `g1`.`id` 
+LEFT JOIN host h ON
+	`h`.`id` = `hg`.`host_id` 
+GROUP BY `g1`.`id` 
+ORDER BY `g1`.`id`;

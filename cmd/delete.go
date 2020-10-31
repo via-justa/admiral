@@ -5,16 +5,15 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/via-justa/admiral/cli"
 	"github.com/via-justa/admiral/datastructs"
 )
 
 func init() {
 	rootCmd.AddCommand(delete)
 
-	delete.AddCommand(deleteHost)
-	delete.AddCommand(deleteGroup)
-	delete.AddCommand(deleteChild)
+	delete.AddCommand(deleteHostVar)
+	delete.AddCommand(deleteGroupVar)
+	delete.AddCommand(deleteChildVar)
 }
 
 var delete = &cobra.Command{
@@ -23,7 +22,7 @@ var delete = &cobra.Command{
 	Short:   "delete existing record",
 }
 
-var deleteHost = &cobra.Command{
+var deleteHostVar = &cobra.Command{
 	Use:   "host",
 	Short: "delete existing host",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -35,7 +34,7 @@ var deleteHost = &cobra.Command{
 		case 0:
 			log.Fatal("no host argument passed")
 		case 1:
-			hosts, err = cli.ScanHosts(args[0])
+			hosts, err = scanHosts(args[0])
 			if err != nil {
 				log.Print(err)
 			}
@@ -49,7 +48,7 @@ var deleteHost = &cobra.Command{
 		case 1:
 			printHosts(hosts)
 			if confirm() {
-				affected, err := cli.DeleteHost(&hosts[0])
+				affected, err := deleteHost(&hosts[0])
 				if err != nil {
 					log.Fatal(err)
 				} else {
@@ -65,7 +64,18 @@ var deleteHost = &cobra.Command{
 	},
 }
 
-var deleteGroup = &cobra.Command{
+func deleteHost(host *datastructs.Host) (affected int64, err error) {
+	affected, err = db.deleteHost(host)
+	if err != nil {
+		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("no record matched")
+	}
+
+	return affected, nil
+}
+
+var deleteGroupVar = &cobra.Command{
 	Use:   "group",
 	Short: "delete existing group",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,7 +87,7 @@ var deleteGroup = &cobra.Command{
 		case 0:
 			log.Fatal("no group argument passed")
 		case 1:
-			groups, err = cli.ScanGroups(args[0])
+			groups, err = scanGroups(args[0])
 			if err != nil {
 				log.Print(err)
 			}
@@ -91,7 +101,7 @@ var deleteGroup = &cobra.Command{
 		case 1:
 			printGroups(groups)
 			if confirm() {
-				affected, err := cli.DeleteGroup(&groups[0])
+				affected, err := deleteGroup(&groups[0])
 				if err != nil {
 					log.Fatal(err)
 				} else {
@@ -107,7 +117,18 @@ var deleteGroup = &cobra.Command{
 	},
 }
 
-var deleteChild = &cobra.Command{
+func deleteGroup(group *datastructs.Group) (affected int64, err error) {
+	affected, err = db.deleteGroup(group)
+	if err != nil {
+		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("no record matched")
+	}
+
+	return affected, nil
+}
+
+var deleteChildVar = &cobra.Command{
 	Use:   "child",
 	Short: "delete existing child-group relationship",
 	Long:  "delete existing child-group relationship expecting ordered arguments child and parent group names",
@@ -116,14 +137,14 @@ var deleteChild = &cobra.Command{
 
 		var err error
 
-		childGroups, err = cli.ViewChildGroup(args[0], args[1])
+		childGroups, err = viewChildGroup(args[0], args[1])
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		printChildGroups(childGroups)
 		if confirm() {
-			affected, err := cli.DeleteChildGroup(&childGroups[0])
+			affected, err := deleteChildGroup(&childGroups[0])
 			if err != nil {
 				log.Fatal(err)
 			} else {
@@ -133,4 +154,15 @@ var deleteChild = &cobra.Command{
 			log.Fatal("aborted")
 		}
 	},
+}
+
+func deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
+	affected, err = db.deleteChildGroup(childGroup)
+	if err != nil {
+		return affected, err
+	} else if affected == 0 {
+		return affected, fmt.Errorf("no record matched")
+	}
+
+	return affected, nil
 }

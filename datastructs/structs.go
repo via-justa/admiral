@@ -56,6 +56,7 @@ type Group struct {
 	Monitored       bool          `json:"monitor" db:"monitored"`
 	NumChildren     int           `json:"-" db:"num_children"`
 	NumHosts        int           `json:"-" db:"num_hosts"`
+	ChildGroups     string        `json:"-" db:"child_groups"`
 }
 
 // UnmarshalVars convert string json `Group.Variables` to json value of
