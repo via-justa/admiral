@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 import (
 	"github.com/via-justa/admiral/database"
@@ -7,13 +7,13 @@ import (
 
 type dbInterface interface {
 	// hosts
-	selectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error)
+	selectHost(hostname string) (returnedHost datastructs.Host, err error)
 	getHosts() (hosts []datastructs.Host, err error)
 	insertHost(host *datastructs.Host) (affected int64, err error)
 	deleteHost(host *datastructs.Host) (affected int64, err error)
 	scanHosts(val string) (hosts []datastructs.Host, err error)
 	// groups
-	selectGroup(name string, id int) (returnedGroup datastructs.Group, err error)
+	selectGroup(name string) (returnedGroup datastructs.Group, err error)
 	getGroups() (groups []datastructs.Group, err error)
 	insertGroup(group *datastructs.Group) (affected int64, err error)
 	deleteGroup(group *datastructs.Group) (affected int64, err error)
@@ -25,8 +25,7 @@ type dbInterface interface {
 	deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error)
 	scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error)
 	// HOstGroups
-	selectHostGroup(host, group string) (hostGroups []datastructs.HostGroup, err error)
-	getHostGroups() (hostGroups []datastructs.HostGroup, err error)
+	selectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error)
 	insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error)
 	deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error)
 }
@@ -39,8 +38,8 @@ func init() {
 	db = dbReal{}
 }
 
-func (d dbReal) selectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
-	return database.SelectHost(hostname, ip, id)
+func (d dbReal) selectHost(hostname string) (returnedHost datastructs.Host, err error) {
+	return database.SelectHost(hostname)
 }
 
 func (d dbReal) getHosts() (hosts []datastructs.Host, err error) {
@@ -59,8 +58,8 @@ func (d dbReal) scanHosts(val string) (hosts []datastructs.Host, err error) {
 	return database.ScanHosts(val)
 }
 
-func (d dbReal) selectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
-	return database.SelectGroup(name, id)
+func (d dbReal) selectGroup(name string) (returnedGroup datastructs.Group, err error) {
+	return database.SelectGroup(name)
 }
 
 func (d dbReal) getGroups() (groups []datastructs.Group, err error) {
@@ -99,12 +98,8 @@ func (d dbReal) scanChildGroups(val string) (childGroups []datastructs.ChildGrou
 	return database.ScanChildGroups(val)
 }
 
-func (d dbReal) selectHostGroup(host, group string) (hostGroups []datastructs.HostGroup, err error) {
-	return database.SelectHostGroup(host, group)
-}
-
-func (d dbReal) getHostGroups() (hostGroups []datastructs.HostGroup, err error) {
-	return database.GetHostGroups()
+func (d dbReal) selectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error) {
+	return database.SelectHostGroup(host)
 }
 
 func (d dbReal) insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
