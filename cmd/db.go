@@ -1,0 +1,111 @@
+package cmd
+
+import (
+	"github.com/via-justa/admiral/database"
+	"github.com/via-justa/admiral/datastructs"
+)
+
+type dbInterface interface {
+	// hosts
+	selectHost(hostname string) (returnedHost datastructs.Host, err error)
+	getHosts() (hosts []datastructs.Host, err error)
+	insertHost(host *datastructs.Host) (affected int64, err error)
+	deleteHost(host *datastructs.Host) (affected int64, err error)
+	scanHosts(val string) (hosts []datastructs.Host, err error)
+	// groups
+	selectGroup(name string) (returnedGroup datastructs.Group, err error)
+	getGroups() (groups []datastructs.Group, err error)
+	insertGroup(group *datastructs.Group) (affected int64, err error)
+	deleteGroup(group *datastructs.Group) (affected int64, err error)
+	scanGroups(val string) (groups []datastructs.Group, err error)
+	// childGroups
+	selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error)
+	getChildGroups() (childGroups []datastructs.ChildGroup, err error)
+	insertChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error)
+	deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error)
+	scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error)
+	// HOstGroups
+	selectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error)
+	insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error)
+	deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error)
+}
+
+type dbReal struct{}
+
+var db dbInterface
+
+func init() {
+	db = dbReal{}
+}
+
+func (d dbReal) selectHost(hostname string) (returnedHost datastructs.Host, err error) {
+	return database.SelectHost(hostname)
+}
+
+func (d dbReal) getHosts() (hosts []datastructs.Host, err error) {
+	return database.GetHosts()
+}
+
+func (d dbReal) insertHost(host *datastructs.Host) (affected int64, err error) {
+	return database.InsertHost(host)
+}
+
+func (d dbReal) deleteHost(host *datastructs.Host) (affected int64, err error) {
+	return database.DeleteHost(host)
+}
+
+func (d dbReal) scanHosts(val string) (hosts []datastructs.Host, err error) {
+	return database.ScanHosts(val)
+}
+
+func (d dbReal) selectGroup(name string) (returnedGroup datastructs.Group, err error) {
+	return database.SelectGroup(name)
+}
+
+func (d dbReal) getGroups() (groups []datastructs.Group, err error) {
+	return database.GetGroups()
+}
+
+func (d dbReal) insertGroup(group *datastructs.Group) (affected int64, err error) {
+	return database.InsertGroup(group)
+}
+
+func (d dbReal) deleteGroup(group *datastructs.Group) (affected int64, err error) {
+	return database.DeleteGroup(group)
+}
+
+func (d dbReal) scanGroups(val string) (groups []datastructs.Group, err error) {
+	return database.ScanGroups(val)
+}
+
+func (d dbReal) selectChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error) {
+	return database.SelectChildGroup(child, parent)
+}
+
+func (d dbReal) getChildGroups() (childGroups []datastructs.ChildGroup, err error) {
+	return database.GetChildGroups()
+}
+
+func (d dbReal) insertChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
+	return database.InsertChildGroup(childGroup)
+}
+
+func (d dbReal) deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
+	return database.DeleteChildGroup(childGroup)
+}
+
+func (d dbReal) scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
+	return database.ScanChildGroups(val)
+}
+
+func (d dbReal) selectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error) {
+	return database.SelectHostGroup(host)
+}
+
+func (d dbReal) insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
+	return database.InsertHostGroup(hostGroup)
+}
+
+func (d dbReal) deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
+	return database.DeleteHostGroup(hostGroup)
+}

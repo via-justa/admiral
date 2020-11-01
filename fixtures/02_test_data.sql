@@ -20,9 +20,8 @@ INSERT INTO `host` (`id`,`host`,`hostname`,`domain`,`variables`,`enabled`,`monit
 
 -- Create host-groups
 INSERT INTO `hostgroups` (`id`,`host_id`,`group_id`) VALUES (1,1,1);
-INSERT INTO `hostgroups` (`id`,`host_id`,`group_id`) VALUES (2,1,4);
-INSERT INTO `hostgroups` (`id`,`host_id`,`group_id`) VALUES (3,2,2);
-INSERT INTO `hostgroups` (`id`,`host_id`,`group_id`) VALUES (4,3,3);
+INSERT INTO `hostgroups` (`id`,`host_id`,`group_id`) VALUES (2,2,2);
+INSERT INTO `hostgroups` (`id`,`host_id`,`group_id`) VALUES (3,3,3);
 
 -- Create child-groups
 INSERT INTO `childgroups` (`id`,`child_id`,`parent_id`) VALUES (1,3,4);

@@ -9,11 +9,11 @@ import (
 
 // SelectHost return host information. The function will search for the host in the following order:
 // By hostname, if hostname is empty by host and if both hostname and host are empty by id
-func SelectHost(hostname string, ip string, id int) (returnedHost datastructs.Host, err error) {
+func SelectHost(hostname string) (returnedHost datastructs.Host, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
-	return conn.SelectHost(hostname, ip, id)
+	return conn.SelectHost(hostname)
 }
 
 // GetHosts return all hosts in the inventory
@@ -40,15 +40,22 @@ func DeleteHost(host *datastructs.Host) (affected int64, err error) {
 	return conn.DeleteHost(host)
 }
 
-// Groups
-
-// SelectGroup return group information. The function will search for the group in the following order:
-// By name, if name is empty by id
-func SelectGroup(name string, id int) (returnedGroup datastructs.Group, err error) {
+// ScanHosts scans all string fields for substring `val`
+func ScanHosts(val string) (hosts []datastructs.Host, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
-	return conn.SelectGroup(name, id)
+	return conn.ScanHosts(val)
+}
+
+// Groups
+
+// SelectGroup return group information
+func SelectGroup(name string) (returnedGroup datastructs.Group, err error) {
+	conf := db.NewConfig()
+	conn, _ := db.Connect(conf.Database)
+
+	return conn.SelectGroup(name)
 }
 
 // GetGroups return all groups in the inventory
@@ -75,13 +82,21 @@ func DeleteGroup(group *datastructs.Group) (affected int64, err error) {
 	return conn.DeleteGroup(group)
 }
 
+// ScanGroups scans all string fields for substring `val`
+func ScanGroups(val string) (groups []datastructs.Group, err error) {
+	conf := db.NewConfig()
+	conn, _ := db.Connect(conf.Database)
+
+	return conn.ScanGroups(val)
+}
+
 // ChildGroups
 
 // SelectChildGroup accept either child or parent id and return slice of ids for parent or child groups respectively.
 // If child is provided will return slice of parent ids
 // If parent is provided will return slice of child ids
 // will error if none is provided
-func SelectChildGroup(child, parent string) (childGroups []datastructs.ChildGroupView, err error) {
+func SelectChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
@@ -89,7 +104,7 @@ func SelectChildGroup(child, parent string) (childGroups []datastructs.ChildGrou
 }
 
 // GetChildGroups return all child groups relationships in the inventory
-func GetChildGroups() (childGroups []datastructs.ChildGroupView, err error) {
+func GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
@@ -112,25 +127,25 @@ func DeleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err e
 	return conn.DeleteChildGroup(childGroup)
 }
 
+// ScanChildGroups scans all string fields for substring `val`
+func ScanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
+	conf := db.NewConfig()
+	conn, _ := db.Connect(conf.Database)
+
+	return conn.ScanChildGroups(val)
+}
+
 // HostGroups
 
 // SelectHostGroup accept either host or group id and return slice of ids for groups or hosts respectively.
 // If host is provided will return slice of groups ids
 // If group is provided will return slice of hosts ids
 // will error if none is provided
-func SelectHostGroup(host, group string) (hostGroups []datastructs.HostGroupView, err error) {
+func SelectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error) {
 	conf := db.NewConfig()
 	conn, _ := db.Connect(conf.Database)
 
-	return conn.SelectHostGroup(host, group)
-}
-
-// GetHostGroups return all host groups relationships in the inventory
-func GetHostGroups() (hostGroups []datastructs.HostGroupView, err error) {
-	conf := db.NewConfig()
-	conn, _ := db.Connect(conf.Database)
-
-	return conn.GetHostGroups()
+	return conn.SelectHostGroup(host)
 }
 
 // InsertHostGroup accept HostGroup to insert and return the number of affected rows and error if exists
