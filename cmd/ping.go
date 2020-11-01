@@ -6,13 +6,10 @@ import (
 	"os/exec"
 
 	"github.com/spf13/cobra"
-	"github.com/via-justa/admiral/cli"
 )
 
 func init() {
 	rootCmd.AddCommand(ping)
-
-	ping.Flags().StringVarP(&name, "hostname", "n", "", "base hostname")
 }
 
 var ping = &cobra.Command{
@@ -22,7 +19,7 @@ var ping = &cobra.Command{
 }
 
 func pingFunc(cmd *cobra.Command, args []string) {
-	host, err := cli.ViewHostByHostname(name)
+	host, err := viewHostByHostname(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
