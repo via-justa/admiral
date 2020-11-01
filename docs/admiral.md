@@ -34,6 +34,7 @@ db = "ansible"
 * [admiral create](admiral_create.md)	 - create or modify existing record
 * [admiral delete](admiral_delete.md)	 - delete existing record
 * [admiral inventory](admiral_inventory.md)	 - Output Ansible compatible inventory structure
+* [admiral ping](admiral_ping.md)	 - run `ansible -m ping` on requested host
 * [admiral prometheus](admiral_prometheus.md)	 - Output prometheus compatible SD file structure
 * [admiral version](admiral_version.md)	 - Print client version
 * [admiral view](admiral_view.md)	 - view existing record
