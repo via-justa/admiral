@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -8,11 +9,15 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+var viewAsJSON bool
+
 func init() {
 	rootCmd.AddCommand(view)
 
 	view.AddCommand(viewHostVar)
+	viewHostVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
 	view.AddCommand(viewGroupVar)
+	viewGroupVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
 	view.AddCommand(viewChildVar)
 }
 
@@ -45,7 +50,15 @@ var viewHostVar = &cobra.Command{
 			log.Fatal("received too many arguments")
 		}
 
-		printHosts(hosts)
+		if viewAsJSON {
+			for i := range hosts {
+				_ = hosts[i].UnmarshalVars()
+			}
+			b, _ := json.MarshalIndent(hosts, "", "    ")
+			fmt.Printf("%s\n", b)
+		} else {
+			printHosts(hosts)
+		}
 	},
 }
 
@@ -90,7 +103,15 @@ var viewGroupVar = &cobra.Command{
 			log.Fatal("received too many arguments")
 		}
 
-		printGroups(groups)
+		if viewAsJSON {
+			for i := range groups {
+				_ = groups[i].UnmarshalVars()
+			}
+			b, _ := json.MarshalIndent(groups, "", "    ")
+			fmt.Printf("%s\n", b)
+		} else {
+			printGroups(groups)
+		}
 	},
 }
 
