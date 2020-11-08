@@ -52,11 +52,17 @@ var viewHostVar = &cobra.Command{
 		}
 
 		if viewAsJSON {
-			for i := range hosts {
-				_ = hosts[i].UnmarshalVars()
+			if len(hosts) > 0 {
+				for i := range hosts {
+					_ = hosts[i].UnmarshalVars()
+				}
+
+				b, _ := json.MarshalIndent(hosts, "", "    ")
+
+				fmt.Printf("%s\n", b)
+			} else {
+				log.Println("No host matched")
 			}
-			b, _ := json.MarshalIndent(hosts, "", "    ")
-			fmt.Printf("%s\n", b)
 		} else {
 			printHosts(hosts)
 		}
@@ -150,11 +156,15 @@ var viewGroupVar = &cobra.Command{
 		}
 
 		if viewAsJSON {
-			for i := range groups {
-				_ = groups[i].UnmarshalVars()
+			if len(groups) > 0 {
+				for i := range groups {
+					_ = groups[i].UnmarshalVars()
+				}
+				b, _ := json.MarshalIndent(groups, "", "    ")
+				fmt.Printf("%s\n", b)
+			} else {
+				log.Println("No groups matched")
 			}
-			b, _ := json.MarshalIndent(groups, "", "    ")
-			fmt.Printf("%s\n", b)
 		} else {
 			printGroups(groups)
 		}
