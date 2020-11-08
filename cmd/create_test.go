@@ -89,7 +89,7 @@ func Test_prepHostForEdit(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		hosts    []datastructs.Host
+		hosts    *datastructs.Host
 		hostname string
 	}
 	tests := []struct {
@@ -101,7 +101,7 @@ func Test_prepHostForEdit(t *testing.T) {
 		{
 			name: "Hostname does not exists",
 			args: args{
-				hosts:    []datastructs.Host{datastructs.Host{}},
+				hosts:    &datastructs.Host{},
 				hostname: "host10",
 			},
 			wantB:   []byte(emptyHost10),
@@ -110,7 +110,7 @@ func Test_prepHostForEdit(t *testing.T) {
 		{
 			name: "Hostname exists",
 			args: args{
-				hosts:    []datastructs.Host{testHost1},
+				hosts:    &testHost1,
 				hostname: "host1",
 			},
 			wantB:   []byte(testHost1Edit),
@@ -119,7 +119,7 @@ func Test_prepHostForEdit(t *testing.T) {
 		{
 			name: "FQDN exists",
 			args: args{
-				hosts:    []datastructs.Host{testHost1},
+				hosts:    &testHost1,
 				hostname: "host1.local",
 			},
 			wantB:   []byte(testHost1Edit),
@@ -441,7 +441,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		groups []datastructs.Group
+		groups *datastructs.Group
 		name   string
 	}
 	tests := []struct {
@@ -453,7 +453,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 		{
 			name: "case 0 - group does not exist",
 			args: args{
-				groups: []datastructs.Group{datastructs.Group{}},
+				groups: &datastructs.Group{},
 				name:   "group10",
 			},
 			wantB:   []byte(emptyGroup10),
@@ -462,7 +462,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 		{
 			name: "case 1 - group exist",
 			args: args{
-				groups: []datastructs.Group{testGroup1},
+				groups: &testGroup1,
 				name:   "group1",
 			},
 			wantB:   []byte(testGroup1Edit),

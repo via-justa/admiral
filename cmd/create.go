@@ -30,7 +30,6 @@ var createHostVar = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var hosts []datastructs.Host
 		var host datastructs.Host
-		var hostB []byte
 		var err error
 
 		switch len(args) {
@@ -45,27 +44,13 @@ var createHostVar = &cobra.Command{
 			log.Fatal("received too many arguments")
 		}
 
-		hostB, err = prepHostForEdit(hosts, args[0])
-		if err != nil {
-			log.Print(err)
-		}
-
-		modifiedHostB, err := Edit(hostB)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = json.Unmarshal(modifiedHostB, &host)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = host.MarshalVars()
+		host, err = editHost(&hosts[0], args[0])
 		if err != nil {
 			log.Print(err)
 		}
 
 		printHosts([]datastructs.Host{host})
+
 		if confirm() {
 			err = confirmedHost(&host)
 			if err != nil {
@@ -93,8 +78,8 @@ func returnHosts(val string) (hosts []datastructs.Host, err error) {
 	return []datastructs.Host{tmp}, err
 }
 
-func prepHostForEdit(hosts []datastructs.Host, val string) (b []byte, err error) {
-	switch len(hosts[0].Hostname) {
+func prepHostForEdit(host *datastructs.Host, val string) (b []byte, err error) {
+	switch len(host.Hostname) {
 	case 0:
 		checkedVal := strings.SplitN(val, ".", 2)
 		tmp := datastructs.Host{}
@@ -116,18 +101,44 @@ func prepHostForEdit(hosts []datastructs.Host, val string) (b []byte, err error)
 			return b, err
 		}
 	default:
-		err = hosts[0].UnmarshalVars()
+		err = host.UnmarshalVars()
 		if err != nil {
 			return b, err
 		}
 
-		b, err = json.MarshalIndent(hosts[0], "", "  ")
+		b, err = json.MarshalIndent(host, "", "  ")
 		if err != nil {
 			return b, err
 		}
 	}
 
 	return b, err
+}
+
+func editHost(host *datastructs.Host, val string) (returnHost datastructs.Host, err error) {
+	var hostB []byte
+
+	hostB, err = prepHostForEdit(host, val)
+	if err != nil {
+		return returnHost, err
+	}
+
+	modifiedHostB, err := Edit(hostB)
+	if err != nil {
+		return returnHost, err
+	}
+
+	err = json.Unmarshal(modifiedHostB, &returnHost)
+	if err != nil {
+		return returnHost, err
+	}
+
+	err = returnHost.MarshalVars()
+	if err != nil {
+		log.Print(err)
+	}
+
+	return returnHost, err
 }
 
 func confirmedHost(host *datastructs.Host) (err error) {
@@ -236,43 +247,25 @@ var createGroupVar = &cobra.Command{
 	Use:   "group",
 	Short: "create or modify group. expecting one argument group name",
 	Run: func(cmd *cobra.Command, args []string) {
-		var groups []datastructs.Group
 		var group datastructs.Group
-		var groupB []byte
+		var tmpGroup datastructs.Group
 		var err error
 
 		switch len(args) {
 		case 0:
 			log.Fatal("no group name argument passed")
 		case 1:
-			var tmp datastructs.Group
-			tmp, err = viewGroupByName(args[0])
+			tmpGroup, err = viewGroupByName(args[0])
 			if err != nil {
 				log.Print(err)
 			}
-			groups = []datastructs.Group{tmp}
 		default:
 			log.Fatal("received too many arguments")
 		}
 
-		groupB, err = prepGroupForEdit(groups, args[0])
+		group, err = editGroup(&tmpGroup, args[0])
 		if err != nil {
-			log.Print(err)
-		}
-
-		modifiedgroupB, err := Edit(groupB)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = json.Unmarshal(modifiedgroupB, &group)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = group.MarshalVars()
-		if err != nil {
-			log.Print(err)
+			log.Fatal(err)
 		}
 
 		printGroups([]datastructs.Group{group})
@@ -287,8 +280,8 @@ var createGroupVar = &cobra.Command{
 	},
 }
 
-func prepGroupForEdit(groups []datastructs.Group, name string) (b []byte, err error) {
-	switch len(groups[0].Name) {
+func prepGroupForEdit(group *datastructs.Group, name string) (b []byte, err error) {
+	switch len(group.Name) {
 	case 0:
 		tmp := datastructs.Group{}
 		tmp.Name = name
@@ -304,18 +297,44 @@ func prepGroupForEdit(groups []datastructs.Group, name string) (b []byte, err er
 			return b, err
 		}
 	default:
-		err = groups[0].UnmarshalVars()
+		err = group.UnmarshalVars()
 		if err != nil {
 			return b, err
 		}
 
-		b, err = json.MarshalIndent(groups[0], "", "  ")
+		b, err = json.MarshalIndent(group, "", "  ")
 		if err != nil {
 			return b, err
 		}
 	}
 
 	return b, err
+}
+
+func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Group, err error) {
+	var groupB []byte
+
+	groupB, err = prepGroupForEdit(group, val)
+	if err != nil {
+		return returnGroup, err
+	}
+
+	modifiedgroupB, err := Edit(groupB)
+	if err != nil {
+		return returnGroup, err
+	}
+
+	err = json.Unmarshal(modifiedgroupB, &group)
+	if err != nil {
+		return returnGroup, err
+	}
+
+	err = group.MarshalVars()
+	if err != nil {
+		return returnGroup, err
+	}
+
+	return returnGroup, err
 }
 
 func createGroup(group *datastructs.Group) error {
