@@ -37,12 +37,10 @@ var createHostVar = &cobra.Command{
 		case 0:
 			log.Fatal("no host hostname argument passed")
 		case 1:
-			var tmp datastructs.Host
-			tmp, err = viewHostByHostname(args[0])
-			if err != nil && err.Error() != "requested host does not exists" {
+			hosts, err = returnHosts(args[0])
+			if err != nil {
 				log.Print(err)
 			}
-			hosts = []datastructs.Host{tmp}
 		default:
 			log.Fatal("received too many arguments")
 		}
@@ -79,11 +77,33 @@ var createHostVar = &cobra.Command{
 	},
 }
 
-func prepHostForEdit(hosts []datastructs.Host, hostname string) (b []byte, err error) {
+func returnHosts(val string) (hosts []datastructs.Host, err error) {
+	checkedVal := strings.SplitN(val, ".", 2)
+
+	var tmp datastructs.Host
+
+	tmp, err = viewHostByHostname(checkedVal[0])
+
+	// return empty host if hostname or fqdn (if provided) does not exists
+	if (err != nil && err.Error() != "requested host does not exists") ||
+		(len(checkedVal) > 1 && tmp.Domain != checkedVal[1]) {
+		return []datastructs.Host{datastructs.Host{}}, err
+	}
+
+	return []datastructs.Host{tmp}, err
+}
+
+func prepHostForEdit(hosts []datastructs.Host, val string) (b []byte, err error) {
 	switch len(hosts[0].Hostname) {
 	case 0:
+		checkedVal := strings.SplitN(val, ".", 2)
 		tmp := datastructs.Host{}
-		tmp.Hostname = hostname
+
+		tmp.Hostname = checkedVal[0]
+		if len(checkedVal) > 1 {
+			tmp.Domain = checkedVal[1]
+		}
+
 		tmp.Variables = "{}"
 
 		err = tmp.UnmarshalVars()
