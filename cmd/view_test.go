@@ -95,6 +95,93 @@ func Test_scanHosts(t *testing.T) {
 	}
 }
 
+func Test_listHostGroups(t *testing.T) {
+	db = dbMock{}
+
+	tests := []struct {
+		name    string
+		wantHg  []datastructs.HostGroup
+		wantErr bool
+	}{
+		{
+			name:    "List host groups",
+			wantHg:  []datastructs.HostGroup{testHostGroup1, testHostGroup2, testHostGroup3},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotHg, err := listHostGroups()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("listHostGroups() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotHg, tt.wantHg) {
+				t.Errorf("listHostGroups() = %v, want %v", gotHg, tt.wantHg)
+			}
+		})
+	}
+}
+
+func Test_scanHostGroups(t *testing.T) {
+	db = dbMock{}
+
+	type args struct {
+		val string
+	}
+	tests := []struct {
+		name           string
+		args           args
+		wantHostGroups []datastructs.HostGroup
+		wantErr        bool
+	}{
+		{
+			name: "get exact match group1",
+			args: args{
+				val: "group1",
+			},
+			wantHostGroups: []datastructs.HostGroup{testHostGroup1},
+			wantErr:        false,
+		},
+		{
+			name: "get substring 1",
+			args: args{
+				val: "1",
+			},
+			wantHostGroups: []datastructs.HostGroup{testHostGroup1},
+			wantErr:        false,
+		},
+		{
+			name: "get substring group",
+			args: args{
+				val: "group",
+			},
+			wantHostGroups: []datastructs.HostGroup{testHostGroup1, testHostGroup2, testHostGroup3},
+			wantErr:        false,
+		},
+		{
+			name: "pass empty string",
+			args: args{
+				val: "",
+			},
+			wantHostGroups: nil,
+			wantErr:        true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotHostGroups, err := scanHostGroups(tt.args.val)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("scanHostGroups() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotHostGroups, tt.wantHostGroups) {
+				t.Errorf("scanHostGroups() = %v, want %v", gotHostGroups, tt.wantHostGroups)
+			}
+		})
+	}
+}
+
 func Test_viewGroupByName(t *testing.T) {
 	db = dbMock{}
 

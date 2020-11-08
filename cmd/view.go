@@ -19,6 +19,7 @@ func init() {
 	view.AddCommand(viewGroupVar)
 	viewGroupVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
 	view.AddCommand(viewChildVar)
+	view.AddCommand(viewHostGroupVar)
 }
 
 var view = &cobra.Command{
@@ -78,6 +79,51 @@ func scanHosts(val string) (hosts []datastructs.Host, err error) {
 	}
 
 	return hosts, nil
+}
+
+var viewHostGroupVar = &cobra.Command{
+	Use:   "host-group",
+	Short: "view direct hosts for group or view all records when no argument passed",
+	Run: func(cmd *cobra.Command, args []string) {
+		var hgs []datastructs.HostGroup
+
+		var err error
+
+		switch len(args) {
+		case 0:
+			hgs, err = listHostGroups()
+			if err != nil {
+				log.Fatal(err)
+			}
+		case 1:
+			hgs, err = scanHostGroups(args[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+		default:
+			log.Fatal("received too many arguments")
+		}
+
+		printHostGroups(hgs)
+	},
+}
+
+func listHostGroups() (hg []datastructs.HostGroup, err error) {
+	hg, err = db.getHostGroups()
+	if err != nil {
+		return hg, err
+	}
+
+	return hg, nil
+}
+
+func scanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
+	hostGroups, err = db.scanHostGroups(val)
+	if err != nil {
+		return hostGroups, err
+	}
+
+	return hostGroups, nil
 }
 
 var viewGroupVar = &cobra.Command{

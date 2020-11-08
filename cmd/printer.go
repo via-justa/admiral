@@ -94,6 +94,30 @@ func printChildGroups(childGroups []datastructs.ChildGroup) {
 	tbl.Print()
 }
 
+func printHostGroups(hostGroups []datastructs.HostGroup) {
+	tbl, err := prettytable.NewTable([]prettytable.Column{
+		{Header: "Group", MinWidth: 12},
+		{Header: "Group ID", MinWidth: 12},
+		{Header: "Hostname", MinWidth: 12},
+		{Header: "Host ID", MinWidth: 12},
+	}...)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tbl.Separator = " | "
+
+	for _, hostGroup := range hostGroups {
+		err = tbl.AddRow(hostGroup.Group, hostGroup.GroupID, hostGroup.Host, hostGroup.HostID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// nolint: errcheck,gosec
+	tbl.Print()
+}
+
 func confirm() bool {
 	r := bufio.NewReader(os.Stdin)
 

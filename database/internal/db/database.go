@@ -359,6 +359,27 @@ func (db *Database) SelectHostGroup(host string) (hostGroups []datastructs.HostG
 	return hostGroups, fmt.Errorf("please provide either host or group id")
 }
 
+// GetHostGroups return all host groups relationships in the inventory
+func (db *Database) GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+	rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id, host, host_id FROM hostgroup_view")
+	if err == sql.ErrNoRows {
+		return hostGroups, nil
+	} else if err != nil {
+		return hostGroups, err
+	}
+
+	for rows.Next() {
+		hostGroup := new(datastructs.HostGroup)
+		if err = rows.Scan(&hostGroup.ID, &hostGroup.Group, &hostGroup.GroupID, &hostGroup.Host, &hostGroup.HostID); err != nil {
+			return hostGroups, err
+		}
+
+		hostGroups = append(hostGroups, *hostGroup)
+	}
+
+	return hostGroups, nil
+}
+
 // InsertHostGroup accept HostGroup to insert and return the number of affected rows and error if exists
 func (db *Database) InsertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	sql := `INSERT INTO hostgroups (host_id, group_id) VALUES (?,?)`
@@ -383,4 +404,25 @@ func (db *Database) DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected 
 	affected, err = res.RowsAffected()
 
 	return affected, err
+}
+
+// ScanHostGroups get host-groups where group is like requested string
+func (db *Database) ScanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
+	rows, err := db.Conn.Query("Select relationship_id, host_id, host, group_id, `group` FROM hostgroup_view WHERE `group` LIKE ?", "%"+val+"%")
+	if err == sql.ErrNoRows {
+		return hostGroups, nil
+	} else if err != nil {
+		return hostGroups, err
+	}
+
+	for rows.Next() {
+		hg := new(datastructs.HostGroup)
+		if err = rows.Scan(&hg.ID, &hg.HostID, &hg.Host, &hg.GroupID, &hg.Group); err != nil {
+			return hostGroups, err
+		}
+
+		hostGroups = append(hostGroups, *hg)
+	}
+
+	return hostGroups, nil
 }

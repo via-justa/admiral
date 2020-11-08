@@ -148,6 +148,14 @@ func SelectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error
 	return conn.SelectHostGroup(host)
 }
 
+// GetHostGroups return all host groups relationships in the inventory
+func GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+	conf := db.NewConfig()
+	conn, _ := db.Connect(conf.Database)
+
+	return conn.GetHostGroups()
+}
+
 // InsertHostGroup accept HostGroup to insert and return the number of affected rows and error if exists
 func InsertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	conf := db.NewConfig()
@@ -162,4 +170,12 @@ func DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err erro
 	conn, _ := db.Connect(conf.Database)
 
 	return conn.DeleteHostGroup(hostGroup)
+}
+
+// ScanHostGroups scans all string fields for substring `val`
+func ScanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
+	conf := db.NewConfig()
+	conn, _ := db.Connect(conf.Database)
+
+	return conn.ScanHostGroups(val)
 }

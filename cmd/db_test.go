@@ -124,6 +124,13 @@ var (
 		GroupID: 2,
 		Group:   "group2",
 	}
+	testHostGroup3 = datastructs.HostGroup{
+		ID:      3,
+		HostID:  3,
+		Host:    "host3",
+		GroupID: 3,
+		Group:   "group3",
+	}
 	testChild1 = datastructs.ChildGroup{
 		ID:       1,
 		ChildID:  3,
@@ -330,6 +337,10 @@ func (d dbMock) insertHostGroup(hostGroup *datastructs.HostGroup) (affected int6
 	}
 }
 
+func (d dbMock) getHostGroups() (hosts []datastructs.HostGroup, err error) {
+	return []datastructs.HostGroup{testHostGroup1, testHostGroup2, testHostGroup3}, nil
+}
+
 func (d dbMock) selectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error) {
 	switch {
 	// Existing record
@@ -349,6 +360,24 @@ func (d dbMock) deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int6
 		return 1, nil
 	default:
 		return 0, nil
+	}
+}
+
+func (d dbMock) scanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
+	switch {
+	case val == "":
+		return hostGroups, fmt.Errorf("missing param")
+	case strings.Contains("group", val):
+		return []datastructs.HostGroup{testHostGroup1, testHostGroup2, testHostGroup3}, nil
+	case strings.Contains("group1", val):
+		return []datastructs.HostGroup{testHostGroup1}, nil
+	case strings.Contains("group2", val):
+		return []datastructs.HostGroup{testHostGroup2}, nil
+	case strings.Contains("group3", val):
+		return []datastructs.HostGroup{testHostGroup3}, nil
+	// The rest of the request should return empty
+	default:
+		return hostGroups, nil
 	}
 }
 
