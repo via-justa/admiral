@@ -15,8 +15,10 @@ var (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "admiral",
-		Short: "Admiral is a lightweight Ansible inventory database management tool",
+		Use:        "admiral command",
+		ValidArgs:  []string{"copy", "create", "edit", "delete", "view", "list", "inventory", "prometheus"},
+		ArgAliases: []string{"cp", "add", "remove", "rm", "del", "ls", "get", "inv", "prom"},
+		Short:      "Admiral is a lightweight Ansible inventory database management tool",
 		Long: `Admiral is a command line tool to manage ansible inventory. It can also 
 expose the inventory to ansible as a full inventory structure. As monitoring is 
 also important, the tool can also expose the inventory in Prometheus static file 

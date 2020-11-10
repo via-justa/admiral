@@ -15,6 +15,7 @@ func init() {
 
 var genInventory = &cobra.Command{
 	Use:     "inventory",
+	Aliases: []string{"inv"},
 	Short:   "Output Ansible compatible inventory structure",
 	Example: "admiral inventory\nadmiral inventory > inventory.json",
 	Run: func(cmd *cobra.Command, args []string) {

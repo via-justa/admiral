@@ -17,13 +17,15 @@ func init() {
 }
 
 var delete = &cobra.Command{
-	Use:     "delete",
-	Aliases: []string{"remove", "rm", "del"},
-	Short:   "delete existing record",
+	Use:        "delete",
+	Aliases:    []string{"remove", "rm", "del"},
+	ValidArgs:  []string{"host", "group", "child"},
+	ArgAliases: []string{"hosts", "groups"},
+	Short:      "delete existing record",
 }
 
 var deleteHostVar = &cobra.Command{
-	Use:     "host",
+	Use:     "host hostname",
 	Short:   "delete existing host",
 	Example: "admiral delete host host1",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,7 +79,7 @@ func deleteHost(host *datastructs.Host) (affected int64, err error) {
 }
 
 var deleteGroupVar = &cobra.Command{
-	Use:     "group",
+	Use:     "group 'group name'",
 	Short:   "delete existing group",
 	Example: "admiral delete group group1",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -131,7 +133,7 @@ func deleteGroup(group *datastructs.Group) (affected int64, err error) {
 }
 
 var deleteChildVar = &cobra.Command{
-	Use:     "child",
+	Use:     "child 'child group' 'parent group'",
 	Short:   "delete existing child-group relationship",
 	Long:    "delete existing child-group relationship expecting ordered arguments child and parent group names",
 	Example: "admiral delete child child-group parent-group",

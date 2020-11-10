@@ -19,13 +19,15 @@ func init() {
 }
 
 var create = &cobra.Command{
-	Use:     "create",
-	Aliases: []string{"add", "edit"},
-	Short:   "create or modify existing record",
+	Use:        "create [host | group]",
+	Aliases:    []string{"add", "edit"},
+	ValidArgs:  []string{"host", "group"},
+	ArgAliases: []string{"hosts", "groups"},
+	Short:      "create or modify existing record",
 }
 
 var createHostVar = &cobra.Command{
-	Use:   "host",
+	Use:   "host {hostname | 'host fqdn'}",
 	Short: "create or modify host",
 	Long: "create new host or modify existing one, expecting argument host hostname/fqdn as the host to create or edit" +
 		"the new or edited host would open in your favorite editor as editable json",
@@ -247,7 +249,7 @@ func createHostGroup(host *datastructs.Host, group *datastructs.Group) error {
 }
 
 var createGroupVar = &cobra.Command{
-	Use:   "group",
+	Use:   "group 'group name'",
 	Short: "create or modify group",
 	Long: "create new group or modify existing one by passing argument group name" +
 		"the new or edited group would open in your favorite editor as editable json",
@@ -355,7 +357,7 @@ func createGroup(group *datastructs.Group) error {
 }
 
 var createChildVar = &cobra.Command{
-	Use:   "child",
+	Use:   "child 'child group' 'parent group'",
 	Short: "create or modify existing child-group relationship",
 	Long: "create or modify existing child-group relationship expecting ordered arguments child and parent group names." +
 		" If the created relationship creates relationship loop an error will be returned",

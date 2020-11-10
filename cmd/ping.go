@@ -13,7 +13,7 @@ func init() {
 }
 
 var ping = &cobra.Command{
-	Use:     "ping",
+	Use:     "ping hostname",
 	Short:   "run `ansible -m ping` on requested host",
 	Example: "admiral ping host1",
 	Run:     pingFunc,
