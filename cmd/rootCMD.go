@@ -9,6 +9,8 @@ import (
 var (
 	// AppVersion is set in build time to the latest application version
 	AppVersion string
+	// Conf contain default configuration settings
+	Conf *config
 )
 
 var (
@@ -42,6 +44,8 @@ func init() {
 
 //Execute starts the program
 func Execute() {
+	Conf = newConfig()
+
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}

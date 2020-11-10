@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config configuration for admiral client
+// Config database configuration for admiral client
 type Config struct {
-	Database DatabaseConfig
+	Database DatabaseConfig `toml:"mariadb" mapstructure:"mariadb"`
 }
 
 // NewConfig initialize new configuration

@@ -72,10 +72,10 @@ func returnHosts(val string) (hosts []datastructs.Host, err error) {
 
 	tmp, err = viewHostByHostname(checkedVal[0])
 
-	// return empty host if hostname or fqdn (if provided) does not exists
+	// return default host if hostname or fqdn (if provided) does not exists
 	if (err != nil && err.Error() != "requested host does not exists") ||
 		(len(checkedVal) > 1 && tmp.Domain != checkedVal[1]) {
-		return []datastructs.Host{datastructs.Host{}}, err
+		return []datastructs.Host{Conf.newDefaultHost()}, err
 	}
 
 	return []datastructs.Host{tmp}, err
@@ -85,7 +85,7 @@ func prepHostForEdit(host *datastructs.Host, val string) (b []byte, err error) {
 	switch len(host.Hostname) {
 	case 0:
 		checkedVal := strings.SplitN(val, ".", 2)
-		tmp := datastructs.Host{}
+		tmp := Conf.newDefaultHost()
 
 		tmp.Hostname = checkedVal[0]
 		if len(checkedVal) > 1 {
@@ -289,7 +289,7 @@ var createGroupVar = &cobra.Command{
 func prepGroupForEdit(group *datastructs.Group, name string) (b []byte, err error) {
 	switch len(group.Name) {
 	case 0:
-		tmp := datastructs.Group{}
+		tmp := Conf.newDefaultGroup()
 		tmp.Name = name
 		tmp.Variables = "{}"
 

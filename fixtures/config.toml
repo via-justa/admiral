@@ -1,5 +1,11 @@
-[database]
+[mariadb]
 user = "root"
 password = "local"
 host = "localhost:3306"
 db = "ansible"
+
+# defaults for newly created / host group.
+[defaults]
+domain = "local"
+monitored = true
+enabled = true

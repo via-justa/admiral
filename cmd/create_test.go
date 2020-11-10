@@ -8,14 +8,18 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+func init() {
+	Conf = &testConf
+}
+
 var emptyHost10 = `{
   "id": 0,
   "ip": "",
   "hostname": "host10",
-  "domain": "",
+  "domain": "domain.local",
   "variables": {},
-  "enable": false,
-  "monitor": false,
+  "enable": true,
+  "monitor": true,
   "direct_group": ""
 }`
 
@@ -67,7 +71,7 @@ func Test_returnHosts(t *testing.T) {
 			args: args{
 				val: "host1.com",
 			},
-			wantHosts: []datastructs.Host{datastructs.Host{}},
+			wantHosts: []datastructs.Host{datastructs.Host{Domain: "domain.local", Monitored: true, Enabled: true}},
 			wantErr:   false,
 		},
 	}
@@ -421,8 +425,8 @@ var emptyGroup10 = `{
   "id": 0,
   "name": "group10",
   "variables": {},
-  "enable": false,
-  "monitor": false
+  "enable": true,
+  "monitor": true
 }`
 
 var testGroup1Edit = `{
