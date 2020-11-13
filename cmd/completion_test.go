@@ -7,7 +7,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	Conf = &testConf
+}
+
 func Test_hostsArgsFunc(t *testing.T) {
+	db = dbMock{}
+
 	rootCmd := &cobra.Command{
 		Use:               "root",
 		ValidArgsFunction: hostsArgsFunc,
@@ -29,6 +35,8 @@ func Test_hostsArgsFunc(t *testing.T) {
 }
 
 func Test_groupsArgsFunc(t *testing.T) {
+	db = dbMock{}
+
 	rootCmd := &cobra.Command{
 		Use:               "root",
 		ValidArgsFunction: groupsArgsFunc,
