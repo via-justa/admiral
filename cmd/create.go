@@ -335,12 +335,12 @@ func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Gr
 		return returnGroup, err
 	}
 
-	err = json.Unmarshal(modifiedgroupB, &group)
+	err = json.Unmarshal(modifiedgroupB, &returnGroup)
 	if err != nil {
 		return returnGroup, err
 	}
 
-	err = group.MarshalVars()
+	err = returnGroup.MarshalVars()
 	if err != nil {
 		return returnGroup, err
 	}
