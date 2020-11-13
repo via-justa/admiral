@@ -31,7 +31,9 @@ var createHostVar = &cobra.Command{
 	Short: "create or modify host",
 	Long: "create new host or modify existing one, expecting argument host hostname/fqdn as the host to create or edit" +
 		"the new or edited host would open in your favorite editor as editable json",
-	Example: "admiral create host new-host\nadmiral create host new-host.domain.com\nadmiral edit host existing-host",
+	Example: "admiral create host new-host\nadmiral create" +
+		" host new-host.domain.com\nadmiral edit host existing-host",
+	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var hosts []datastructs.Host
 		var host datastructs.Host
@@ -253,7 +255,8 @@ var createGroupVar = &cobra.Command{
 	Short: "create or modify group",
 	Long: "create new group or modify existing one by passing argument group name" +
 		"the new or edited group would open in your favorite editor as editable json",
-	Example: "admiral create group new-group\nadmiral edit group existing-group",
+	Example:           "admiral create group new-group\nadmiral edit group existing-group",
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var group datastructs.Group
 		var tmpGroup datastructs.Group
@@ -361,8 +364,9 @@ var createChildVar = &cobra.Command{
 	Short: "create or modify existing child-group relationship",
 	Long: "create or modify existing child-group relationship expecting ordered arguments child and parent group names." +
 		" If the created relationship creates relationship loop an error will be returned",
-	Example: "admiral create child child-group parent-group",
-	Args:    cobra.ExactArgs(2),
+	Example:           "admiral create child child-group parent-group",
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var childGroups []datastructs.ChildGroup
 		var err error

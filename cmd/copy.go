@@ -29,7 +29,9 @@ var copyHostVar = &cobra.Command{
 	Short:   "create a new host from existing one",
 	Long: "Use existing host record as template while creating a new host record," +
 		"the new host would open in your favorite editor as editable json",
-	Example: "admiral copy host existing-host new-host\nadmiral copy host existing-host.domain.local new-host.domain.com",
+	Example: "admiral copy host existing-host " +
+		"new-host\nadmiral copy host existing-host.domain.local new-host.domain.com",
+	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var hosts []datastructs.Host
 		var existingHost datastructs.Host
@@ -85,7 +87,8 @@ var copyGroupVar = &cobra.Command{
 	Short:   "create a new group from existing one",
 	Long: "Use existing group record as template while creating a new group record," +
 		"the new group would open in your favorite editor as editable json",
-	Example: "admiral copy existing-group new-group",
+	Example:           "admiral copy existing-group new-group",
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var templateGroup datastructs.Group
 		var group datastructs.Group

@@ -35,7 +35,8 @@ var viewHostVar = &cobra.Command{
 	Short: "view existing host",
 	Long: "view existing host by substring of hostname or IP or view all records when no argument passed." +
 		"pass the flag `-j,--json` to view the host in json structure with host variables",
-	Example: "admiral view host\nadmiral view host host1\nadmiral view host host1 -j",
+	Example:           "admiral view host\nadmiral view host host1\nadmiral view host host1 -j",
+	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var hosts []datastructs.Host
 
@@ -93,10 +94,11 @@ func scanHosts(val string) (hosts []datastructs.Host, err error) {
 }
 
 var viewHostGroupVar = &cobra.Command{
-	Use:     "host-group ['group name']",
-	Short:   "view direct hosts for groups",
-	Long:    "view direct hosts for group or view all records when no argument passed",
-	Example: "admiral view host-group\nadmiral view host-group group1",
+	Use:               "host-group ['group name']",
+	Short:             "view direct hosts for groups",
+	Long:              "view direct hosts for group or view all records when no argument passed",
+	Example:           "admiral view host-group\nadmiral view host-group group1",
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var hgs []datastructs.HostGroup
 
@@ -144,7 +146,8 @@ var viewGroupVar = &cobra.Command{
 	Short: "view existing group",
 	Long: "view existing group by substring of group name or view all records when no argument passed" +
 		"pass the flag `-j,--json` to view the group in json structure with group variables",
-	Example: "admiral view group\nadmiral view group group1\nadmiral view group group1 -j",
+	Example:           "admiral view group\nadmiral view group group1\nadmiral view group group1 -j",
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var groups []datastructs.Group
 
@@ -211,10 +214,12 @@ func scanGroups(val string) (groups []datastructs.Group, err error) {
 }
 
 var viewChildVar = &cobra.Command{
-	Use:     "child ['child group' | 'parent group']",
-	Short:   "view existing child-group relationship",
-	Long:    "view existing child-group relationship by parent or child or view all records when no argument passed",
-	Example: "admiral view child\nadmiral view child parent-group\nadmiral view child child-group",
+	Use:   "child ['child group' | 'parent group']",
+	Short: "view existing child-group relationship",
+	Long: "view existing child-group relationship by parent" +
+		" or child or view all records when no argument passed",
+	Example:           "admiral view child\nadmiral view child parent-group\nadmiral view child child-group",
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var childGroups []datastructs.ChildGroup
 

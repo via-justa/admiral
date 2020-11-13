@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -30,4 +31,40 @@ func completionCmdFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func hostsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	var completions []string
+
+	hosts, _ := db.getHosts()
+
+	for _, host := range hosts {
+		if strings.HasPrefix(host.Hostname, toComplete) {
+			completions = append(completions, host.Hostname)
+		}
+	}
+
+	return completions, cobra.ShellCompDirectiveDefault
+}
+
+func groupsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	var completions []string
+
+	groups, _ := db.getGroups()
+
+	for _, group := range groups {
+		if strings.HasPrefix(group.Name, toComplete) {
+			completions = append(completions, group.Name)
+		}
+	}
+
+	return completions, cobra.ShellCompDirectiveDefault
 }
