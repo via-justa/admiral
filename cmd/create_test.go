@@ -8,14 +8,18 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+func init() {
+	Conf = &testConf
+}
+
 var emptyHost10 = `{
   "id": 0,
   "ip": "",
   "hostname": "host10",
-  "domain": "",
+  "domain": "domain.local",
   "variables": {},
-  "enable": false,
-  "monitor": false,
+  "enable": true,
+  "monitor": true,
   "direct_group": ""
 }`
 
@@ -34,11 +38,62 @@ var testHost1Edit = `{
   "direct_group": "group1"
 }`
 
+func Test_returnHosts(t *testing.T) {
+	db = dbMock{}
+
+	type args struct {
+		val string
+	}
+	tests := []struct {
+		name      string
+		args      args
+		wantHosts []datastructs.Host
+		wantErr   bool
+	}{
+		{
+			name: "Existing hostname",
+			args: args{
+				val: "host1",
+			},
+			wantHosts: []datastructs.Host{testHost1},
+			wantErr:   false,
+		},
+		{
+			name: "Existing FQDN",
+			args: args{
+				val: "host1.local",
+			},
+			wantHosts: []datastructs.Host{testHost1},
+			wantErr:   false,
+		},
+		{
+			name: "None-existing FQDN",
+			args: args{
+				val: "host1.com",
+			},
+			wantHosts: []datastructs.Host{datastructs.Host{Domain: "domain.local", Monitored: true, Enabled: true}},
+			wantErr:   false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotHosts, err := returnHosts(tt.args.val)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("returnHosts() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotHosts, tt.wantHosts) {
+				t.Errorf("returnHosts() = %v, want %v", gotHosts, tt.wantHosts)
+			}
+		})
+	}
+}
+
 func Test_prepHostForEdit(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		hosts    []datastructs.Host
+		hosts    *datastructs.Host
 		hostname string
 	}
 	tests := []struct {
@@ -48,19 +103,28 @@ func Test_prepHostForEdit(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "case 0 - host does not exist",
+			name: "Hostname does not exists",
 			args: args{
-				hosts:    []datastructs.Host{datastructs.Host{}},
+				hosts:    &datastructs.Host{},
 				hostname: "host10",
 			},
 			wantB:   []byte(emptyHost10),
 			wantErr: false,
 		},
 		{
-			name: "case 1 - host exist",
+			name: "Hostname exists",
 			args: args{
-				hosts:    []datastructs.Host{testHost1},
+				hosts:    &testHost1,
 				hostname: "host1",
+			},
+			wantB:   []byte(testHost1Edit),
+			wantErr: false,
+		},
+		{
+			name: "FQDN exists",
+			args: args{
+				hosts:    &testHost1,
+				hostname: "host1.local",
 			},
 			wantB:   []byte(testHost1Edit),
 			wantErr: false,
@@ -361,8 +425,8 @@ var emptyGroup10 = `{
   "id": 0,
   "name": "group10",
   "variables": {},
-  "enable": false,
-  "monitor": false
+  "enable": true,
+  "monitor": true
 }`
 
 var testGroup1Edit = `{
@@ -381,7 +445,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 	db = dbMock{}
 
 	type args struct {
-		groups []datastructs.Group
+		groups *datastructs.Group
 		name   string
 	}
 	tests := []struct {
@@ -393,7 +457,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 		{
 			name: "case 0 - group does not exist",
 			args: args{
-				groups: []datastructs.Group{datastructs.Group{}},
+				groups: &datastructs.Group{},
 				name:   "group10",
 			},
 			wantB:   []byte(emptyGroup10),
@@ -402,7 +466,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 		{
 			name: "case 1 - group exist",
 			args: args{
-				groups: []datastructs.Group{testGroup1},
+				groups: &testGroup1,
 				name:   "group1",
 			},
 			wantB:   []byte(testGroup1Edit),

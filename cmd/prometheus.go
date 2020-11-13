@@ -14,9 +14,11 @@ func init() {
 }
 
 var genPromSDFile = &cobra.Command{
-	Use:   "prometheus",
-	Short: "Output prometheus compatible SD file structure",
-	Run:   genPromSDFileFunc,
+	Use:     "prometheus",
+	Aliases: []string{"prom"},
+	Short:   "Output prometheus compatible SD file structure",
+	Example: "admiral prometheus > prometheus_file_sd.json",
+	Run:     genPromSDFileFunc,
 }
 
 func genPromSDFileFunc(cmd *cobra.Command, args []string) {

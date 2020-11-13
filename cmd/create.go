@@ -19,55 +19,45 @@ func init() {
 }
 
 var create = &cobra.Command{
-	Use:     "create",
-	Aliases: []string{"add", "edit"},
-	Short:   "create or modify existing record",
+	Use:        "create [host | group]",
+	Aliases:    []string{"add", "edit"},
+	ValidArgs:  []string{"host", "group"},
+	ArgAliases: []string{"hosts", "groups"},
+	Short:      "create or modify existing record",
 }
 
 var createHostVar = &cobra.Command{
-	Use:   "host",
-	Short: "create or modify host. expecting one argument host hostname",
+	Use:   "host {hostname | 'host fqdn'}",
+	Short: "create or modify host",
+	Long: "create new host or modify existing one, expecting argument host hostname/fqdn as the host to create or edit" +
+		"the new or edited host would open in your favorite editor as editable json",
+	Example: "admiral create host new-host\nadmiral create" +
+		" host new-host.domain.com\nadmiral edit host existing-host",
+	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var hosts []datastructs.Host
 		var host datastructs.Host
-		var hostB []byte
 		var err error
 
 		switch len(args) {
 		case 0:
 			log.Fatal("no host hostname argument passed")
 		case 1:
-			var tmp datastructs.Host
-			tmp, err = viewHostByHostname(args[0])
-			if err != nil && err.Error() != "requested host does not exists" {
+			hosts, err = returnHosts(args[0])
+			if err != nil {
 				log.Print(err)
 			}
-			hosts = []datastructs.Host{tmp}
 		default:
 			log.Fatal("received too many arguments")
 		}
 
-		hostB, err = prepHostForEdit(hosts, args[0])
-		if err != nil {
-			log.Print(err)
-		}
-
-		modifiedHostB, err := Edit(hostB)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = json.Unmarshal(modifiedHostB, &host)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = host.MarshalVars()
+		host, err = editHost(&hosts[0], args[0])
 		if err != nil {
 			log.Print(err)
 		}
 
 		printHosts([]datastructs.Host{host})
+
 		if confirm() {
 			err = confirmedHost(&host)
 			if err != nil {
@@ -79,11 +69,33 @@ var createHostVar = &cobra.Command{
 	},
 }
 
-func prepHostForEdit(hosts []datastructs.Host, hostname string) (b []byte, err error) {
-	switch len(hosts[0].Hostname) {
+func returnHosts(val string) (hosts []datastructs.Host, err error) {
+	checkedVal := strings.SplitN(val, ".", 2)
+
+	var tmp datastructs.Host
+
+	tmp, err = viewHostByHostname(checkedVal[0])
+
+	// return default host if hostname or fqdn (if provided) does not exists
+	if (err != nil && err.Error() != "requested host does not exists") ||
+		(len(checkedVal) > 1 && tmp.Domain != checkedVal[1]) {
+		return []datastructs.Host{Conf.newDefaultHost()}, err
+	}
+
+	return []datastructs.Host{tmp}, err
+}
+
+func prepHostForEdit(host *datastructs.Host, val string) (b []byte, err error) {
+	switch len(host.Hostname) {
 	case 0:
-		tmp := datastructs.Host{}
-		tmp.Hostname = hostname
+		checkedVal := strings.SplitN(val, ".", 2)
+		tmp := Conf.newDefaultHost()
+
+		tmp.Hostname = checkedVal[0]
+		if len(checkedVal) > 1 {
+			tmp.Domain = checkedVal[1]
+		}
+
 		tmp.Variables = "{}"
 
 		err = tmp.UnmarshalVars()
@@ -96,18 +108,44 @@ func prepHostForEdit(hosts []datastructs.Host, hostname string) (b []byte, err e
 			return b, err
 		}
 	default:
-		err = hosts[0].UnmarshalVars()
+		err = host.UnmarshalVars()
 		if err != nil {
 			return b, err
 		}
 
-		b, err = json.MarshalIndent(hosts[0], "", "  ")
+		b, err = json.MarshalIndent(host, "", "  ")
 		if err != nil {
 			return b, err
 		}
 	}
 
 	return b, err
+}
+
+func editHost(host *datastructs.Host, val string) (returnHost datastructs.Host, err error) {
+	var hostB []byte
+
+	hostB, err = prepHostForEdit(host, val)
+	if err != nil {
+		return returnHost, err
+	}
+
+	modifiedHostB, err := Edit(hostB)
+	if err != nil {
+		return returnHost, err
+	}
+
+	err = json.Unmarshal(modifiedHostB, &returnHost)
+	if err != nil {
+		return returnHost, err
+	}
+
+	err = returnHost.MarshalVars()
+	if err != nil {
+		log.Print(err)
+	}
+
+	return returnHost, err
 }
 
 func confirmedHost(host *datastructs.Host) (err error) {
@@ -213,46 +251,32 @@ func createHostGroup(host *datastructs.Host, group *datastructs.Group) error {
 }
 
 var createGroupVar = &cobra.Command{
-	Use:   "group",
-	Short: "create or modify group. expecting one argument group name",
+	Use:   "group 'group name'",
+	Short: "create or modify group",
+	Long: "create new group or modify existing one by passing argument group name" +
+		"the new or edited group would open in your favorite editor as editable json",
+	Example:           "admiral create group new-group\nadmiral edit group existing-group",
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var groups []datastructs.Group
 		var group datastructs.Group
-		var groupB []byte
+		var tmpGroup datastructs.Group
 		var err error
 
 		switch len(args) {
 		case 0:
 			log.Fatal("no group name argument passed")
 		case 1:
-			var tmp datastructs.Group
-			tmp, err = viewGroupByName(args[0])
+			tmpGroup, err = viewGroupByName(args[0])
 			if err != nil {
 				log.Print(err)
 			}
-			groups = []datastructs.Group{tmp}
 		default:
 			log.Fatal("received too many arguments")
 		}
 
-		groupB, err = prepGroupForEdit(groups, args[0])
+		group, err = editGroup(&tmpGroup, args[0])
 		if err != nil {
-			log.Print(err)
-		}
-
-		modifiedgroupB, err := Edit(groupB)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = json.Unmarshal(modifiedgroupB, &group)
-		if err != nil {
-			log.Print(err)
-		}
-
-		err = group.MarshalVars()
-		if err != nil {
-			log.Print(err)
+			log.Fatal(err)
 		}
 
 		printGroups([]datastructs.Group{group})
@@ -267,10 +291,10 @@ var createGroupVar = &cobra.Command{
 	},
 }
 
-func prepGroupForEdit(groups []datastructs.Group, name string) (b []byte, err error) {
-	switch len(groups[0].Name) {
+func prepGroupForEdit(group *datastructs.Group, name string) (b []byte, err error) {
+	switch len(group.Name) {
 	case 0:
-		tmp := datastructs.Group{}
+		tmp := Conf.newDefaultGroup()
 		tmp.Name = name
 		tmp.Variables = "{}"
 
@@ -284,18 +308,44 @@ func prepGroupForEdit(groups []datastructs.Group, name string) (b []byte, err er
 			return b, err
 		}
 	default:
-		err = groups[0].UnmarshalVars()
+		err = group.UnmarshalVars()
 		if err != nil {
 			return b, err
 		}
 
-		b, err = json.MarshalIndent(groups[0], "", "  ")
+		b, err = json.MarshalIndent(group, "", "  ")
 		if err != nil {
 			return b, err
 		}
 	}
 
 	return b, err
+}
+
+func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Group, err error) {
+	var groupB []byte
+
+	groupB, err = prepGroupForEdit(group, val)
+	if err != nil {
+		return returnGroup, err
+	}
+
+	modifiedgroupB, err := Edit(groupB)
+	if err != nil {
+		return returnGroup, err
+	}
+
+	err = json.Unmarshal(modifiedgroupB, &returnGroup)
+	if err != nil {
+		return returnGroup, err
+	}
+
+	err = returnGroup.MarshalVars()
+	if err != nil {
+		return returnGroup, err
+	}
+
+	return returnGroup, err
 }
 
 func createGroup(group *datastructs.Group) error {
@@ -310,10 +360,13 @@ func createGroup(group *datastructs.Group) error {
 }
 
 var createChildVar = &cobra.Command{
-	Use:   "child",
+	Use:   "child 'child group' 'parent group'",
 	Short: "create or modify existing child-group relationship",
-	Long:  "create or modify existing child-group relationship expecting ordered arguments child and parent group names",
-	Args:  cobra.ExactArgs(2),
+	Long: "create or modify existing child-group relationship expecting ordered arguments child and parent group names." +
+		" If the created relationship creates relationship loop an error will be returned",
+	Example:           "admiral create child child-group parent-group",
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		var childGroups []datastructs.ChildGroup
 		var err error

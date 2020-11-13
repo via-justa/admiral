@@ -1,11 +1,24 @@
 ![Go Test](https://github.com/via-justa/admiral/workflows/Go/badge.svg)  ![Language](https://img.shields.io/badge/Language-go-green)   [![Go Report Card](https://goreportcard.com/badge/github.com/via-justa/admiral)](https://goreportcard.com/report/github.com/via-justa/admiral)  [![license](https://img.shields.io/badge/license-CC-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 # Admiral
 
-Admiral is a command line tool to manage [ansible](https://www.ansible.com/) inventory. 
+Admiral - a lightweight, opinionated, command line tool to manage [ansible](https://www.ansible.com/) database based inventory. 
 
-In addition to providing command line interface to manage the inventory, the tool can be used to:
-- Expose the inventory to ansible as a full inventory structure. 
-- Expose the inventory in Prometheus static file structure where all the host groups are set as host `groups` label.
+Managing hundreds or thousands of hosts on different infrastructure providers in a file based inventory can be a complicated task that require a lot on managemental overhead and can lead to misconfiguration, relationship loops between groups and very long inventory files.
+
+Admiral is meant to solve this issue by storing the inventory in a database and allow for better visibility of the relationships, making the inventory searchable and making the management of the inventory easier and error prone.
+
+As Prometheus is the most common monitoring tool this days and the one monitoring tool I favorite the most, I baked the option to export the inventory as [file_sd_configs](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config) and provide the groups the host is part of as metric labels
+
+Admiral main features:
+- Creation and Edit of hosts and groups in JSON structure using your favorite editor
+- Command line edit and delete of hosts, groups and their relationships
+- Create new host / group from existing one (copy) to save time and need for configuration
+- Full auto-completion of commands
+- Realtime retrieval of hosts and groups for bash auto-completion
+- Export of the inventory in ansible readable structure
+- Export of the inventory in prometheus static file structure
+- Ansible ping command wrapper to validate ansible can communicate with the hosts
+- Setting default common configurations for new hosts / groups
 
 Supported Operating systems
 ---------------------------
@@ -22,6 +35,10 @@ Installation
 
 -   Download and extract the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
 -   Add configuration file is detailed in the `Configuration File` section
+-   Add bash completion to your `.bashrc` or `.profile` (optional) 
+    ```
+    . <(admiral completion)
+    ```
 
 Configuration File
 -----------
@@ -33,11 +50,16 @@ The tool is expecting to find a `toml` configuration file with the database deta
 
 Example configuration file:
 ```
-[database]
+[mysql]
 user = "root"
 password = "local"
 host = "localhost:3306"
 db = "ansible"
+
+[defaults]
+domain = "domain.local"
+monitored = true
+enabled = true
 ```
 
 Usage
@@ -47,7 +69,32 @@ The compleat command documentation is also available [here](https://github.com/v
 
 Configuring the Database
 -----------
-A compatible MariaDB > 13 scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/scheme.sql).
+A compatible `MariaDB > 13` scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/scheme.sql).
+
+Using the prometheus `file_sd_configs` and labels to filter jobs
+-----------
+The easiest way to get the `file_sd_configs` generated and read by prometheus is by using a cron job or systemd timer.
+```
+*/1 * * * * "/usr/local/bin/admiral prometheus > /etc/prometheus/prometheus_file_sd.json.new && mv /etc/prometheus/prometheus_file_sd.json.new /etc/prometheus/prometheus_file_sd.json"
+```
+This [nginx-exporter](https://github.com/nginxinc/nginx-prometheus-exporter) job example will keep all hosts with direct group matching regex `web-.*` and from those drop host with direct group `web-proxy` using the relabel_configs mechanism.
+```
+- job_name: 'nginx'
+    file_sd_configs:
+      - files:
+        - "/etc/prometheus/prometheus_file_sd.json"
+    relabel_configs:
+      - source_labels: ['group']
+        regex: 'web-.*'
+        action: keep
+      - source_labels: ['group']
+        regex: 'web-proxy'
+        action: drop
+      - source_labels: [__address__]
+        regex:  '(.*)'
+        target_label: __address__
+        replacement: '${1}:9113'
+```
 
 Issues and feature requests
 -----------

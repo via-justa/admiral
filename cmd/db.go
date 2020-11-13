@@ -26,8 +26,10 @@ type dbInterface interface {
 	scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error)
 	// HOstGroups
 	selectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error)
+	getHostGroups() (hostGroups []datastructs.HostGroup, err error)
 	insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error)
 	deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error)
+	scanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error)
 }
 
 type dbReal struct{}
@@ -102,10 +104,18 @@ func (d dbReal) selectHostGroup(host string) (hostGroups []datastructs.HostGroup
 	return database.SelectHostGroup(host)
 }
 
+func (d dbReal) getHostGroups() (hostGroups []datastructs.HostGroup, err error) {
+	return database.GetHostGroups()
+}
+
 func (d dbReal) insertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	return database.InsertHostGroup(hostGroup)
 }
 
 func (d dbReal) deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
 	return database.DeleteHostGroup(hostGroup)
+}
+
+func (d dbReal) scanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
+	return database.ScanHostGroups(val)
 }
