@@ -59,6 +59,7 @@ func NewConfig() *Config {
 	return conf
 }
 
+// NewDefaultHost return host with defaults from config
 func (conf *Config) NewDefaultHost() datastructs.Host {
 	return datastructs.Host{
 		Domain:    conf.Defaults.Domain,
@@ -67,6 +68,7 @@ func (conf *Config) NewDefaultHost() datastructs.Host {
 	}
 }
 
+// NewDefaultGroup return group with defaults from config
 func (conf *Config) NewDefaultGroup() datastructs.Group {
 	return datastructs.Group{
 		Monitored: conf.Defaults.Monitored,

@@ -185,8 +185,8 @@ var createTestChild11 = datastructs.ChildGroup{
 
 var createTestHostGroup10 = datastructs.HostGroup{
 	ID:      10,
-	HostID:  5,
-	Host:    "host5",
+	HostID:  3,
+	Host:    "host3",
 	GroupID: 5,
 	Group:   "group5",
 }

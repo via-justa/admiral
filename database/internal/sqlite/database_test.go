@@ -839,7 +839,7 @@ func TestDatabase_InsertHostGroup(t *testing.T) {
 		wantErr      bool
 	}{
 		{
-			name:         "insert hostGroup10 (host5, group5)",
+			name:         "insert hostGroup10 (host3, group5)",
 			Conn:         testDB.Conn,
 			hostGroup:    &createTestHostGroup10,
 			wantAffected: 1,
