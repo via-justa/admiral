@@ -35,17 +35,17 @@ type inventoryData struct {
 }
 
 func getInventoryData() (inv inventoryData, err error) {
-	inv.hosts, err = db.getHosts()
+	inv.hosts, err = DB.GetHosts()
 	if err != nil {
 		return inv, err
 	}
 
-	inv.groups, err = db.getGroups()
+	inv.groups, err = DB.GetGroups()
 	if err != nil {
 		return inv, err
 	}
 
-	inv.childGroups, err = db.getChildGroups()
+	inv.childGroups, err = DB.GetChildGroups()
 	if err != nil {
 		return inv, err
 	}

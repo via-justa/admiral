@@ -1,4 +1,4 @@
-package cmd
+package config
 
 import (
 	"reflect"
@@ -11,10 +11,6 @@ var testDefaultConfig = DefaultsConfig{
 	Domain:    "domain.local",
 	Monitored: true,
 	Enabled:   true,
-}
-
-var testConf = config{
-	Defaults: testDefaultConfig,
 }
 
 func Test_config_newDefaultHost(t *testing.T) {
@@ -35,10 +31,10 @@ func Test_config_newDefaultHost(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conf := &config{
+			conf := &Config{
 				Defaults: tt.defaults,
 			}
-			if got := conf.newDefaultHost(); !reflect.DeepEqual(got, tt.want) {
+			if got := conf.NewDefaultHost(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("config.newDefaultHost() = %v, want %v", got, tt.want)
 			}
 		})
@@ -62,10 +58,10 @@ func Test_config_newDefaultGroup(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conf := &config{
+			conf := &Config{
 				Defaults: tt.defaults,
 			}
-			if got := conf.newDefaultGroup(); !reflect.DeepEqual(got, tt.want) {
+			if got := conf.NewDefaultGroup(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("config.newDefaultGroup() = %v, want %v", got, tt.want)
 			}
 		})

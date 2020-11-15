@@ -8,10 +8,6 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
-func init() {
-	Conf = &testConf
-}
-
 var emptyHost10 = `{
   "id": 0,
   "ip": "",
@@ -27,7 +23,7 @@ var testHost1Edit = `{
   "id": 1,
   "ip": "1.1.1.1",
   "hostname": "host1",
-  "domain": "local",
+  "domain": "domain.local",
   "variables": {
     "host_var1": {
       "host_sub_var1": "host_sub_val1"
@@ -39,7 +35,9 @@ var testHost1Edit = `{
 }`
 
 func Test_returnHosts(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -61,7 +59,7 @@ func Test_returnHosts(t *testing.T) {
 		{
 			name: "Existing FQDN",
 			args: args{
-				val: "host1.local",
+				val: "host1.domain.local",
 			},
 			wantHosts: []datastructs.Host{testHost1},
 			wantErr:   false,
@@ -90,7 +88,11 @@ func Test_returnHosts(t *testing.T) {
 }
 
 func Test_prepHostForEdit(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tmpHost := testHost1
 
 	type args struct {
 		hosts    *datastructs.Host
@@ -124,7 +126,7 @@ func Test_prepHostForEdit(t *testing.T) {
 			name: "FQDN exists",
 			args: args{
 				hosts:    &testHost1,
-				hostname: "host1.local",
+				hostname: "host1.domain.local",
 			},
 			wantB:   []byte(testHost1Edit),
 			wantErr: false,
@@ -134,17 +136,24 @@ func Test_prepHostForEdit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotB, err := prepHostForEdit(tt.args.hosts, tt.args.hostname)
 			if (err != nil) != tt.wantErr {
+				testHost1 = tmpHost
 				t.Errorf("prepHostForEdit() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotB, tt.wantB) {
+				testHost1 = tmpHost
 				t.Errorf("prepHostForEdit() = %s, want %s", gotB, tt.wantB)
 			}
+			testHost1 = tmpHost
 		})
 	}
 }
 
 func Test_confirmedHost(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		host *datastructs.Host
 	}
@@ -165,7 +174,9 @@ func Test_confirmedHost(t *testing.T) {
 }
 
 func Test_viewHostByHostname(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		hostname string
@@ -227,7 +238,9 @@ var testHost10 = datastructs.Host{
 }
 
 func Test_createHost(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		host *datastructs.Host
@@ -249,7 +262,7 @@ func Test_createHost(t *testing.T) {
 			args: args{
 				host: &testHost1,
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "Change Existing host",
@@ -290,7 +303,9 @@ func Test_createHost(t *testing.T) {
 }
 
 func Test_viewHostGroupByHost(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		host string
@@ -333,7 +348,9 @@ func Test_viewHostGroupByHost(t *testing.T) {
 }
 
 func Test_deleteHostGroup(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		hostGroup *datastructs.HostGroup
@@ -376,7 +393,9 @@ func Test_deleteHostGroup(t *testing.T) {
 }
 
 func Test_createHostGroup(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		host  *datastructs.Host
@@ -390,24 +409,24 @@ func Test_createHostGroup(t *testing.T) {
 		{
 			name: "Insert New",
 			args: args{
-				host:  &datastructs.Host{ID: 2},
-				group: &datastructs.Group{ID: 2},
+				host:  &testHost3,
+				group: &testGroup3,
 			},
 			wantErr: false,
 		},
 		{
-			name: "Insert Duplicate",
+			name: "Insert Update group",
 			args: args{
-				host:  &datastructs.Host{ID: 1},
-				group: &datastructs.Group{ID: 1},
+				host:  &testHost1,
+				group: &testGroup2,
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
-			name: "Insert none-existing",
+			name: "Insert none-existing host",
 			args: args{
-				host:  &datastructs.Host{ID: 10},
-				group: &datastructs.Group{ID: 10},
+				host:  &testHost10,
+				group: &testGroup1,
 			},
 			wantErr: true,
 		},
@@ -442,8 +461,11 @@ var testGroup1Edit = `{
 }`
 
 func Test_prepGroupForEdit(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
 
+	defer testDB.Close()
+
+	tmpGroup := testGroup1
 	type args struct {
 		groups *datastructs.Group
 		name   string
@@ -477,12 +499,15 @@ func Test_prepGroupForEdit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotB, err := prepGroupForEdit(tt.args.groups, tt.args.name)
 			if (err != nil) != tt.wantErr {
+				testGroup1 = tmpGroup
 				t.Errorf("prepGroupForEdit() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotB, tt.wantB) {
+				testGroup1 = tmpGroup
 				t.Errorf("prepGroupForEdit() = %s, want %s", gotB, tt.wantB)
 			}
+			testGroup1 = tmpGroup
 		})
 	}
 }
@@ -496,8 +521,11 @@ var testGroup10 = datastructs.Group{
 }
 
 func Test_createGroup(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
 
+	defer testDB.Close()
+
+	tmpGroup := testGroup1
 	type args struct {
 		group *datastructs.Group
 	}
@@ -518,7 +546,7 @@ func Test_createGroup(t *testing.T) {
 			args: args{
 				group: &testGroup1,
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "Change Existing group",
@@ -543,14 +571,18 @@ func Test_createGroup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := createGroup(tt.args.group); (err != nil) != tt.wantErr {
+				testGroup1 = tmpGroup
 				t.Errorf("createGroup() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			testGroup1 = tmpGroup
 		})
 	}
 }
 
 func Test_createChildGroup(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		parent *datastructs.Group

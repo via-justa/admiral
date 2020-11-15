@@ -1,9 +1,11 @@
 // nolint: rowserrcheck,lll,golint
-package db
+package mariadb
 
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/via-justa/admiral/config"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -11,21 +13,13 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
-//DatabaseConfig specific configurations from file
-type DatabaseConfig struct {
-	User     string
-	Password string
-	Host     string
-	DB       string
-}
-
 // Database exposes a database connection
 type Database struct {
 	Conn *sqlx.DB
 }
 
 // Connect returns a Database connection
-func Connect(conf DatabaseConfig) (Database, error) {
+func Connect(conf config.MariaDBConfig) (*Database, error) {
 	var db Database
 
 	dbConfig := mysql.Config{
@@ -41,15 +35,20 @@ func Connect(conf DatabaseConfig) (Database, error) {
 
 	db.Conn, err = sqlx.Open("mysql", dbConfig.FormatDSN())
 	if err != nil {
-		return db, err
+		return &db, err
 	}
 
 	err = db.Conn.Ping()
 	if err != nil {
-		return db, err
+		return &db, err
 	}
 
-	return db, err
+	return &db, err
+}
+
+// Close close the connection to database
+func (db *Database) Close() (err error) {
+	return db.Conn.Close()
 }
 
 // Hosts
@@ -425,4 +424,35 @@ func (db *Database) ScanHostGroups(val string) (hostGroups []datastructs.HostGro
 	}
 
 	return hostGroups, nil
+}
+
+// PopulateTestData populate test database for internal testing
+// TODO: MariaDB is not tests, create a docker based tests
+// nolint
+func (db *Database) PopulateTestData(fixturesPath string) (err error) {
+	// sql, _ := ioutil.ReadFile("../../../fixtures/sqlite/01_scheme.sql")
+	// sqlfileE := base64.StdEncoding.EncodeToString(sql)
+	// sqlfileD, _ := base64.StdEncoding.DecodeString(sqlfileE)
+	// queries := strings.Split(string(sqlfileD), ";\n\n")
+
+	// for _, query := range queries[0:] {
+	// 	_, err = db.Conn.Exec(query)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	// sql, _ = ioutil.ReadFile("../../../fixtures/02_test_data.sql")
+	// sqlfileE = base64.StdEncoding.EncodeToString(sql)
+	// sqlfileD, _ = base64.StdEncoding.DecodeString(sqlfileE)
+	// queries = strings.Split(string(sqlfileD), ";\n\n")
+
+	// for _, query := range queries[1:] {
+	// 	_, err = db.Conn.Exec(query)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	return err
 }

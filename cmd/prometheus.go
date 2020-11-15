@@ -31,12 +31,12 @@ func genPromSDFileFunc(cmd *cobra.Command, args []string) {
 }
 
 func genPrometheusSDFile() (promSDFile []byte, err error) {
-	hosts, err := db.getHosts()
+	hosts, err := DB.GetHosts()
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := db.getGroups()
+	groups, err := DB.GetGroups()
 	if err != nil {
 		return nil, err
 	}

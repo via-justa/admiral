@@ -76,7 +76,7 @@ var viewHostVar = &cobra.Command{
 }
 
 func listHosts() (hosts []datastructs.Host, err error) {
-	hosts, err = db.getHosts()
+	hosts, err = DB.GetHosts()
 	if err != nil {
 		return hosts, err
 	}
@@ -85,7 +85,7 @@ func listHosts() (hosts []datastructs.Host, err error) {
 }
 
 func scanHosts(val string) (hosts []datastructs.Host, err error) {
-	hosts, err = db.scanHosts(val)
+	hosts, err = DB.ScanHosts(val)
 	if err != nil {
 		return hosts, err
 	}
@@ -124,7 +124,7 @@ var viewHostGroupVar = &cobra.Command{
 }
 
 func listHostGroups() (hg []datastructs.HostGroup, err error) {
-	hg, err = db.getHostGroups()
+	hg, err = DB.GetHostGroups()
 	if err != nil {
 		return hg, err
 	}
@@ -133,7 +133,7 @@ func listHostGroups() (hg []datastructs.HostGroup, err error) {
 }
 
 func scanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
-	hostGroups, err = db.scanHostGroups(val)
+	hostGroups, err = DB.ScanHostGroups(val)
 	if err != nil {
 		return hostGroups, err
 	}
@@ -185,7 +185,7 @@ var viewGroupVar = &cobra.Command{
 }
 
 func viewGroupByName(name string) (group datastructs.Group, err error) {
-	group, err = db.selectGroup(name)
+	group, err = DB.SelectGroup(name)
 	if err != nil {
 		return group, err
 	} else if group.ID == 0 {
@@ -196,7 +196,7 @@ func viewGroupByName(name string) (group datastructs.Group, err error) {
 }
 
 func listGroups() (groups []datastructs.Group, err error) {
-	groups, err = db.getGroups()
+	groups, err = DB.GetGroups()
 	if err != nil {
 		return groups, err
 	}
@@ -205,7 +205,7 @@ func listGroups() (groups []datastructs.Group, err error) {
 }
 
 func scanGroups(val string) (groups []datastructs.Group, err error) {
-	groups, err = db.scanGroups(val)
+	groups, err = DB.ScanGroups(val)
 	if err != nil {
 		return groups, err
 	}
@@ -245,7 +245,7 @@ var viewChildVar = &cobra.Command{
 }
 
 func listChildGroups() (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.getChildGroups()
+	childGroups, err = DB.GetChildGroups()
 	if err != nil {
 		return childGroups, err
 	}
@@ -254,7 +254,7 @@ func listChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 }
 
 func viewChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.selectChildGroup(child, parent)
+	childGroups, err = DB.SelectChildGroup(child, parent)
 	if err != nil {
 		return childGroups, err
 	} else if childGroups == nil {
@@ -265,7 +265,7 @@ func viewChildGroup(child, parent string) (childGroups []datastructs.ChildGroup,
 }
 
 func scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.scanChildGroups(val)
+	childGroups, err = DB.ScanChildGroups(val)
 	if err != nil {
 		return childGroups, err
 	}

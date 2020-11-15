@@ -69,7 +69,7 @@ var deleteHostVar = &cobra.Command{
 }
 
 func deleteHost(host *datastructs.Host) (affected int64, err error) {
-	affected, err = db.deleteHost(host)
+	affected, err = DB.DeleteHost(host)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
@@ -124,7 +124,7 @@ var deleteGroupVar = &cobra.Command{
 }
 
 func deleteGroup(group *datastructs.Group) (affected int64, err error) {
-	affected, err = db.deleteGroup(group)
+	affected, err = DB.DeleteGroup(group)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
@@ -165,7 +165,7 @@ var deleteChildVar = &cobra.Command{
 }
 
 func deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
-	affected, err = db.deleteChildGroup(childGroup)
+	affected, err = DB.DeleteChildGroup(childGroup)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {

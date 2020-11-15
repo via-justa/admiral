@@ -79,7 +79,7 @@ func returnHosts(val string) (hosts []datastructs.Host, err error) {
 	// return default host if hostname or fqdn (if provided) does not exists
 	if (err != nil && err.Error() != "requested host does not exists") ||
 		(len(checkedVal) > 1 && tmp.Domain != checkedVal[1]) {
-		return []datastructs.Host{Conf.newDefaultHost()}, err
+		return []datastructs.Host{Conf.NewDefaultHost()}, err
 	}
 
 	return []datastructs.Host{tmp}, err
@@ -89,7 +89,7 @@ func prepHostForEdit(host *datastructs.Host, val string) (b []byte, err error) {
 	switch len(host.Hostname) {
 	case 0:
 		checkedVal := strings.SplitN(val, ".", 2)
-		tmp := Conf.newDefaultHost()
+		tmp := Conf.NewDefaultHost()
 
 		tmp.Hostname = checkedVal[0]
 		if len(checkedVal) > 1 {
@@ -191,7 +191,7 @@ func confirmedHost(host *datastructs.Host) (err error) {
 }
 
 func viewHostByHostname(hostname string) (host datastructs.Host, err error) {
-	host, err = db.selectHost(hostname)
+	host, err = DB.SelectHost(hostname)
 	if err != nil {
 		return host, err
 	} else if host.Hostname == "" {
@@ -202,7 +202,11 @@ func viewHostByHostname(hostname string) (host datastructs.Host, err error) {
 }
 
 func createHost(host *datastructs.Host) error {
-	i, err := db.insertHost(host)
+	if host.Hostname == "" || host.Host == "" {
+		return fmt.Errorf("missing mandatory field ip or hostname")
+	}
+
+	i, err := DB.InsertHost(host)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -213,7 +217,7 @@ func createHost(host *datastructs.Host) error {
 }
 
 func viewHostGroupByHost(host string) (hostGroup []datastructs.HostGroup, err error) {
-	hostGroup, err = db.selectHostGroup(host)
+	hostGroup, err = DB.SelectHostGroup(host)
 	if err != nil {
 		return hostGroup, err
 	} else if hostGroup == nil {
@@ -224,7 +228,7 @@ func viewHostGroupByHost(host string) (hostGroup []datastructs.HostGroup, err er
 }
 
 func deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
-	affected, err = db.deleteHostGroup(hostGroup)
+	affected, err = DB.DeleteHostGroup(hostGroup)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
@@ -240,7 +244,7 @@ func createHostGroup(host *datastructs.Host, group *datastructs.Group) error {
 		GroupID: group.ID,
 	}
 
-	i, err := db.insertHostGroup(hostGroup)
+	i, err := DB.InsertHostGroup(hostGroup)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -294,7 +298,7 @@ var createGroupVar = &cobra.Command{
 func prepGroupForEdit(group *datastructs.Group, name string) (b []byte, err error) {
 	switch len(group.Name) {
 	case 0:
-		tmp := Conf.newDefaultGroup()
+		tmp := Conf.NewDefaultGroup()
 		tmp.Name = name
 		tmp.Variables = "{}"
 
@@ -349,7 +353,11 @@ func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Gr
 }
 
 func createGroup(group *datastructs.Group) error {
-	i, err := db.insertGroup(group)
+	if group.Name == "" {
+		return fmt.Errorf("missing mandatory field name")
+	}
+
+	i, err := DB.InsertGroup(group)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -421,7 +429,7 @@ func createChildGroup(parent *datastructs.Group, child *datastructs.Group) error
 		ChildID:  child.ID,
 	}
 
-	i, err := db.insertChildGroup(childGroup)
+	i, err := DB.InsertChildGroup(childGroup)
 	if err != nil {
 		return err
 	} else if i == 0 {

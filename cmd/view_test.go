@@ -9,7 +9,9 @@ import (
 )
 
 func Test_listHosts(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name      string
@@ -37,7 +39,9 @@ func Test_listHosts(t *testing.T) {
 }
 
 func Test_scanHosts(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -96,7 +100,9 @@ func Test_scanHosts(t *testing.T) {
 }
 
 func Test_listHostGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name    string
@@ -124,7 +130,9 @@ func Test_listHostGroups(t *testing.T) {
 }
 
 func Test_scanHostGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -183,7 +191,9 @@ func Test_scanHostGroups(t *testing.T) {
 }
 
 func Test_viewGroupByName(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		name string
@@ -234,7 +244,9 @@ func Test_viewGroupByName(t *testing.T) {
 }
 
 func Test_listGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name       string
@@ -262,7 +274,9 @@ func Test_listGroups(t *testing.T) {
 }
 
 func Test_scanGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -321,7 +335,9 @@ func Test_scanGroups(t *testing.T) {
 }
 
 func Test_listChildGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name            string
@@ -349,7 +365,9 @@ func Test_listChildGroups(t *testing.T) {
 }
 
 func Test_viewChildGroup(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		child  string
@@ -404,7 +422,9 @@ func Test_viewChildGroup(t *testing.T) {
 }
 
 func Test_scanChildGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string

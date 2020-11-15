@@ -4,15 +4,16 @@ import (
 	"strings"
 	"testing"
 
+	// sqlite driver
+
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	Conf = &testConf
-}
-
 func Test_hostsArgsFunc(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	rootCmd := &cobra.Command{
 		Use:               "root",
@@ -35,7 +36,9 @@ func Test_hostsArgsFunc(t *testing.T) {
 }
 
 func Test_groupsArgsFunc(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	rootCmd := &cobra.Command{
 		Use:               "root",

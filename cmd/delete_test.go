@@ -8,6 +8,10 @@ import (
 )
 
 func Test_deleteHost(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		host *datastructs.Host
 	}
@@ -49,6 +53,10 @@ func Test_deleteHost(t *testing.T) {
 }
 
 func Test_deleteGroup(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		group *datastructs.Group
 	}
@@ -98,6 +106,10 @@ var testChild10 = datastructs.ChildGroup{
 }
 
 func Test_deleteChildGroup(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		childGroup *datastructs.ChildGroup
 	}

@@ -40,7 +40,7 @@ func hostsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]stri
 
 	var completions []string
 
-	hosts, _ := db.getHosts()
+	hosts, _ := DB.GetHosts()
 
 	for _, host := range hosts {
 		if strings.HasPrefix(host.Hostname, toComplete) {
@@ -58,7 +58,7 @@ func groupsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]str
 
 	var completions []string
 
-	groups, _ := db.getGroups()
+	groups, _ := DB.GetGroups()
 
 	for _, group := range groups {
 		if strings.HasPrefix(group.Name, toComplete) {
