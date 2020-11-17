@@ -50,7 +50,7 @@ The tool is expecting to find a `toml` configuration file with the database deta
 
 Example configuration file:
 ```
-[mysql]
+[mariadb]
 user = "root"
 password = "local"
 host = "localhost:3306"
