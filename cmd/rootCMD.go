@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/via-justa/admiral/config"
 	"github.com/via-justa/admiral/database"
@@ -55,9 +56,11 @@ func Execute() {
 
 	Conf = config.NewConfig()
 
-	DB, err = database.Connect(Conf)
-	if err != nil {
-		log.Fatal(err)
+	if os.Args[1] != "docs" && os.Args[1] != "completion" {
+		DB, err = database.Connect(Conf)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	if err = rootCmd.Execute(); err != nil {

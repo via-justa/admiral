@@ -37,21 +37,34 @@ type Config struct {
 
 // NewConfig initialize new configuration
 func NewConfig() *Config {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("/etc/admiral")
-	viper.SetConfigName(".admiral")
-	viper.AddConfigPath("$HOME")
+	var err error
 
-	err := viper.ReadInConfig()
+	v := viper.New()
+	// first check on local folder if config exists
+	v.SetConfigName("config")
+	v.AddConfigPath(".")
+	v.AddConfigPath("/etc/admiral")
+	// Override all for tests
+	v.AddConfigPath("../fixtures")
 
-	if err != nil {
-		log.Fatal("Could not read config")
+	if err = v.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// if couldn't find local config, search in user home folder
+			v.SetConfigName(".admiral")
+			v.AddConfigPath("$HOME")
+			err = v.ReadInConfig()
+
+			if err != nil {
+				log.Fatal("Could not read config")
+			}
+		} else {
+			// Config file was found but another error was produced
+		}
 	}
 
 	conf := new(Config)
 
-	err = viper.Unmarshal(&conf)
+	err = v.Unmarshal(&conf)
 	if err != nil {
 		log.Fatal("Could not unmarshal config")
 	}
