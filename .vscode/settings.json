@@ -1,6 +1,7 @@
 {
     "go.lintTool": "golangci-lint",
     "cSpell.words": [
+        "Unpatch",
         "coverallsapp",
         "covermode",
         "coverprofile",
@@ -15,8 +16,10 @@
         "jmoiron",
         "justa",
         "lcov",
+        "mattn",
         "nolint",
         "outfile",
+        "sqlite",
         "sqlx",
         "tatsushid"
     ]
