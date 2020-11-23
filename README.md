@@ -1,7 +1,7 @@
 ![Go Test](https://github.com/via-justa/admiral/workflows/Go/badge.svg)  ![Language](https://img.shields.io/badge/Language-go-green)   [![Go Report Card](https://goreportcard.com/badge/github.com/via-justa/admiral)](https://goreportcard.com/report/github.com/via-justa/admiral) [![Coverage Status](https://coveralls.io/repos/github/via-justa/admiral/badge.svg)](https://coveralls.io/github/via-justa/admiral)  [![license](https://img.shields.io/badge/license-CC-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/) 
 
 # Admiral
-[![documentation](https://img.shields.io/badge/-documentation-blue)](/docs/admiral.md)   [![latest release](https://img.shields.io/badge/-latest_release-blue)](https://github.com/via-justa/admiral/releases/latest)
+[![command documentation](https://img.shields.io/badge/-command_documentation-blue)](/docs/admiral.md)   [![latest release](https://img.shields.io/badge/-latest_release-blue)](https://github.com/via-justa/admiral/releases/latest)
 
 Admiral - a lightweight, opinionated, command line tool to manage [ansible](https://www.ansible.com/) database based inventory. 
 
