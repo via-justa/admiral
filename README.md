@@ -41,7 +41,7 @@ Installation
 -   Download and extract the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
 -   Add configuration file is detailed in the `Configuration File` section
 -   Add bash completion to your `.bashrc` or `.profile` (optional) 
-    ```
+    ```bash
     . <(admiral completion)
     ```
 
@@ -54,7 +54,7 @@ The tool is expecting to find a `toml` configuration file with the database deta
 - $HOME/.admiral.toml
 
 Example configuration file:
-```
+```tomal
 [mariadb]
 user = "root"
 password = "local"
@@ -83,11 +83,11 @@ A compatible `sqlite3` scheme can be found [here](/fixtures/dqlite/01_scheme.sql
 Using the prometheus `file_sd_configs` and labels to filter jobs
 -----------
 The easiest way to get the `file_sd_configs` generated and read by prometheus is by using a cron job or systemd timer.
-```
+```shell
 */1 * * * * "/usr/local/bin/admiral prometheus > /etc/prometheus/prometheus_file_sd.json.new && mv /etc/prometheus/prometheus_file_sd.json.new /etc/prometheus/prometheus_file_sd.json"
 ```
 This [nginx-exporter](https://github.com/nginxinc/nginx-prometheus-exporter) job example will keep all hosts with direct group matching regex `web-.*` and from those drop host with direct group `web-proxy` using the relabel_configs mechanism.
-```
+```yaml
 - job_name: 'nginx'
     file_sd_configs:
       - files:
