@@ -7,6 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: local
     volumes:
-      - ./fixtures/:/docker-entrypoint-initdb.d/
+      - ./fixtures/mariadb/01_scheme.sql:/docker-entrypoint-initdb.d/01_scheme.sql
+      - ./fixtures/02_test_data.sql:/docker-entrypoint-initdb.d/02_test_data.sql
     ports:
       - 3306:3306

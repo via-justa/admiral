@@ -23,14 +23,12 @@ To configure your bash shell to load completions for each session add to your ba
 # ~/.bashrc or ~/.profile
 . <(admiral completion)
 `,
-	Run: completionCmdFunc,
-}
-
-func completionCmdFunc(cmd *cobra.Command, args []string) {
-	err := rootCmd.GenBashCompletion(os.Stdout)
-	if err != nil {
-		log.Fatal(err)
-	}
+	Run: func(cmd *cobra.Command, args []string) {
+		err := rootCmd.GenBashCompletion(os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
 }
 
 func hostsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -40,7 +38,7 @@ func hostsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]stri
 
 	var completions []string
 
-	hosts, _ := db.getHosts()
+	hosts, _ := DB.GetHosts()
 
 	for _, host := range hosts {
 		if strings.HasPrefix(host.Hostname, toComplete) {
@@ -58,7 +56,7 @@ func groupsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]str
 
 	var completions []string
 
-	groups, _ := db.getGroups()
+	groups, _ := DB.GetGroups()
 
 	for _, group := range groups {
 		if strings.HasPrefix(group.Name, toComplete) {

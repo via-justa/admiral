@@ -35,38 +35,48 @@ var createHostVar = &cobra.Command{
 		" host new-host.domain.com\nadmiral edit host existing-host",
 	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var hosts []datastructs.Host
-		var host datastructs.Host
-		var err error
-
-		switch len(args) {
-		case 0:
-			log.Fatal("no host hostname argument passed")
-		case 1:
-			hosts, err = returnHosts(args[0])
-			if err != nil {
-				log.Print(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		host, err = editHost(&hosts[0], args[0])
-		if err != nil {
-			log.Print(err)
-		}
-
-		printHosts([]datastructs.Host{host})
-
-		if confirm() {
-			err = confirmedHost(&host)
-			if err != nil {
-				log.Print(err)
-			}
-		} else {
-			log.Fatal("aborted")
+		if err := createHostCase(args); err != nil {
+			log.Fatal(err)
 		}
 	},
+}
+
+func createHostCase(args []string) error {
+	var hosts []datastructs.Host
+
+	var host datastructs.Host
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		return fmt.Errorf("no host hostname argument passed")
+	case 1:
+		hosts, err = returnHosts(args[0])
+		if err != nil {
+			log.Println(err)
+		}
+	default:
+		return fmt.Errorf("received too many arguments")
+	}
+
+	host, err = editHost(&hosts[0], args[0])
+	if err != nil {
+		return err
+	}
+
+	printHosts([]datastructs.Host{host})
+
+	if User.confirm() {
+		err = confirmedHost(&host)
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("aborted")
+	}
+
+	return nil
 }
 
 func returnHosts(val string) (hosts []datastructs.Host, err error) {
@@ -79,7 +89,7 @@ func returnHosts(val string) (hosts []datastructs.Host, err error) {
 	// return default host if hostname or fqdn (if provided) does not exists
 	if (err != nil && err.Error() != "requested host does not exists") ||
 		(len(checkedVal) > 1 && tmp.Domain != checkedVal[1]) {
-		return []datastructs.Host{Conf.newDefaultHost()}, err
+		return []datastructs.Host{Conf.NewDefaultHost()}, err
 	}
 
 	return []datastructs.Host{tmp}, err
@@ -89,7 +99,7 @@ func prepHostForEdit(host *datastructs.Host, val string) (b []byte, err error) {
 	switch len(host.Hostname) {
 	case 0:
 		checkedVal := strings.SplitN(val, ".", 2)
-		tmp := Conf.newDefaultHost()
+		tmp := Conf.NewDefaultHost()
 
 		tmp.Hostname = checkedVal[0]
 		if len(checkedVal) > 1 {
@@ -130,7 +140,7 @@ func editHost(host *datastructs.Host, val string) (returnHost datastructs.Host, 
 		return returnHost, err
 	}
 
-	modifiedHostB, err := Edit(hostB)
+	modifiedHostB, err := User.Edit(hostB)
 	if err != nil {
 		return returnHost, err
 	}
@@ -157,41 +167,45 @@ func confirmedHost(host *datastructs.Host) (err error) {
 	}
 
 	if host.DirectGroup == "" {
-		return fmt.Errorf("created host without group. please make sure to add the host to default group")
-	}
-
-	group, err = viewGroupByName(host.DirectGroup)
-	if err != nil {
-		return err
-	}
-
-	// if host already got host-group relationship first delete it
-	existingHostGroup, err := viewHostGroupByHost(host.Hostname)
-	if err != nil && err.Error() != "no record matched request" {
-		return err
-	} else if existingHostGroup != nil {
-		_, err = deleteHostGroup(&existingHostGroup[0])
+		log.Println("created host without group. please make sure to add the host to default group")
+	} else {
+		group, err = viewGroupByName(host.DirectGroup)
 		if err != nil {
 			return err
 		}
-	}
 
-	// retrieving the created host to get its ID
-	created, err := viewHostByHostname(host.Hostname)
-	if err != nil {
-		return err
-	}
+		var existingHostGroup []datastructs.HostGroup
 
-	err = createHostGroup(&created, &group)
-	if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
-		return err
+		// if host already got host-group relationship first delete it
+		existingHostGroup, err = viewHostGroupByHost(host.Hostname)
+		if err != nil && err.Error() != "no record matched request" {
+			return err
+		} else if existingHostGroup != nil {
+			_, err = deleteHostGroup(&existingHostGroup[0])
+			if err != nil {
+				return err
+			}
+		}
+
+		var created datastructs.Host
+
+		// retrieving the created host to get its ID
+		created, err = viewHostByHostname(host.Hostname)
+		if err != nil {
+			return err
+		}
+
+		err = createHostGroup(&created, &group)
+		if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
+			return err
+		}
 	}
 
 	return err
 }
 
 func viewHostByHostname(hostname string) (host datastructs.Host, err error) {
-	host, err = db.selectHost(hostname)
+	host, err = DB.SelectHost(hostname)
 	if err != nil {
 		return host, err
 	} else if host.Hostname == "" {
@@ -202,7 +216,11 @@ func viewHostByHostname(hostname string) (host datastructs.Host, err error) {
 }
 
 func createHost(host *datastructs.Host) error {
-	i, err := db.insertHost(host)
+	if host.Hostname == "" || host.Host == "" {
+		return fmt.Errorf("missing mandatory field ip or hostname")
+	}
+
+	i, err := DB.InsertHost(host)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -213,7 +231,7 @@ func createHost(host *datastructs.Host) error {
 }
 
 func viewHostGroupByHost(host string) (hostGroup []datastructs.HostGroup, err error) {
-	hostGroup, err = db.selectHostGroup(host)
+	hostGroup, err = DB.SelectHostGroup(host)
 	if err != nil {
 		return hostGroup, err
 	} else if hostGroup == nil {
@@ -224,7 +242,7 @@ func viewHostGroupByHost(host string) (hostGroup []datastructs.HostGroup, err er
 }
 
 func deleteHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
-	affected, err = db.deleteHostGroup(hostGroup)
+	affected, err = DB.DeleteHostGroup(hostGroup)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
@@ -240,7 +258,7 @@ func createHostGroup(host *datastructs.Host, group *datastructs.Group) error {
 		GroupID: group.ID,
 	}
 
-	i, err := db.insertHostGroup(hostGroup)
+	i, err := DB.InsertHostGroup(hostGroup)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -258,43 +276,54 @@ var createGroupVar = &cobra.Command{
 	Example:           "admiral create group new-group\nadmiral edit group existing-group",
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var group datastructs.Group
-		var tmpGroup datastructs.Group
-		var err error
-
-		switch len(args) {
-		case 0:
-			log.Fatal("no group name argument passed")
-		case 1:
-			tmpGroup, err = viewGroupByName(args[0])
-			if err != nil {
-				log.Print(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		group, err = editGroup(&tmpGroup, args[0])
-		if err != nil {
+		if err := createGroupCase(args); err != nil {
 			log.Fatal(err)
 		}
-
-		printGroups([]datastructs.Group{group})
-		if confirm() {
-			err := createGroup(&group)
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			log.Fatal("aborted")
-		}
 	},
+}
+
+func createGroupCase(args []string) error {
+	var group datastructs.Group
+
+	var tmpGroup datastructs.Group
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		return fmt.Errorf("no group name argument passed")
+	case 1:
+		tmpGroup, err = viewGroupByName(args[0])
+		if err != nil {
+			log.Println(err)
+		}
+	default:
+		return fmt.Errorf("received too many arguments")
+	}
+
+	group, err = editGroup(&tmpGroup, args[0])
+	if err != nil {
+		return err
+	}
+
+	printGroups([]datastructs.Group{group})
+
+	if User.confirm() {
+		err := createGroup(&group)
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("aborted")
+	}
+
+	return nil
 }
 
 func prepGroupForEdit(group *datastructs.Group, name string) (b []byte, err error) {
 	switch len(group.Name) {
 	case 0:
-		tmp := Conf.newDefaultGroup()
+		tmp := Conf.NewDefaultGroup()
 		tmp.Name = name
 		tmp.Variables = "{}"
 
@@ -330,7 +359,7 @@ func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Gr
 		return returnGroup, err
 	}
 
-	modifiedgroupB, err := Edit(groupB)
+	modifiedgroupB, err := User.Edit(groupB)
 	if err != nil {
 		return returnGroup, err
 	}
@@ -349,7 +378,11 @@ func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Gr
 }
 
 func createGroup(group *datastructs.Group) error {
-	i, err := db.insertGroup(group)
+	if group.Name == "" {
+		return fmt.Errorf("missing mandatory field name")
+	}
+
+	i, err := DB.InsertGroup(group)
 	if err != nil {
 		return err
 	} else if i == 0 {
@@ -368,42 +401,52 @@ var createChildVar = &cobra.Command{
 	Args:              cobra.ExactArgs(2),
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var childGroups []datastructs.ChildGroup
-		var err error
-
-		// check if relationship already exists
-		childGroups, _ = viewChildGroup(args[0], args[1])
-		if len(childGroups) != 0 {
-			log.Fatal("Group relationship already exists")
-		}
-
-		child, err := viewGroupByName(args[0])
-		if err != nil {
+		if err := createChildCase(args); err != nil {
 			log.Fatal(err)
-		}
-
-		parent, err := viewGroupByName(args[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		childGroups = []datastructs.ChildGroup{datastructs.ChildGroup{
-			Parent:   parent.Name,
-			ParentID: parent.ID,
-			Child:    child.Name,
-			ChildID:  child.ID,
-		}}
-
-		printChildGroups(childGroups)
-		if confirm() {
-			err = createChildGroup(&parent, &child)
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			log.Fatal("aborted")
 		}
 	},
+}
+
+func createChildCase(args []string) error {
+	var childGroups []datastructs.ChildGroup
+
+	var err error
+
+	// check if relationship already exists
+	childGroups, _ = viewChildGroup(args[0], args[1])
+	if len(childGroups) != 0 {
+		return fmt.Errorf("Group relationship already exists")
+	}
+
+	child, err := viewGroupByName(args[0])
+	if err != nil {
+		return err
+	}
+
+	parent, err := viewGroupByName(args[1])
+	if err != nil {
+		return err
+	}
+
+	childGroups = []datastructs.ChildGroup{datastructs.ChildGroup{
+		Parent:   parent.Name,
+		ParentID: parent.ID,
+		Child:    child.Name,
+		ChildID:  child.ID,
+	}}
+
+	printChildGroups(childGroups)
+
+	if User.confirm() {
+		err = createChildGroup(&parent, &child)
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("aborted")
+	}
+
+	return nil
 }
 
 func createChildGroup(parent *datastructs.Group, child *datastructs.Group) error {
@@ -421,7 +464,7 @@ func createChildGroup(parent *datastructs.Group, child *datastructs.Group) error
 		ChildID:  child.ID,
 	}
 
-	i, err := db.insertChildGroup(childGroup)
+	i, err := DB.InsertChildGroup(childGroup)
 	if err != nil {
 		return err
 	} else if i == 0 {

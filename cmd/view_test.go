@@ -8,8 +8,67 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+// admiral view host
+func Example_viewHost() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewAsJSON = false
+
+	viewHost([]string{})
+	// Output:
+	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Groups |Inherited Groups
+	// 1.1.1.1      |host1        |domain.local |true         |true         |group1        |
+	// 2.2.2.2      |host2        |domain.local |true         |true         |group2        |
+	// 3.3.3.3      |host3        |domain.local |true         |true         |group3        |group4,group5
+}
+
+// admiral view host host1
+func Example_viewSingleHost() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewAsJSON = false
+
+	viewHost([]string{"host1"})
+	// Output:
+	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Groups |Inherited Groups
+	// 1.1.1.1      |host1        |domain.local |true         |true         |group1        |
+}
+
+// admiral view host host1 -j
+func Example_viewSingleHostAsJSON() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewAsJSON = true
+
+	viewHost([]string{"host1"})
+	// Output:
+	// 	[
+	//     {
+	//         "ip": "1.1.1.1",
+	//         "hostname": "host1",
+	//         "domain": "domain.local",
+	//         "variables": {
+	//             "host_var1": {
+	//                 "host_sub_var1": "host_sub_val1"
+	//             }
+	//         },
+	//         "enable": true,
+	//         "monitor": true,
+	//         "direct_group": "group1"
+	//     }
+	// ]
+}
+
 func Test_listHosts(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name      string
@@ -37,7 +96,9 @@ func Test_listHosts(t *testing.T) {
 }
 
 func Test_scanHosts(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -95,8 +156,35 @@ func Test_scanHosts(t *testing.T) {
 	}
 }
 
+// admiral view host-group
+func Example_viewHostGroup() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewHostGroup([]string{})
+	// Output:
+	// Group        | Group ID     | Hostname     | Host ID
+	// group1       | 1            | host1        | 1
+	// group2       | 2            | host2        | 2
+	// group3       | 3            | host3        | 3
+}
+
+// admiral view host-group group1
+func Example_viewSingleHostGroup() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewHostGroup([]string{"group1"})
+	// Output:
+	// Group        | Group ID     | Hostname     | Host ID
+	// group1       | 1            | host1        | 1
+}
 func Test_listHostGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name    string
@@ -124,7 +212,9 @@ func Test_listHostGroups(t *testing.T) {
 }
 
 func Test_scanHostGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -182,8 +272,66 @@ func Test_scanHostGroups(t *testing.T) {
 	}
 }
 
+// admiral view group
+func Example_viewGroup() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewAsJSON = false
+
+	viewGroup([]string{})
+	// Output:
+	// name         |Enabled      |Monitored    |Children count |Hosts count
+	// group1       |true         |true         |0              |1
+	// group2       |true         |true         |0              |1
+	// group3       |true         |true         |0              |1
+	// group4       |true         |true         |1              |0
+	// group5       |true         |true         |2              |0
+}
+
+// admiral view group group1
+func Example_viewSingleGroup() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewAsJSON = false
+
+	viewGroup([]string{"group1"})
+	// Output:
+	// name         |Enabled      |Monitored    |Children count |Hosts count
+	// group1       |true         |true         |0              |1
+}
+
+// admiral view group group1 -j
+func Example_viewSingleGroupAsJSON() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewAsJSON = true
+
+	viewGroup([]string{"group1"})
+	// Output:
+	// [
+	//     {
+	//         "name": "group1",
+	//         "variables": {
+	//             "group_var1": {
+	//                 "group_sub_var1": "group_sub_val1"
+	//             }
+	//         },
+	//         "enable": true,
+	//         "monitor": true
+	//     }
+	// ]
+}
+
 func Test_viewGroupByName(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		name string
@@ -234,7 +382,9 @@ func Test_viewGroupByName(t *testing.T) {
 }
 
 func Test_listGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name       string
@@ -262,7 +412,9 @@ func Test_listGroups(t *testing.T) {
 }
 
 func Test_scanGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string
@@ -320,8 +472,35 @@ func Test_scanGroups(t *testing.T) {
 	}
 }
 
+// admiral view child
+func Example_viewChildGroup() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewChild([]string{})
+	// Output:
+	// Parent       |Parent ID    |Child        |Child ID
+	// group4       |4            |group3       |3
+	// group5       |5            |group4       |4
+}
+
+// admiral view child group5
+func Example_viewSingleChildGroup() {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	viewChild([]string{"group5"})
+	// Output:
+	// Parent       |Parent ID    |Child        |Child ID
+	// group5       |5            |group4       |4
+}
+
 func Test_listChildGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name            string
@@ -349,7 +528,9 @@ func Test_listChildGroups(t *testing.T) {
 }
 
 func Test_viewChildGroup(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		child  string
@@ -404,7 +585,9 @@ func Test_viewChildGroup(t *testing.T) {
 }
 
 func Test_scanChildGroups(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	type args struct {
 		val string

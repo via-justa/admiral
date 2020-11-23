@@ -9,7 +9,7 @@ import (
 var promSD = `[
     {
         "targets": [
-            "host1.local"
+            "host1.domain.local"
         ],
         "labels": {
             "group": "group1",
@@ -18,7 +18,7 @@ var promSD = `[
     },
     {
         "targets": [
-            "host2.local"
+            "host2.domain.local"
         ],
         "labels": {
             "group": "group2",
@@ -27,7 +27,7 @@ var promSD = `[
     },
     {
         "targets": [
-            "host3.local"
+            "host3.domain.local"
         ],
         "labels": {
             "group": "group3",
@@ -37,7 +37,9 @@ var promSD = `[
 ]`
 
 func Test_genPrometheusSDFile(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name           string

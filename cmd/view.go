@@ -38,45 +38,49 @@ var viewHostVar = &cobra.Command{
 	Example:           "admiral view host\nadmiral view host host1\nadmiral view host host1 -j",
 	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var hosts []datastructs.Host
-
-		var err error
-
-		switch len(args) {
-		case 0:
-			hosts, err = listHosts()
-			if err != nil {
-				log.Fatal(err)
-			}
-		case 1:
-			hosts, err = scanHosts(args[0])
-			if err != nil {
-				log.Fatal(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		if viewAsJSON {
-			if len(hosts) > 0 {
-				for i := range hosts {
-					_ = hosts[i].UnmarshalVars()
-				}
-
-				b, _ := json.MarshalIndent(hosts, "", "    ")
-
-				fmt.Printf("%s\n", b)
-			} else {
-				log.Println("No host matched")
-			}
-		} else {
-			printHosts(hosts)
-		}
+		viewHost(args)
 	},
 }
 
+func viewHost(args []string) {
+	var hosts []datastructs.Host
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		hosts, err = listHosts()
+		if err != nil {
+			log.Fatal(err)
+		}
+	case 1:
+		hosts, err = scanHosts(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("received too many arguments")
+	}
+
+	if viewAsJSON {
+		if len(hosts) > 0 {
+			for i := range hosts {
+				_ = hosts[i].UnmarshalVars()
+			}
+
+			b, _ := json.MarshalIndent(hosts, "", "    ")
+
+			fmt.Printf("%s\n", b)
+		} else {
+			log.Println("No host matched")
+		}
+	} else {
+		printHosts(hosts)
+	}
+}
+
 func listHosts() (hosts []datastructs.Host, err error) {
-	hosts, err = db.getHosts()
+	hosts, err = DB.GetHosts()
 	if err != nil {
 		return hosts, err
 	}
@@ -85,7 +89,7 @@ func listHosts() (hosts []datastructs.Host, err error) {
 }
 
 func scanHosts(val string) (hosts []datastructs.Host, err error) {
-	hosts, err = db.scanHosts(val)
+	hosts, err = DB.ScanHosts(val)
 	if err != nil {
 		return hosts, err
 	}
@@ -100,31 +104,35 @@ var viewHostGroupVar = &cobra.Command{
 	Example:           "admiral view host-group\nadmiral view host-group group1",
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var hgs []datastructs.HostGroup
-
-		var err error
-
-		switch len(args) {
-		case 0:
-			hgs, err = listHostGroups()
-			if err != nil {
-				log.Fatal(err)
-			}
-		case 1:
-			hgs, err = scanHostGroups(args[0])
-			if err != nil {
-				log.Fatal(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		printHostGroups(hgs)
+		viewHostGroup(args)
 	},
 }
 
+func viewHostGroup(args []string) {
+	var hgs []datastructs.HostGroup
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		hgs, err = listHostGroups()
+		if err != nil {
+			log.Fatal(err)
+		}
+	case 1:
+		hgs, err = scanHostGroups(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("received too many arguments")
+	}
+
+	printHostGroups(hgs)
+}
+
 func listHostGroups() (hg []datastructs.HostGroup, err error) {
-	hg, err = db.getHostGroups()
+	hg, err = DB.GetHostGroups()
 	if err != nil {
 		return hg, err
 	}
@@ -133,7 +141,7 @@ func listHostGroups() (hg []datastructs.HostGroup, err error) {
 }
 
 func scanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
-	hostGroups, err = db.scanHostGroups(val)
+	hostGroups, err = DB.ScanHostGroups(val)
 	if err != nil {
 		return hostGroups, err
 	}
@@ -149,43 +157,48 @@ var viewGroupVar = &cobra.Command{
 	Example:           "admiral view group\nadmiral view group group1\nadmiral view group group1 -j",
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var groups []datastructs.Group
-
-		var err error
-
-		switch len(args) {
-		case 0:
-			groups, err = listGroups()
-			if err != nil {
-				log.Fatal(err)
-			}
-		case 1:
-			groups, err = scanGroups(args[0])
-			if err != nil {
-				log.Fatal(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		if viewAsJSON {
-			if len(groups) > 0 {
-				for i := range groups {
-					_ = groups[i].UnmarshalVars()
-				}
-				b, _ := json.MarshalIndent(groups, "", "    ")
-				fmt.Printf("%s\n", b)
-			} else {
-				log.Println("No groups matched")
-			}
-		} else {
-			printGroups(groups)
-		}
+		viewGroup(args)
 	},
 }
 
+func viewGroup(args []string) {
+	var groups []datastructs.Group
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		groups, err = listGroups()
+		if err != nil {
+			log.Fatal(err)
+		}
+	case 1:
+		groups, err = scanGroups(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("received too many arguments")
+	}
+
+	if viewAsJSON {
+		if len(groups) > 0 {
+			for i := range groups {
+				_ = groups[i].UnmarshalVars()
+			}
+
+			b, _ := json.MarshalIndent(groups, "", "    ")
+			fmt.Printf("%s\n", b)
+		} else {
+			log.Println("No groups matched")
+		}
+	} else {
+		printGroups(groups)
+	}
+}
+
 func viewGroupByName(name string) (group datastructs.Group, err error) {
-	group, err = db.selectGroup(name)
+	group, err = DB.SelectGroup(name)
 	if err != nil {
 		return group, err
 	} else if group.ID == 0 {
@@ -196,7 +209,7 @@ func viewGroupByName(name string) (group datastructs.Group, err error) {
 }
 
 func listGroups() (groups []datastructs.Group, err error) {
-	groups, err = db.getGroups()
+	groups, err = DB.GetGroups()
 	if err != nil {
 		return groups, err
 	}
@@ -205,7 +218,7 @@ func listGroups() (groups []datastructs.Group, err error) {
 }
 
 func scanGroups(val string) (groups []datastructs.Group, err error) {
-	groups, err = db.scanGroups(val)
+	groups, err = DB.ScanGroups(val)
 	if err != nil {
 		return groups, err
 	}
@@ -221,31 +234,35 @@ var viewChildVar = &cobra.Command{
 	Example:           "admiral view child\nadmiral view child parent-group\nadmiral view child child-group",
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var childGroups []datastructs.ChildGroup
-
-		var err error
-
-		switch len(args) {
-		case 0:
-			childGroups, err = listChildGroups()
-			if err != nil {
-				log.Fatal(err)
-			}
-		case 1:
-			childGroups, err = scanChildGroups(args[0])
-			if err != nil {
-				log.Fatal(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		printChildGroups(childGroups)
+		viewChild(args)
 	},
 }
 
+func viewChild(args []string) {
+	var childGroups []datastructs.ChildGroup
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		childGroups, err = listChildGroups()
+		if err != nil {
+			log.Fatal(err)
+		}
+	case 1:
+		childGroups, err = scanChildGroups(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("received too many arguments")
+	}
+
+	printChildGroups(childGroups)
+}
+
 func listChildGroups() (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.getChildGroups()
+	childGroups, err = DB.GetChildGroups()
 	if err != nil {
 		return childGroups, err
 	}
@@ -254,7 +271,7 @@ func listChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 }
 
 func viewChildGroup(child, parent string) (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.selectChildGroup(child, parent)
+	childGroups, err = DB.SelectChildGroup(child, parent)
 	if err != nil {
 		return childGroups, err
 	} else if childGroups == nil {
@@ -265,7 +282,7 @@ func viewChildGroup(child, parent string) (childGroups []datastructs.ChildGroup,
 }
 
 func scanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
-	childGroups, err = db.scanChildGroups(val)
+	childGroups, err = DB.ScanChildGroups(val)
 	if err != nil {
 		return childGroups, err
 	}

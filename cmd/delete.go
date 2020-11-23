@@ -30,46 +30,55 @@ var deleteHostVar = &cobra.Command{
 	Example:           "admiral delete host host1",
 	ValidArgsFunction: hostsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var hosts []datastructs.Host
-
-		var err error
-
-		switch len(args) {
-		case 0:
-			log.Fatal("no host argument passed")
-		case 1:
-			hosts, err = scanHosts(args[0])
-			if err != nil {
-				log.Print(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		switch len(hosts) {
-		case 0:
-			log.Fatal("no host matched request")
-		case 1:
-			printHosts(hosts)
-			if confirm() {
-				affected, err := deleteHost(&hosts[0])
-				if err != nil {
-					log.Fatal(err)
-				} else {
-					fmt.Printf("Lines deleted %v\n", affected)
-				}
-			} else {
-				log.Fatal("aborted")
-			}
-		default:
-			printHosts(hosts)
-			log.Fatal("too many results please adjust your request")
+		if err := deleteHostCase(args); err != nil {
+			log.Fatal(err)
 		}
 	},
 }
 
+func deleteHostCase(args []string) error {
+	var hosts []datastructs.Host
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		return fmt.Errorf("no host argument passed")
+	case 1:
+		hosts, err = scanHosts(args[0])
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("received too many arguments")
+	}
+
+	switch len(hosts) {
+	case 0:
+		return fmt.Errorf("no host matched request")
+	case 1:
+		printHosts(hosts)
+
+		if User.confirm() {
+			affected, err := deleteHost(&hosts[0])
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("lines deleted %v\n", affected)
+		} else {
+			return fmt.Errorf("aborted")
+		}
+	default:
+		printHosts(hosts)
+		return fmt.Errorf("too many results please adjust your request")
+	}
+
+	return nil
+}
+
 func deleteHost(host *datastructs.Host) (affected int64, err error) {
-	affected, err = db.deleteHost(host)
+	affected, err = DB.DeleteHost(host)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
@@ -85,46 +94,55 @@ var deleteGroupVar = &cobra.Command{
 	Example:           "admiral delete group group1",
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var groups []datastructs.Group
-
-		var err error
-
-		switch len(args) {
-		case 0:
-			log.Fatal("no group argument passed")
-		case 1:
-			groups, err = scanGroups(args[0])
-			if err != nil {
-				log.Print(err)
-			}
-		default:
-			log.Fatal("received too many arguments")
-		}
-
-		switch len(groups) {
-		case 0:
-			log.Fatal("no group matched request")
-		case 1:
-			printGroups(groups)
-			if confirm() {
-				affected, err := deleteGroup(&groups[0])
-				if err != nil {
-					log.Fatal(err)
-				} else {
-					fmt.Printf("Lines deleted %v\n", affected)
-				}
-			} else {
-				log.Fatal("aborted")
-			}
-		default:
-			printGroups(groups)
-			log.Fatal("too many results please adjust your request")
+		if err := deleteGroupCase(args); err != nil {
+			log.Fatal(err)
 		}
 	},
 }
 
+func deleteGroupCase(args []string) error {
+	var groups []datastructs.Group
+
+	var err error
+
+	switch len(args) {
+	case 0:
+		return fmt.Errorf("no group argument passed")
+	case 1:
+		groups, err = scanGroups(args[0])
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("received too many arguments")
+	}
+
+	switch len(groups) {
+	case 0:
+		return fmt.Errorf("no group matched request")
+	case 1:
+		printGroups(groups)
+
+		if User.confirm() {
+			affected, err := deleteGroup(&groups[0])
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("lines deleted %v\n", affected)
+		} else {
+			return fmt.Errorf("aborted")
+		}
+	default:
+		printGroups(groups)
+		return fmt.Errorf("too many results please adjust your request")
+	}
+
+	return nil
+}
+
 func deleteGroup(group *datastructs.Group) (affected int64, err error) {
-	affected, err = db.deleteGroup(group)
+	affected, err = DB.DeleteGroup(group)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {
@@ -141,31 +159,47 @@ var deleteChildVar = &cobra.Command{
 	Example:           "admiral delete child child-group parent-group",
 	ValidArgsFunction: groupsArgsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		var childGroups []datastructs.ChildGroup
-
-		var err error
-
-		childGroups, err = viewChildGroup(args[0], args[1])
-		if err != nil {
+		if err := deleteChildCase(args); err != nil {
 			log.Fatal(err)
-		}
-
-		printChildGroups(childGroups)
-		if confirm() {
-			affected, err := deleteChildGroup(&childGroups[0])
-			if err != nil {
-				log.Fatal(err)
-			} else {
-				fmt.Printf("Lines deleted %v\n", affected)
-			}
-		} else {
-			log.Fatal("aborted")
 		}
 	},
 }
 
+func deleteChildCase(args []string) error {
+	var childGroups []datastructs.ChildGroup
+
+	var err error
+
+	switch len(args) {
+	case 0, 1:
+		return fmt.Errorf("not enough argument passed")
+	case 2:
+		childGroups, err = viewChildGroup(args[0], args[1])
+		if err != nil {
+			return (err)
+		}
+	default:
+		return fmt.Errorf("received too many arguments")
+	}
+
+	printChildGroups(childGroups)
+
+	if User.confirm() {
+		affected, err := deleteChildGroup(&childGroups[0])
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("lines deleted %v\n", affected)
+	} else {
+		return fmt.Errorf("aborted")
+	}
+
+	return nil
+}
+
 func deleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
-	affected, err = db.deleteChildGroup(childGroup)
+	affected, err = DB.DeleteChildGroup(childGroup)
 	if err != nil {
 		return affected, err
 	} else if affected == 0 {

@@ -1,23 +1,20 @@
 // nolint: rowserrcheck,lll,golint
-package db
+package sqlite
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"strings"
+	"github.com/via-justa/admiral/config"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-
 	"github.com/via-justa/admiral/datastructs"
-)
 
-//DatabaseConfig specific configurations from file
-type DatabaseConfig struct {
-	User     string
-	Password string
-	Host     string
-	DB       string
-}
+	// sqlite driver
+	_ "github.com/mattn/go-sqlite3"
+)
 
 // Database exposes a database connection
 type Database struct {
@@ -25,31 +22,47 @@ type Database struct {
 }
 
 // Connect returns a Database connection
-func Connect(conf DatabaseConfig) (Database, error) {
+func Connect(conf *config.SQLiteConfig) (*Database, error) {
 	var db Database
 
-	dbConfig := mysql.Config{
-		User:                 conf.User,
-		Passwd:               conf.Password,
-		Net:                  "tcp",
-		Addr:                 conf.Host,
-		DBName:               conf.DB,
-		AllowNativePasswords: true,
-	}
+	var datasource string
 
 	var err error
 
-	db.Conn, err = sqlx.Open("mysql", dbConfig.FormatDSN())
+	if conf.Memory {
+		datasource = "file:" + conf.Path + "?_foreign_keys=true" + "&cache=shared&mode=memory"
+	} else {
+		datasource = "file:" + conf.Path + "?_foreign_keys=true"
+	}
+
+	db.Conn, err = sqlx.Open("sqlite3", datasource)
 	if err != nil {
-		return db, err
+		return &db, err
 	}
 
 	err = db.Conn.Ping()
 	if err != nil {
-		return db, err
+		return &db, err
 	}
 
-	return db, err
+	sql, _ := Asset("scheme.sql")
+	sqlfileE := base64.StdEncoding.EncodeToString(sql)
+	sqlfileD, _ := base64.StdEncoding.DecodeString(sqlfileE)
+	queries := strings.Split(string(sqlfileD), ";\n\n")
+
+	for _, query := range queries[0:] {
+		_, err = db.Conn.Exec(query)
+		if err != nil {
+			return &db, err
+		}
+	}
+
+	return &db, err
+}
+
+// Close close the connection to database
+func (db *Database) Close() (err error) {
+	return db.Conn.Close()
 }
 
 // Hosts
@@ -68,7 +81,7 @@ func (db *Database) SelectHost(hostname string) (returnedHost datastructs.Host, 
 		return returnedHost, nil
 	}
 
-	return returnedHost, fmt.Errorf("please provide either hostname, host or id")
+	return returnedHost, fmt.Errorf("please provide either hostname")
 }
 
 // GetHosts return all hosts in the inventory
@@ -95,7 +108,7 @@ func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
 // InsertHost accept Host to insert or update and return the number of affected rows and error if exists
 func (db *Database) InsertHost(host *datastructs.Host) (affected int64, err error) {
 	sql := `INSERT INTO host (host, hostname, domain, variables, enabled, monitored) VALUES (?,?,?,?,?,?) 
-	ON DUPLICATE KEY UPDATE host=?, hostname=?, domain=?, variables=?, enabled=?, monitored=?`
+	ON CONFLICT(hostname) DO UPDATE SET host=?, hostname=?, domain=?, variables=?, enabled=?, monitored=?`
 
 	res, err := db.Conn.Exec(sql, host.Host, host.Hostname, host.Domain, host.Variables, host.Enabled, host.Monitored,
 		host.Host, host.Hostname, host.Domain, host.Variables, host.Enabled, host.Monitored)
@@ -122,6 +135,10 @@ func (db *Database) DeleteHost(host *datastructs.Host) (affected int64, err erro
 
 // ScanHosts get hosts where hostname or IP is like requested string
 func (db *Database) ScanHosts(val string) (hosts []datastructs.Host, err error) {
+	if val == "" {
+		return hosts, fmt.Errorf("no search value passed")
+	}
+
 	rows, err := db.Conn.Query("Select host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE hostname LIKE ? OR host LIKE ?;", "%"+val+"%", "%"+val+"%")
 	if err == sql.ErrNoRows {
 		return hosts, nil
@@ -157,7 +174,7 @@ func (db *Database) SelectGroup(name string) (returnedGroup datastructs.Group, e
 		return returnedGroup, nil
 	}
 
-	return returnedGroup, fmt.Errorf("please provide either name or id")
+	return returnedGroup, fmt.Errorf("please provide group name")
 }
 
 // GetGroups return all groups in the inventory
@@ -183,7 +200,7 @@ func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
 
 // InsertGroup accept Group to insert or update and return the number of affected rows and error if exists
 func (db *Database) InsertGroup(group *datastructs.Group) (affected int64, err error) {
-	sql := "INSERT INTO `group` (name, variables, enabled, monitored) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE variables=?, enabled=?, monitored=?"
+	sql := "INSERT INTO `group` (name, variables, enabled, monitored) VALUES (?,?,?,?) ON CONFLICT(name) DO UPDATE SET variables=?, enabled=?, monitored=?"
 
 	res, err := db.Conn.Exec(sql, group.Name, group.Variables, group.Enabled,
 		group.Monitored, group.Variables, group.Enabled, group.Monitored)
@@ -210,7 +227,11 @@ func (db *Database) DeleteGroup(group *datastructs.Group) (affected int64, err e
 
 // ScanGroups get group where group name in like requested string
 func (db *Database) ScanGroups(val string) (groups []datastructs.Group, err error) {
-	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view` WHERE name LIKE ?;", "%"+val+"%")
+	if val == "" {
+		return groups, fmt.Errorf("no search value passed")
+	}
+
+	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts, child_groups FROM `groups_view` WHERE name LIKE ?;", "%"+val+"%")
 	if err == sql.ErrNoRows {
 		return groups, nil
 	} else if err != nil {
@@ -219,7 +240,7 @@ func (db *Database) ScanGroups(val string) (groups []datastructs.Group, err erro
 
 	for rows.Next() {
 		group := new(datastructs.Group)
-		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored, &group.NumChildren, &group.NumHosts); err != nil {
+		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored, &group.NumChildren, &group.NumHosts, &group.ChildGroups); err != nil {
 			return groups, err
 		}
 
@@ -310,6 +331,10 @@ func (db *Database) DeleteChildGroup(childGroup *datastructs.ChildGroup) (affect
 
 // ScanChildGroups get child-group relationships where parent or child is like requested string
 func (db *Database) ScanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
+	if val == "" {
+		return childGroups, fmt.Errorf("no search value passed")
+	}
+
 	rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM childgroups_view WHERE parent LIKE ? OR child LIKE ?;", "%"+val+"%", "%"+val+"%")
 	if err == sql.ErrNoRows {
 		return childGroups, nil
@@ -331,10 +356,7 @@ func (db *Database) ScanChildGroups(val string) (childGroups []datastructs.Child
 
 // HostGroups
 
-// SelectHostGroup accept either host or group id and return slice of ids for groups or hosts respectively.
-// If host is provided will return slice of groups ids
-// If group is provided will return slice of hosts ids
-// will error if none is provided
+// SelectHostGroup accept hostname and return slice of HostGroup for the host.
 func (db *Database) SelectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error) {
 	if host != "" {
 		rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id, host, host_id FROM hostgroup_view WHERE host=?", host)
@@ -382,16 +404,14 @@ func (db *Database) GetHostGroups() (hostGroups []datastructs.HostGroup, err err
 
 // InsertHostGroup accept HostGroup to insert and return the number of affected rows and error if exists
 func (db *Database) InsertHostGroup(hostGroup *datastructs.HostGroup) (affected int64, err error) {
-	sql := `INSERT INTO hostgroups (host_id, group_id) VALUES (?,?)`
+	sql := `INSERT INTO hostgroups (host_id, group_id) VALUES (?,?) ON CONFLICT(host_id) DO UPDATE SET group_id=?`
 
-	res, err := db.Conn.Exec(sql, hostGroup.HostID, hostGroup.GroupID)
+	res, err := db.Conn.Exec(sql, hostGroup.HostID, hostGroup.GroupID, hostGroup.GroupID)
 	if err != nil {
 		return 0, err
 	}
 
-	affected, err = res.RowsAffected()
-
-	return affected, err
+	return res.RowsAffected()
 }
 
 // DeleteHostGroup accept HostGroup to delete and return the number of affected rows and error if exists
@@ -408,6 +428,10 @@ func (db *Database) DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected 
 
 // ScanHostGroups get host-groups where group is like requested string
 func (db *Database) ScanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
+	if val == "" {
+		return hostGroups, fmt.Errorf("no search value passed")
+	}
+
 	rows, err := db.Conn.Query("Select relationship_id, host_id, host, group_id, `group` FROM hostgroup_view WHERE `group` LIKE ?", "%"+val+"%")
 	if err == sql.ErrNoRows {
 		return hostGroups, nil
@@ -425,4 +449,22 @@ func (db *Database) ScanHostGroups(val string) (hostGroups []datastructs.HostGro
 	}
 
 	return hostGroups, nil
+}
+
+// PopulateTestData populate test database for internal testing
+// nolint:gosec
+func (db *Database) PopulateTestData(fixturesPath string) (err error) {
+	sql, _ := ioutil.ReadFile(fixturesPath + "/02_test_data.sql")
+	sqlfileE := base64.StdEncoding.EncodeToString(sql)
+	sqlfileD, _ := base64.StdEncoding.DecodeString(sqlfileE)
+	queries := strings.Split(string(sqlfileD), ";\n\n")
+
+	for _, query := range queries[1:] {
+		_, err = db.Conn.Exec(query)
+		if err != nil {
+			return err
+		}
+	}
+
+	return err
 }

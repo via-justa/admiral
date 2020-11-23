@@ -30,6 +30,11 @@ Supported Operating systems
 
 For other Operating Systems you can build from source
 
+Database backend support
+------------
+- MariaDB > 13 (recommended)
+- SQLite3
+
 Installation
 ------------
 
@@ -56,6 +61,9 @@ password = "local"
 host = "localhost:3306"
 db = "ansible"
 
+[sqlite]
+Path = "path/to/db.sqlite"
+
 [defaults]
 domain = "domain.local"
 monitored = true
@@ -69,7 +77,8 @@ The compleat command documentation is also available [here](https://github.com/v
 
 Configuring the Database
 -----------
-A compatible `MariaDB > 13` scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/scheme.sql).
+A compatible `MariaDB > 13` scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/mariadb/01_scheme.sql).
+A compatible `sqlite3` scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/dqlite/01_scheme.sql).
 
 Using the prometheus `file_sd_configs` and labels to filter jobs
 -----------

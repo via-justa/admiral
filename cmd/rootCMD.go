@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"log"
+	"os"
+
+	"github.com/via-justa/admiral/config"
+	"github.com/via-justa/admiral/database"
 
 	"github.com/spf13/cobra"
 )
@@ -10,7 +14,11 @@ var (
 	// AppVersion is set in build time to the latest application version
 	AppVersion string
 	// Conf contain default configuration settings
-	Conf *config
+	Conf *config.Config
+	// DB connection to selected database backend
+	DB database.DBInterface
+	// User implement user action confirmation
+	User userInt
 )
 
 var (
@@ -46,9 +54,19 @@ func init() {
 
 //Execute starts the program
 func Execute() {
-	Conf = newConfig()
+	var err error
 
-	if err := rootCmd.Execute(); err != nil {
+	Conf = config.NewConfig()
+	User = newUser()
+
+	if os.Args[1] != "docs" && os.Args[1] != "completion" {
+		DB, err = database.Connect(Conf)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err = rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
 }

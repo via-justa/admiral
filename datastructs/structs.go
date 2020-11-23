@@ -6,7 +6,7 @@ import (
 
 // Host represents inventory host
 type Host struct {
-	ID              int           `json:"id" db:"host_id"`
+	ID              int           `json:"-" db:"host_id"`
 	Host            string        `json:"ip" db:"host"`
 	Hostname        string        `json:"hostname" db:"hostname"`
 	Domain          string        `json:"domain" db:"domain"`
@@ -48,7 +48,7 @@ func (h *Host) MarshalVars() error {
 
 // Group represent inventory group
 type Group struct {
-	ID              int           `json:"id" db:"group_id"`
+	ID              int           `json:"-" db:"group_id"`
 	Name            string        `json:"name" db:"name"`
 	Variables       string        `json:"-" db:"variables"`
 	PrettyVariables InventoryVars `json:"variables"`
@@ -89,7 +89,7 @@ func (g *Group) MarshalVars() error {
 
 // ChildGroup represent child-group relationship
 type ChildGroup struct {
-	ID       int    `json:"id" db:"relationship_id"`
+	ID       int    `json:"-" db:"relationship_id"`
 	Child    string `json:"child" db:"child"`
 	ChildID  int    `json:"child_id" db:"child_id"`
 	Parent   string `json:"parent" db:"parent"`
@@ -98,7 +98,7 @@ type ChildGroup struct {
 
 // HostGroup represents host-group
 type HostGroup struct {
-	ID      int    `json:"id" db:"relationship_id"`
+	ID      int    `json:"-" db:"relationship_id"`
 	Host    string `json:"host" db:"host"`
 	HostID  int    `json:"host_id" db:"host_id"`
 	Group   string `json:"group" db:"group"`

@@ -9,25 +9,25 @@ import (
 var inv = `{
     "_meta": {
         "hostvars": {
-            "host1.local": {
+            "host1.domain.local": {
                 "ansible_ssh_host": "1.1.1.1",
                 "host_var1": {
                     "host_sub_var1": "host_sub_val1"
                 }
             },
-            "host2.local": {
+            "host2.domain.local": {
                 "ansible_ssh_host": "2.2.2.2",
-                "var2": "val2"
+                "host_var2": "host_val2"
             },
-            "host3.local": {
+            "host3.domain.local": {
                 "ansible_ssh_host": "3.3.3.3",
-                "var3": "val3"
+                "host_var3": "host_val3"
             }
         }
     },
     "group1": {
         "hosts": [
-            "host1.local"
+            "host1.domain.local"
         ],
         "vars": {
             "group_var1": {
@@ -37,18 +37,18 @@ var inv = `{
     },
     "group2": {
         "hosts": [
-            "host2.local"
+            "host2.domain.local"
         ],
         "vars": {
-            "var2": "val2"
+            "group_var2": "group_val2"
         }
     },
     "group3": {
         "hosts": [
-            "host3.local"
+            "host3.domain.local"
         ],
         "vars": {
-            "var3": "val3"
+            "group_var3": "group_val3"
         }
     },
     "group4": {
@@ -56,7 +56,7 @@ var inv = `{
             "group3"
         ],
         "vars": {
-            "var4": "val4"
+            "group_var4": "group_val4"
         }
     },
     "group5": {
@@ -64,13 +64,15 @@ var inv = `{
             "group4"
         ],
         "vars": {
-            "var5": "val5"
+            "group_var5": "group_val5"
         }
     }
 }`
 
 func Test_inventory(t *testing.T) {
-	db = dbMock{}
+	testDB := prepEnv()
+
+	defer testDB.Close()
 
 	tests := []struct {
 		name    string

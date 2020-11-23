@@ -4,8 +4,12 @@ password = "local"
 host = "localhost:3306"
 db = "ansible"
 
+[sqlite]
+path = "admiral.sqlite"
+Memory = true
+
 # defaults for newly created / host group.
 [defaults]
-domain = "local"
+domain = "domain.local"
 monitored = true
 enabled = true

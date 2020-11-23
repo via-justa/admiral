@@ -7,7 +7,60 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+func init() {
+	User = testUser{}
+}
+
+func Test_deleteHostCase(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			args:    []string{"host1"},
+			wantErr: false,
+		},
+		{
+			name:    "missing param",
+			args:    []string{},
+			wantErr: true,
+		},
+		{
+			name:    "too many params",
+			args:    []string{"host1", "extra-param"},
+			wantErr: true,
+		},
+		{
+			name:    "host does not exists",
+			args:    []string{"host10"},
+			wantErr: true,
+		},
+		{
+			name:    "too many hosts",
+			args:    []string{"host"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := deleteHostCase(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("deleteHostCase() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func Test_deleteHost(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		host *datastructs.Host
 	}
@@ -48,7 +101,56 @@ func Test_deleteHost(t *testing.T) {
 	}
 }
 
+func Test_deleteGroupCase(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			args:    []string{"group1"},
+			wantErr: false,
+		},
+		{
+			name:    "missing param",
+			args:    []string{},
+			wantErr: true,
+		},
+		{
+			name:    "too many params",
+			args:    []string{"group1", "extra-param"},
+			wantErr: true,
+		},
+		{
+			name:    "group does not exists",
+			args:    []string{"group10"},
+			wantErr: true,
+		},
+		{
+			name:    "too many groups",
+			args:    []string{"group"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := deleteGroupCase(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("deleteGroupCase() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func Test_deleteGroup(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		group *datastructs.Group
 	}
@@ -97,7 +199,51 @@ var testChild10 = datastructs.ChildGroup{
 	Parent:   "group2",
 }
 
+func Test_deleteChildCase(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			args:    []string{"group4", "group5"},
+			wantErr: false,
+		},
+		{
+			name:    "missing param",
+			args:    []string{"group3"},
+			wantErr: true,
+		},
+		{
+			name:    "too many params",
+			args:    []string{"group4", "group4", "extra-param"},
+			wantErr: true,
+		},
+		{
+			name:    "does not exists",
+			args:    []string{"group1", "group2"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := deleteChildCase(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("deleteChildCase() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func Test_deleteChildGroup(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
 	type args struct {
 		childGroup *datastructs.ChildGroup
 	}
