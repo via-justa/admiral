@@ -2,8 +2,10 @@
 package cmd
 
 import (
+	"encoding/json"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/via-justa/admiral/config"
 	"github.com/via-justa/admiral/database"
@@ -238,4 +240,24 @@ func prepEnv() database.DBInterface {
 	}
 
 	return DB
+}
+
+type testUser struct{}
+
+func (u testUser) confirm() bool {
+	return true
+}
+
+func (u testUser) Edit(data []byte) ([]byte, error) {
+	var host datastructs.Host
+	if err := json.Unmarshal(data, &host); err == nil && host.Hostname != "" {
+		if host.Host == "" {
+			i := strings.TrimPrefix(host.Hostname, "host")
+			host.Host = i + "." + i + "." + i + "." + i
+			d, _ := json.Marshal(host)
+			return d, nil
+		}
+		return data, nil
+	}
+	return data, nil
 }

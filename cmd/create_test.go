@@ -8,8 +8,51 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+func init() {
+	User = testUser{}
+}
+
+func Test_createHostCase(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid create new",
+			args:    []string{"host10"},
+			wantErr: false,
+		},
+		{
+			name:    "missing param",
+			args:    []string{},
+			wantErr: true,
+		},
+		{
+			name:    "too many params",
+			args:    []string{"host1", "extra-param"},
+			wantErr: true,
+		},
+		{
+			name:    "new with domain",
+			args:    []string{"host10.domain.com"},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := createHostCase(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("createHostCase() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 var emptyHost10 = `{
-  "id": 0,
   "ip": "",
   "hostname": "host10",
   "domain": "domain.local",
@@ -20,7 +63,6 @@ var emptyHost10 = `{
 }`
 
 var testHost1Edit = `{
-  "id": 1,
   "ip": "1.1.1.1",
   "hostname": "host1",
   "domain": "domain.local",
@@ -440,8 +482,42 @@ func Test_createHostGroup(t *testing.T) {
 	}
 }
 
+func Test_createGroupCase(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid new",
+			args:    []string{"group10"},
+			wantErr: false,
+		},
+		{
+			name:    "missing param",
+			args:    []string{},
+			wantErr: true,
+		},
+		{
+			name:    "too many params",
+			args:    []string{"group1", "extra-param"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := createGroupCase(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("createGroupCase() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 var emptyGroup10 = `{
-  "id": 0,
   "name": "group10",
   "variables": {},
   "enable": true,
@@ -449,7 +525,6 @@ var emptyGroup10 = `{
 }`
 
 var testGroup1Edit = `{
-  "id": 1,
   "name": "group1",
   "variables": {
     "group_var1": {
@@ -575,6 +650,51 @@ func Test_createGroup(t *testing.T) {
 				t.Errorf("createGroup() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			testGroup1 = tmpGroup
+		})
+	}
+}
+
+func Test_createChildCase(t *testing.T) {
+	testDB := prepEnv()
+
+	defer testDB.Close()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid new",
+			args:    []string{"group5", "group1"},
+			wantErr: false,
+		},
+		{
+			name:    "already exists",
+			args:    []string{"group4", "group5"},
+			wantErr: true,
+		},
+		{
+			name:    "child does not exists",
+			args:    []string{"group10", "group1"},
+			wantErr: true,
+		},
+		{
+			name:    "parent does not exists",
+			args:    []string{"group1", "group10"},
+			wantErr: true,
+		},
+		{
+			name:    "relationship loop",
+			args:    []string{"group5", "group4"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := createChildCase(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("createChildCase() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
 }

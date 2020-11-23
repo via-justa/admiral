@@ -17,6 +17,8 @@ var (
 	Conf *config.Config
 	// DB connection to selected database backend
 	DB database.DBInterface
+	// User implement user action confirmation
+	User userInt
 )
 
 var (
@@ -55,6 +57,7 @@ func Execute() {
 	var err error
 
 	Conf = config.NewConfig()
+	User = newUser()
 
 	if os.Args[1] != "docs" && os.Args[1] != "completion" {
 		DB, err = database.Connect(Conf)

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-
 	"github.com/via-justa/admiral/config"
 
 	"github.com/jmoiron/sqlx"
@@ -44,6 +43,18 @@ func Connect(conf *config.SQLiteConfig) (*Database, error) {
 	err = db.Conn.Ping()
 	if err != nil {
 		return &db, err
+	}
+
+	sql, _ := Asset("scheme.sql")
+	sqlfileE := base64.StdEncoding.EncodeToString(sql)
+	sqlfileD, _ := base64.StdEncoding.DecodeString(sqlfileE)
+	queries := strings.Split(string(sqlfileD), ";\n\n")
+
+	for _, query := range queries[0:] {
+		_, err = db.Conn.Exec(query)
+		if err != nil {
+			return &db, err
+		}
 	}
 
 	return &db, err
@@ -443,22 +454,10 @@ func (db *Database) ScanHostGroups(val string) (hostGroups []datastructs.HostGro
 // PopulateTestData populate test database for internal testing
 // nolint:gosec
 func (db *Database) PopulateTestData(fixturesPath string) (err error) {
-	sql, _ := ioutil.ReadFile(fixturesPath + "/sqlite/01_scheme.sql")
+	sql, _ := ioutil.ReadFile(fixturesPath + "/02_test_data.sql")
 	sqlfileE := base64.StdEncoding.EncodeToString(sql)
 	sqlfileD, _ := base64.StdEncoding.DecodeString(sqlfileE)
 	queries := strings.Split(string(sqlfileD), ";\n\n")
-
-	for _, query := range queries[0:] {
-		_, err = db.Conn.Exec(query)
-		if err != nil {
-			return err
-		}
-	}
-
-	sql, _ = ioutil.ReadFile(fixturesPath + "/02_test_data.sql")
-	sqlfileE = base64.StdEncoding.EncodeToString(sql)
-	sqlfileD, _ = base64.StdEncoding.DecodeString(sqlfileE)
-	queries = strings.Split(string(sqlfileD), ";\n\n")
 
 	for _, query := range queries[1:] {
 		_, err = db.Conn.Exec(query)

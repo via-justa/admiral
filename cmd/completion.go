@@ -23,14 +23,12 @@ To configure your bash shell to load completions for each session add to your ba
 # ~/.bashrc or ~/.profile
 . <(admiral completion)
 `,
-	Run: completionCmdFunc,
-}
-
-func completionCmdFunc(cmd *cobra.Command, args []string) {
-	err := rootCmd.GenBashCompletion(os.Stdout)
-	if err != nil {
-		log.Fatal(err)
-	}
+	Run: func(cmd *cobra.Command, args []string) {
+		err := rootCmd.GenBashCompletion(os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
 }
 
 func hostsArgsFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

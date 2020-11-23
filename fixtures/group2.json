@@ -1,6 +1,0 @@
-{
-    "name": "group2",
-    "variables": "{\"group_var2\": \"group_val2\"}",
-    "enable": true,
-    "monitor": false
-}
