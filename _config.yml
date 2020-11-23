@@ -5,6 +5,7 @@ relative_links:
   collections: true
 include:
   - /docs
+  - /releases
   - README.md
  
 theme: jekyll-theme-slate
