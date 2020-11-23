@@ -41,7 +41,7 @@ Installation
 -   Download and extract the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
 -   Add configuration file is detailed in the `Configuration File` section
 -   Add bash completion to your `.bashrc` or `.profile` (optional) 
-    ```bash
+    ```shell
     . <(admiral completion)
     ```
 
@@ -54,7 +54,7 @@ The tool is expecting to find a `toml` configuration file with the database deta
 - $HOME/.admiral.toml
 
 Example configuration file:
-```tomal
+```toml
 [mariadb]
 user = "root"
 password = "local"
