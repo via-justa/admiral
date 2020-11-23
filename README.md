@@ -73,7 +73,7 @@ enabled = true
 Usage
 -----------
 The tool comes with a full help menu that can be accessed with the flag `-h, --help`. 
-The compleat command documentation is also available [here](https://github.com/via-justa/admiral/blob/master/docs/admiral.md)
+The compleat command documentation is also available [here](/docs/admiral.md)
 
 Configuring the Database
 -----------
