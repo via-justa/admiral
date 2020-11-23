@@ -77,8 +77,8 @@ The compleat command documentation is also available [here](/docs/admiral.md)
 
 Configuring the Database
 -----------
-A compatible `MariaDB > 13` scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/mariadb/01_scheme.sql).
-A compatible `sqlite3` scheme can be found [here](https://github.com/via-justa/admiral/blob/master/fixtures/dqlite/01_scheme.sql).
+A compatible `MariaDB > 13` scheme can be found [here](/fixtures/mariadb/01_scheme.sql).
+A compatible `sqlite3` scheme can be found [here](/fixtures/dqlite/01_scheme.sql).
 
 Using the prometheus `file_sd_configs` and labels to filter jobs
 -----------
