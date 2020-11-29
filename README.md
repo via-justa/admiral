@@ -17,6 +17,7 @@ As Prometheus is the most common monitoring tool this days and the one monitorin
 
 Admiral main features:
 - Creation and Edit of hosts and groups in JSON structure using your favorite editor
+- Bulk import hosts / groups / child-groups from json file
 - Command line edit and delete of hosts, groups and their relationships
 - Create new host / group from existing one (copy) to save time and need for configuration
 - Full auto-completion of commands
