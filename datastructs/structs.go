@@ -2,6 +2,9 @@ package datastructs
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
+	"strings"
 )
 
 // Host represents inventory host
@@ -42,6 +45,74 @@ func (h *Host) MarshalVars() error {
 	}
 
 	h.Variables = string(varsB)
+
+	return nil
+}
+
+// ByHostname implements sort.Interface for []Host based on
+// the hostname field.
+type ByHostname []Host
+
+func (h ByHostname) Len() int {
+	return len(h)
+}
+
+func (h ByHostname) Less(i, j int) bool {
+	return h[i].Hostname < h[j].Hostname
+}
+
+func (h ByHostname) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+// ByIP implements sort.Interface for []Host based on
+// the host (IP) field.
+type ByIP []Host
+
+func (h ByIP) Len() int {
+	return len(h)
+}
+
+func (h ByIP) Less(i, j int) bool {
+	return h[i].Host < h[j].Host
+}
+
+func (h ByIP) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+// ByDomain implements sort.Interface for []Host based on
+// the Domain field.
+type ByDomain []Host
+
+func (h ByDomain) Len() int {
+	return len(h)
+}
+
+func (h ByDomain) Less(i, j int) bool {
+	return h[i].Domain < h[j].Domain
+}
+
+func (h ByDomain) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+// Hosts slice of Host
+type Hosts []Host
+
+// Sort implements sort.Interface for []Host based on
+// the field field.
+func (h Hosts) Sort(field string) error {
+	switch strings.ToLower(field) {
+	case "hostname":
+		sort.Sort(ByHostname(h))
+	case "ip":
+		sort.Sort(ByIP(h))
+	case "domain":
+		sort.Sort(ByIP(h))
+	default:
+		return fmt.Errorf("%v is not a valid sort field", field)
+	}
 
 	return nil
 }
@@ -87,6 +158,74 @@ func (g *Group) MarshalVars() error {
 	return nil
 }
 
+// ByName implements sort.Interface for []Host based on
+// the Name field.
+type ByName []Group
+
+func (g ByName) Len() int {
+	return len(g)
+}
+
+func (g ByName) Less(i, j int) bool {
+	return g[i].Name < g[j].Name
+}
+
+func (g ByName) Swap(i, j int) {
+	g[i], g[j] = g[j], g[i]
+}
+
+// ByNumChildren implements sort.Interface for []Host based on
+// the NumChildren (IP) field.
+type ByNumChildren []Group
+
+func (g ByNumChildren) Len() int {
+	return len(g)
+}
+
+func (g ByNumChildren) Less(i, j int) bool {
+	return g[i].NumChildren < g[j].NumChildren
+}
+
+func (g ByNumChildren) Swap(i, j int) {
+	g[i], g[j] = g[j], g[i]
+}
+
+// ByNumHosts implements sort.Interface for []Host based on
+// the NumHosts field.
+type ByNumHosts []Group
+
+func (g ByNumHosts) Len() int {
+	return len(g)
+}
+
+func (g ByNumHosts) Less(i, j int) bool {
+	return g[i].NumHosts < g[j].NumHosts
+}
+
+func (g ByNumHosts) Swap(i, j int) {
+	g[i], g[j] = g[j], g[i]
+}
+
+// Groups slice of Group
+type Groups []Group
+
+// Sort implements sort.Interface for []Host based on
+// the field field.
+func (g Groups) Sort(field string) error {
+	switch strings.ToLower(field) {
+	case "name":
+		sort.Sort(ByName(g))
+	case "children-count":
+		sort.Sort(ByNumChildren(g))
+	case "hosts-count":
+		sort.Sort(ByNumHosts(g))
+	default:
+		return fmt.Errorf("%v is not a valid sort field", field)
+	}
+
+	return nil
+}
+
 // ChildGroup represent child-group relationship
 type ChildGroup struct {
 	ID       int    `json:"-" db:"relationship_id"`
@@ -94,6 +233,56 @@ type ChildGroup struct {
 	ChildID  int    `json:"child_id" db:"child_id"`
 	Parent   string `json:"parent" db:"parent"`
 	ParentID int    `json:"parent_id" db:"parent_id"`
+}
+
+// ByParent implements sort.Interface for []Host based on
+// the Parent (IP) field.
+type ByParent []ChildGroup
+
+func (g ByParent) Len() int {
+	return len(g)
+}
+
+func (g ByParent) Less(i, j int) bool {
+	return g[i].Parent < g[j].Parent
+}
+
+func (g ByParent) Swap(i, j int) {
+	g[i], g[j] = g[j], g[i]
+}
+
+// ByChild implements sort.Interface for []Host based on
+// the NumHosts field.
+type ByChild []ChildGroup
+
+func (g ByChild) Len() int {
+	return len(g)
+}
+
+func (g ByChild) Less(i, j int) bool {
+	return g[i].Child < g[j].Child
+}
+
+func (g ByChild) Swap(i, j int) {
+	g[i], g[j] = g[j], g[i]
+}
+
+// ChildGroups slice of ChildGroup
+type ChildGroups []ChildGroup
+
+// Sort implements sort.Interface for []Host based on
+// the field field.
+func (g ChildGroups) Sort(field string) error {
+	switch strings.ToLower(field) {
+	case "parent":
+		sort.Sort(ByParent(g))
+	case "child":
+		sort.Sort(ByChild(g))
+	default:
+		return fmt.Errorf("%v is not a valid sort field", field)
+	}
+
+	return nil
 }
 
 // HostGroup represents host-group

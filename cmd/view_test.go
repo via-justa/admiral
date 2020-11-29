@@ -15,6 +15,7 @@ func Example_viewHost() {
 	defer testDB.Close()
 
 	viewAsJSON = false
+	sort = "hostname"
 
 	viewHost([]string{})
 	// Output:
@@ -31,6 +32,7 @@ func Example_viewSingleHost() {
 	defer testDB.Close()
 
 	viewAsJSON = false
+	sort = "hostname"
 
 	viewHost([]string{"host1"})
 	// Output:
@@ -45,6 +47,7 @@ func Example_viewSingleHostAsJSON() {
 	defer testDB.Close()
 
 	viewAsJSON = true
+	sort = "hostname"
 
 	viewHost([]string{"host1"})
 	// Output:
@@ -279,6 +282,7 @@ func Example_viewGroup() {
 	defer testDB.Close()
 
 	viewAsJSON = false
+	sort = "name"
 
 	viewGroup([]string{})
 	// Output:
@@ -297,6 +301,7 @@ func Example_viewSingleGroup() {
 	defer testDB.Close()
 
 	viewAsJSON = false
+	sort = "name"
 
 	viewGroup([]string{"group1"})
 	// Output:
@@ -311,6 +316,7 @@ func Example_viewSingleGroupAsJSON() {
 	defer testDB.Close()
 
 	viewAsJSON = true
+	sort = "name"
 
 	viewGroup([]string{"group1"})
 	// Output:
@@ -478,6 +484,8 @@ func Example_viewChildGroup() {
 
 	defer testDB.Close()
 
+	sort = "parent"
+
 	viewChild([]string{})
 	// Output:
 	// Parent       |Parent ID    |Child        |Child ID
@@ -490,6 +498,8 @@ func Example_viewSingleChildGroup() {
 	testDB := prepEnv()
 
 	defer testDB.Close()
+
+	sort = "parent"
 
 	viewChild([]string{"group5"})
 	// Output:
