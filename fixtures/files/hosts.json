@@ -1,0 +1,24 @@
+[
+    {
+        "ip": "9.9.9.9",
+        "hostname": "host9",
+        "domain": "domain.local",
+        "variables": {
+            "host_var9":  "host_val9"
+        },
+        "enable": true,
+        "monitor": true,
+        "direct_group": "group1"
+    },
+    {
+        "ip": "10.10.10.10",
+        "hostname": "host10",
+        "domain": "domain.local",
+        "variables": {
+            "host_var10":  "host_val10"
+        },
+        "enable": true,
+        "monitor": true,
+        "direct_group": "group1"
+    }
+]

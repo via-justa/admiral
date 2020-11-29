@@ -10,15 +10,22 @@ import (
 )
 
 var viewAsJSON bool
+var sort string
 
 func init() {
 	rootCmd.AddCommand(view)
 
 	view.AddCommand(viewHostVar)
 	viewHostVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
+	viewHostVar.Flags().StringVarP(&sort, "sort-by", "s", "hostname", "sort output by value of requested column."+
+		" Allowed values are hostname, ip, domain")
 	view.AddCommand(viewGroupVar)
 	viewGroupVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
+	viewGroupVar.Flags().StringVarP(&sort, "sort-by", "s", "name", "sort output by value of requested column."+
+		" Allowed values are name, children-count, hosts-count")
 	view.AddCommand(viewChildVar)
+	viewChildVar.Flags().StringVarP(&sort, "sort-by", "s", "parent", "sort output by value of requested column."+
+		" Allowed values are parent, child")
 	view.AddCommand(viewHostGroupVar)
 }
 
@@ -43,7 +50,7 @@ var viewHostVar = &cobra.Command{
 }
 
 func viewHost(args []string) {
-	var hosts []datastructs.Host
+	var hosts datastructs.Hosts
 
 	var err error
 
@@ -60,6 +67,11 @@ func viewHost(args []string) {
 		}
 	default:
 		log.Fatal("received too many arguments")
+	}
+
+	err = hosts.Sort(sort)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	if viewAsJSON {
@@ -162,7 +174,7 @@ var viewGroupVar = &cobra.Command{
 }
 
 func viewGroup(args []string) {
-	var groups []datastructs.Group
+	var groups datastructs.Groups
 
 	var err error
 
@@ -179,6 +191,11 @@ func viewGroup(args []string) {
 		}
 	default:
 		log.Fatal("received too many arguments")
+	}
+
+	err = groups.Sort(sort)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	if viewAsJSON {
@@ -239,7 +256,7 @@ var viewChildVar = &cobra.Command{
 }
 
 func viewChild(args []string) {
-	var childGroups []datastructs.ChildGroup
+	var childGroups datastructs.ChildGroups
 
 	var err error
 
@@ -256,6 +273,11 @@ func viewChild(args []string) {
 		}
 	default:
 		log.Fatal("received too many arguments")
+	}
+
+	err = childGroups.Sort(sort)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	printChildGroups(childGroups)
