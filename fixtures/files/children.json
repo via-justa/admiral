@@ -1,0 +1,10 @@
+[
+    {
+        "child": "group2",
+        "parent": "group1"
+    },
+    {
+        "child": "group2",
+        "parent": "group3"
+    }
+]

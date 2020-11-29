@@ -1,0 +1,18 @@
+[
+    {
+        "name": "group9",
+        "variables": {
+            "group_var9": "group_val9"
+        },
+        "enable": true,
+        "monitor": false
+    },
+    {
+        "name": "group10",
+        "variables": {
+            "group_var10": "group_val10"
+        },
+        "enable": true,
+        "monitor": true
+    }
+]
