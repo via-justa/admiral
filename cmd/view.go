@@ -10,21 +10,23 @@ import (
 )
 
 var viewAsJSON bool
-var sort string
+var sortH string
+var sortG string
+var sortC string
 
 func init() {
 	rootCmd.AddCommand(view)
 
 	view.AddCommand(viewHostVar)
 	viewHostVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
-	viewHostVar.Flags().StringVarP(&sort, "sort-by", "s", "hostname", "sort output by value of requested column."+
+	viewHostVar.Flags().StringVarP(&sortH, "sort-by", "s", "hostname", "sort output by value of requested column."+
 		" Allowed values are hostname, ip, domain")
 	view.AddCommand(viewGroupVar)
 	viewGroupVar.Flags().BoolVarP(&viewAsJSON, "json", "j", false, "view in json format (present vars)")
-	viewGroupVar.Flags().StringVarP(&sort, "sort-by", "s", "name", "sort output by value of requested column."+
+	viewGroupVar.Flags().StringVarP(&sortG, "sort-by", "s", "name", "sort output by value of requested column."+
 		" Allowed values are name, children-count, hosts-count")
 	view.AddCommand(viewChildVar)
-	viewChildVar.Flags().StringVarP(&sort, "sort-by", "s", "parent", "sort output by value of requested column."+
+	viewChildVar.Flags().StringVarP(&sortC, "sort-by", "s", "parent", "sort output by value of requested column."+
 		" Allowed values are parent, child")
 	view.AddCommand(viewHostGroupVar)
 }
@@ -69,7 +71,7 @@ func viewHost(args []string) {
 		log.Fatal("received too many arguments")
 	}
 
-	err = hosts.Sort(sort)
+	err = hosts.Sort(sortH)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -193,7 +195,7 @@ func viewGroup(args []string) {
 		log.Fatal("received too many arguments")
 	}
 
-	err = groups.Sort(sort)
+	err = groups.Sort(sortG)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -275,7 +277,7 @@ func viewChild(args []string) {
 		log.Fatal("received too many arguments")
 	}
 
-	err = childGroups.Sort(sort)
+	err = childGroups.Sort(sortC)
 	if err != nil {
 		log.Fatal(err)
 	}
