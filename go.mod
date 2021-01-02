@@ -8,9 +8,10 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v1.14.4
-	github.com/spf13/cobra v1.1.1 // indirect
-	github.com/spf13/viper v1.7.0 // indirect
-	github.com/stretchr/testify v1.4.0 // indirect
+	github.com/spf13/cobra v1.1.1
+	github.com/spf13/viper v1.7.0
+	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/tatsushid/go-prettytable v0.0.0-20141013043238-ed2d14c29939
-	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a // indirect
+	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
+	golang.org/x/sys v0.0.0-20200219091948-cb0a6d8edb6c // indirect
 )
