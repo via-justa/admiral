@@ -25,6 +25,16 @@ type SSHProxy struct {
 	Password string
 }
 
+// SSH settings for ssh command
+type SSH struct {
+	User                  string
+	KeyPath               string `toml:"key-path" mapstructure:"key-path"`
+	Port                  int
+	Password              string
+	StrictHostKeyChecking bool `toml:"strict-host-key-checking" mapstructure:"strict-host-key-checking"`
+	Proxy                 bool
+}
+
 // SQLiteConfig SQLite specific configurations
 type SQLiteConfig struct {
 	Path   string
@@ -44,6 +54,7 @@ type Config struct {
 	MariaDB  MariaDBConfig  `toml:"mariadb" mapstructure:"mariadb"`
 	Defaults DefaultsConfig `toml:"defaults" mapstructure:"defaults"`
 	SSHProxy SSHProxy       `toml:"ssh-proxy" mapstructure:"ssh-proxy"`
+	SSH      SSH            `toml:"ssh" mapstructure:"ssh"`
 }
 
 // NewConfig initialize new configuration

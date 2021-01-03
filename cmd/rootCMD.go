@@ -52,7 +52,7 @@ func init() {
 	log.SetFlags(0)
 }
 
-//Execute starts the program
+// Execute starts the program
 func Execute() {
 	var err error
 
