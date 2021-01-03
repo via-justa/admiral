@@ -1,9 +1,11 @@
-// nolint: rowserrcheck,lll,golint
+// nolint: golint,rowserrcheck,errcheck
 package mariadb
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"net"
 
 	"github.com/via-justa/admiral/config"
 
@@ -26,7 +28,7 @@ func Connect(conf config.MariaDBConfig) (*Database, error) {
 		User:                 conf.User,
 		Passwd:               conf.Password,
 		Net:                  "tcp",
-		Addr:                 conf.Host,
+		Addr:                 net.JoinHostPort(conf.Host, fmt.Sprint(conf.Port)),
 		DBName:               conf.DB,
 		AllowNativePasswords: true,
 	}
@@ -57,8 +59,9 @@ func (db *Database) Close() (err error) {
 // By hostname, if hostname is empty by host and if both hostname and host are empty by id
 func (db *Database) SelectHost(hostname string) (returnedHost datastructs.Host, err error) {
 	if len(hostname) != 0 {
-		err = db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE hostname=?", hostname)
-		if err == sql.ErrNoRows {
+		err = db.Conn.Get(&returnedHost, "SELECT host_id, host, hostname, domain, variables,"+
+			" enabled, monitored, direct_group, inherited_groups FROM host_view WHERE hostname=?", hostname)
+		if errors.Is(err, sql.ErrNoRows) {
 			return returnedHost, nil
 		} else if err != nil {
 			return returnedHost, err
@@ -72,16 +75,20 @@ func (db *Database) SelectHost(hostname string) (returnedHost datastructs.Host, 
 
 // GetHosts return all hosts in the inventory
 func (db *Database) GetHosts() (hosts []datastructs.Host, err error) {
-	rows, err := db.Conn.Query("SELECT host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view")
-	if err == sql.ErrNoRows {
+	rows, err := db.Conn.Query("SELECT host_id, host, hostname, domain, variables, enabled," +
+		" monitored, direct_group, inherited_groups FROM host_view")
+	if errors.Is(err, sql.ErrNoRows) {
 		return hosts, nil
 	} else if err != nil {
 		return hosts, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		host := new(datastructs.Host)
-		if err = rows.Scan(&host.ID, &host.Host, &host.Hostname, &host.Domain, &host.Variables, &host.Enabled, &host.Monitored, &host.DirectGroup, &host.InheritedGroups); err != nil {
+		if err = rows.Scan(&host.ID, &host.Host, &host.Hostname, &host.Domain, &host.Variables, &host.Enabled,
+			&host.Monitored, &host.DirectGroup, &host.InheritedGroups); err != nil {
 			return hosts, err
 		}
 
@@ -121,16 +128,21 @@ func (db *Database) DeleteHost(host *datastructs.Host) (affected int64, err erro
 
 // ScanHosts get hosts where hostname or IP is like requested string
 func (db *Database) ScanHosts(val string) (hosts []datastructs.Host, err error) {
-	rows, err := db.Conn.Query("Select host_id, host, hostname, domain, variables, enabled, monitored, direct_group, inherited_groups FROM host_view WHERE hostname LIKE ? OR host LIKE ?;", "%"+val+"%", "%"+val+"%")
-	if err == sql.ErrNoRows {
+	rows, err := db.Conn.Query("Select host_id, host, hostname, domain, variables, enabled,"+
+		" monitored, direct_group, inherited_groups FROM host_view WHERE hostname"+
+		" LIKE ? OR host LIKE ?;", "%"+val+"%", "%"+val+"%")
+	if errors.Is(err, sql.ErrNoRows) {
 		return hosts, nil
 	} else if err != nil {
 		return hosts, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		host := new(datastructs.Host)
-		if err = rows.Scan(&host.ID, &host.Host, &host.Hostname, &host.Domain, &host.Variables, &host.Enabled, &host.Monitored, &host.DirectGroup, &host.InheritedGroups); err != nil {
+		if err = rows.Scan(&host.ID, &host.Host, &host.Hostname, &host.Domain, &host.Variables,
+			&host.Enabled, &host.Monitored, &host.DirectGroup, &host.InheritedGroups); err != nil {
 			return hosts, err
 		}
 
@@ -146,8 +158,9 @@ func (db *Database) ScanHosts(val string) (hosts []datastructs.Host, err error) 
 // By name, if name is empty by id
 func (db *Database) SelectGroup(name string) (returnedGroup datastructs.Group, err error) {
 	if len(name) != 0 {
-		err = db.Conn.Get(&returnedGroup, "SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts, child_groups FROM `groups_view` WHERE name=?", name)
-		if err == sql.ErrNoRows {
+		err = db.Conn.Get(&returnedGroup, "SELECT group_id, name, variables, enabled,"+
+			" monitored, num_children, num_hosts, child_groups FROM `groups_view` WHERE name=?", name)
+		if errors.Is(err, sql.ErrNoRows) {
 			return returnedGroup, nil
 		} else if err != nil {
 			return returnedGroup, err
@@ -161,16 +174,20 @@ func (db *Database) SelectGroup(name string) (returnedGroup datastructs.Group, e
 
 // GetGroups return all groups in the inventory
 func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
-	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts, child_groups FROM `groups_view`")
-	if err == sql.ErrNoRows {
+	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored," +
+		" num_children, num_hosts, child_groups FROM `groups_view`")
+	if errors.Is(err, sql.ErrNoRows) {
 		return groups, nil
 	} else if err != nil {
 		return groups, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		group := new(datastructs.Group)
-		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored, &group.NumChildren, &group.NumHosts, &group.ChildGroups); err != nil {
+		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored,
+			&group.NumChildren, &group.NumHosts, &group.ChildGroups); err != nil {
 			return groups, err
 		}
 
@@ -182,7 +199,8 @@ func (db *Database) GetGroups() (groups []datastructs.Group, err error) {
 
 // InsertGroup accept Group to insert or update and return the number of affected rows and error if exists
 func (db *Database) InsertGroup(group *datastructs.Group) (affected int64, err error) {
-	sql := "INSERT INTO `group` (name, variables, enabled, monitored) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE variables=?, enabled=?, monitored=?"
+	sql := "INSERT INTO `group` (name, variables, enabled, monitored) VALUES (?,?,?,?)" +
+		" ON DUPLICATE KEY UPDATE variables=?, enabled=?, monitored=?"
 
 	res, err := db.Conn.Exec(sql, group.Name, group.Variables, group.Enabled,
 		group.Monitored, group.Variables, group.Enabled, group.Monitored)
@@ -209,16 +227,20 @@ func (db *Database) DeleteGroup(group *datastructs.Group) (affected int64, err e
 
 // ScanGroups get group where group name in like requested string
 func (db *Database) ScanGroups(val string) (groups []datastructs.Group, err error) {
-	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored, num_children, num_hosts FROM `groups_view` WHERE name LIKE ?;", "%"+val+"%")
-	if err == sql.ErrNoRows {
+	rows, err := db.Conn.Query("SELECT group_id, name, variables, enabled, monitored, num_children,"+
+		" num_hosts FROM `groups_view` WHERE name LIKE ?;", "%"+val+"%")
+	if errors.Is(err, sql.ErrNoRows) {
 		return groups, nil
 	} else if err != nil {
 		return groups, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		group := new(datastructs.Group)
-		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled, &group.Monitored, &group.NumChildren, &group.NumHosts); err != nil {
+		if err = rows.Scan(&group.ID, &group.Name, &group.Variables, &group.Enabled,
+			&group.Monitored, &group.NumChildren, &group.NumHosts); err != nil {
 			return groups, err
 		}
 
@@ -238,16 +260,20 @@ func (db *Database) SelectChildGroup(child, parent string) (childGroups []datast
 	if child != "" && parent != "" {
 		var rows *sql.Rows
 
-		rows, err = db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM childgroups_view WHERE parent=? AND child=?", parent, child)
-		if err == sql.ErrNoRows {
+		rows, err = db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id"+
+			" FROM childgroups_view WHERE parent=? AND child=?", parent, child)
+		if errors.Is(err, sql.ErrNoRows) {
 			return childGroups, nil
 		} else if err != nil {
 			return childGroups, err
 		}
 
+		defer rows.Close()
+
 		for rows.Next() {
 			childGroup := new(datastructs.ChildGroup)
-			if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID, &childGroup.Child, &childGroup.ChildID); err != nil {
+			if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID,
+				&childGroup.Child, &childGroup.ChildID); err != nil {
 				return childGroups, err
 			}
 
@@ -263,15 +289,18 @@ func (db *Database) SelectChildGroup(child, parent string) (childGroups []datast
 // GetChildGroups return all child groups relationships in the inventory
 func (db *Database) GetChildGroups() (childGroups []datastructs.ChildGroup, err error) {
 	rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM childgroups_view")
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return childGroups, nil
 	} else if err != nil {
 		return childGroups, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		childGroup := new(datastructs.ChildGroup)
-		if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID, &childGroup.Child, &childGroup.ChildID); err != nil {
+		if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID,
+			&childGroup.Child, &childGroup.ChildID); err != nil {
 			return childGroups, err
 		}
 
@@ -297,7 +326,8 @@ func (db *Database) InsertChildGroup(childGroup *datastructs.ChildGroup) (affect
 
 // DeleteChildGroup accept ChildGroup to delete and return the number of affected rows and error if exists
 func (db *Database) DeleteChildGroup(childGroup *datastructs.ChildGroup) (affected int64, err error) {
-	res, err := db.Conn.Exec("DELETE FROM childgroups WHERE child_id=? and parent_id=?", childGroup.ChildID, childGroup.ParentID)
+	res, err := db.Conn.Exec("DELETE FROM childgroups WHERE child_id=? and parent_id=?",
+		childGroup.ChildID, childGroup.ParentID)
 	if err != nil {
 		return 0, err
 	}
@@ -309,16 +339,20 @@ func (db *Database) DeleteChildGroup(childGroup *datastructs.ChildGroup) (affect
 
 // ScanChildGroups get child-group relationships where parent or child is like requested string
 func (db *Database) ScanChildGroups(val string) (childGroups []datastructs.ChildGroup, err error) {
-	rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM childgroups_view WHERE parent LIKE ? OR child LIKE ?;", "%"+val+"%", "%"+val+"%")
-	if err == sql.ErrNoRows {
+	rows, err := db.Conn.Query("SELECT relationship_id,parent, parent_id, child, child_id FROM"+
+		" childgroups_view WHERE parent LIKE ? OR child LIKE ?;", "%"+val+"%", "%"+val+"%")
+	if errors.Is(err, sql.ErrNoRows) {
 		return childGroups, nil
 	} else if err != nil {
 		return childGroups, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		childGroup := new(datastructs.ChildGroup)
-		if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID, &childGroup.Child, &childGroup.ChildID); err != nil {
+		if err = rows.Scan(&childGroup.ID, &childGroup.Parent, &childGroup.ParentID,
+			&childGroup.Child, &childGroup.ChildID); err != nil {
 			return childGroups, err
 		}
 
@@ -336,16 +370,20 @@ func (db *Database) ScanChildGroups(val string) (childGroups []datastructs.Child
 // will error if none is provided
 func (db *Database) SelectHostGroup(host string) (hostGroups []datastructs.HostGroup, err error) {
 	if host != "" {
-		rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id, host, host_id FROM hostgroup_view WHERE host=?", host)
-		if err == sql.ErrNoRows {
+		rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id,"+
+			" host, host_id FROM hostgroup_view WHERE host=?", host)
+		if errors.Is(err, sql.ErrNoRows) {
 			return hostGroups, nil
 		} else if err != nil {
 			return hostGroups, err
 		}
 
+		defer rows.Close()
+
 		for rows.Next() {
 			hostGroup := new(datastructs.HostGroup)
-			if err = rows.Scan(&hostGroup.ID, &hostGroup.Group, &hostGroup.GroupID, &hostGroup.Host, &hostGroup.HostID); err != nil {
+			if err = rows.Scan(&hostGroup.ID, &hostGroup.Group, &hostGroup.GroupID,
+				&hostGroup.Host, &hostGroup.HostID); err != nil {
 				return hostGroups, err
 			}
 
@@ -361,15 +399,18 @@ func (db *Database) SelectHostGroup(host string) (hostGroups []datastructs.HostG
 // GetHostGroups return all host groups relationships in the inventory
 func (db *Database) GetHostGroups() (hostGroups []datastructs.HostGroup, err error) {
 	rows, err := db.Conn.Query("SELECT relationship_id, `group`, group_id, host, host_id FROM hostgroup_view")
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return hostGroups, nil
 	} else if err != nil {
 		return hostGroups, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		hostGroup := new(datastructs.HostGroup)
-		if err = rows.Scan(&hostGroup.ID, &hostGroup.Group, &hostGroup.GroupID, &hostGroup.Host, &hostGroup.HostID); err != nil {
+		if err = rows.Scan(&hostGroup.ID, &hostGroup.Group, &hostGroup.GroupID,
+			&hostGroup.Host, &hostGroup.HostID); err != nil {
 			return hostGroups, err
 		}
 
@@ -407,12 +448,15 @@ func (db *Database) DeleteHostGroup(hostGroup *datastructs.HostGroup) (affected 
 
 // ScanHostGroups get host-groups where group is like requested string
 func (db *Database) ScanHostGroups(val string) (hostGroups []datastructs.HostGroup, err error) {
-	rows, err := db.Conn.Query("Select relationship_id, host_id, host, group_id, `group` FROM hostgroup_view WHERE `group` LIKE ?", "%"+val+"%")
-	if err == sql.ErrNoRows {
+	rows, err := db.Conn.Query("Select relationship_id, host_id, host, group_id,"+
+		" `group` FROM hostgroup_view WHERE `group` LIKE ?", "%"+val+"%")
+	if errors.Is(err, sql.ErrNoRows) {
 		return hostGroups, nil
 	} else if err != nil {
 		return hostGroups, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		hg := new(datastructs.HostGroup)

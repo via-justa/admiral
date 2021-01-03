@@ -199,16 +199,6 @@ var createTestHostGroup11Err = datastructs.HostGroup{
 	Group:   "group10",
 }
 
-var testDefaultConfig = config.DefaultsConfig{
-	Domain:    "domain.local",
-	Monitored: true,
-	Enabled:   true,
-}
-
-var testConf = config.Config{
-	Defaults: testDefaultConfig,
-}
-
 var dbConfig = config.SQLiteConfig{
 	Path:   "admiral.sqlite",
 	Memory: true,

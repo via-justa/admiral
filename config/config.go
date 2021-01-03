@@ -7,21 +7,41 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
-//MariaDBConfig MariaDB specific configurations
+// MariaDBConfig MariaDB specific configurations
 type MariaDBConfig struct {
 	User     string
 	Password string
 	Host     string
+	Port     int
 	DB       string
 }
 
-//SQLiteConfig SQLite specific configurations
+// SSHProxy SSH settings to proxy commends thru
+type SSHProxy struct {
+	User     string
+	KeyPath  string `toml:"key-path" mapstructure:"key-path"`
+	Host     string
+	Port     int
+	Password string
+}
+
+// SSH settings for ssh command
+type SSH struct {
+	User                  string
+	KeyPath               string `toml:"key-path" mapstructure:"key-path"`
+	Port                  int
+	Password              string
+	StrictHostKeyChecking bool `toml:"strict-host-key-checking" mapstructure:"strict-host-key-checking"`
+	Proxy                 bool
+}
+
+// SQLiteConfig SQLite specific configurations
 type SQLiteConfig struct {
 	Path   string
 	Memory bool // Used for tests, if set to true the database will run in memory and be discarded after each run.
 }
 
-//DefaultsConfig specific hosts and groups default configurations
+// DefaultsConfig specific hosts and groups default configurations
 type DefaultsConfig struct {
 	Domain    string
 	Monitored bool
@@ -33,6 +53,8 @@ type Config struct {
 	SQLite   SQLiteConfig   `toml:"sqlite" mapstructure:"sqlite"`
 	MariaDB  MariaDBConfig  `toml:"mariadb" mapstructure:"mariadb"`
 	Defaults DefaultsConfig `toml:"defaults" mapstructure:"defaults"`
+	SSHProxy SSHProxy       `toml:"ssh-proxy" mapstructure:"ssh-proxy"`
+	SSH      SSH            `toml:"ssh" mapstructure:"ssh"`
 }
 
 // NewConfig initialize new configuration

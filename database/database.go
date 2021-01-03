@@ -41,9 +41,13 @@ type DBInterface interface {
 // Connect return database connection from config
 func Connect(conf *config.Config) (db DBInterface, err error) {
 	switch {
-	case conf.MariaDB.Host != "":
+	case conf.MariaDB != config.MariaDBConfig{}:
+		if (conf.SSHProxy != config.SSHProxy{}) {
+			return mariadb.ProxyConnect(conf)
+		}
+
 		return mariadb.Connect(conf.MariaDB)
-	case conf.SQLite.Path != "":
+	case conf.SQLite != config.SQLiteConfig{}:
 		return sqlite.Connect(&conf.SQLite)
 	}
 

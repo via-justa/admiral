@@ -38,12 +38,8 @@ in one of the following locations:
 - ./config.toml
 - $HOME/.admiral.toml
 
-Example configuration file:
-[database]
-user = "root"
-password = "local"
-host = "localhost:3306"
-db = "ansible"`,
+A template of the configuration file can be found at the repository
+https://github.com/via-justa/admiral`,
 	}
 )
 
@@ -52,7 +48,7 @@ func init() {
 	log.SetFlags(0)
 }
 
-//Execute starts the program
+// Execute starts the program
 func Execute() {
 	var err error
 

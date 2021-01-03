@@ -2,12 +2,12 @@
 ![Language](https://img.shields.io/badge/Language-go-green)
 [![Go Report Card](https://goreportcard.com/badge/github.com/via-justa/admiral)](https://goreportcard.com/report/github.com/via-justa/admiral)
 [![Coverage Status](https://coveralls.io/repos/github/via-justa/admiral/badge.svg)](https://coveralls.io/github/via-justa/admiral)
-[![license](https://img.shields.io/badge/license-CC-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/) 
+[![license](https://img.shields.io/badge/license-CC-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![latest release](https://img.shields.io/badge/-latest_release-blue)](https://github.com/via-justa/admiral/releases/latest)
 
 # Admiral
 
-Admiral - a lightweight, opinionated, command line tool to manage [ansible](https://www.ansible.com/) database based inventory. 
+Admiral - a lightweight, opinionated, command line tool to manage [ansible](https://www.ansible.com/) database based inventory.
 
 Managing hundreds or thousands of hosts on different infrastructure providers in a file based inventory can be a complicated task that require a lot on managemental overhead and can lead to misconfiguration, relationship loops between groups and very long inventory files.
 
@@ -15,17 +15,22 @@ Admiral is meant to solve this issue by storing the inventory in a database and 
 
 As Prometheus is the most common monitoring tool this days and the one monitoring tool I favorite the most, I baked the option to export the inventory as [file_sd_configs](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config) and provide the groups the host is part of as metric labels
 
-Admiral main features:
+## Admiral main features:
+### Inventory feature
 - Creation and Edit of hosts and groups in JSON structure using your favorite editor
 - Bulk import hosts / groups / child-groups from json file
 - Command line edit and delete of hosts, groups and their relationships
 - Create new host / group from existing one (copy) to save time and need for configuration
+- Setting default common configurations for new hosts / groups
+- MariaDB ssh proxy connection
+
+### CLI features
 - Full auto-completion of commands
 - Realtime retrieval of hosts and groups for bash auto-completion
 - Export of the inventory in ansible readable structure
 - Export of the inventory in prometheus static file structure
 - Ansible ping command wrapper to validate ansible can communicate with the hosts
-- Setting default common configurations for new hosts / groups
+- SSH command with proxy-jump option to leverage the hostname auto-completion
 
 Supported Operating systems
 ---------------------------
@@ -47,7 +52,7 @@ Installation
 
 -   Download and extract the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
 -   Add configuration file is detailed in the `Configuration File` section
--   Add bash completion to your `.bashrc` or `.profile` (optional) 
+-   Add bash completion to your `.bashrc` or `.profile` (optional)
     ```shell
     . <(admiral completion)
     ```
@@ -60,26 +65,11 @@ The tool is expecting to find a `toml` configuration file with the database deta
 - ./config.toml
 - $HOME/.admiral.toml
 
-Example configuration file:
-```toml
-[mariadb]
-user = "root"
-password = "local"
-host = "localhost:3306"
-db = "ansible"
-
-[sqlite]
-Path = "path/to/db.sqlite"
-
-[defaults]
-domain = "domain.local"
-monitored = true
-enabled = true
-```
+Example configuration file: [config](./config-template.toml)
 
 Usage
 -----------
-The tool comes with a full help menu that can be accessed with the flag `-h, --help`. 
+The tool comes with a full help menu that can be accessed with the flag `-h, --help`.
 The compleat command documentation is also available [here](/docs/admiral.md)
 
 Configuring the Database

@@ -13,7 +13,7 @@ jobs:
     - name: Install Go
       uses: actions/setup-go@v1
       with:
-        go-version: 1.13.x
+        go-version: 1.15.x
     - name: Checkout code
       uses: actions/checkout@v1
     - name: Install golangci-lint
@@ -27,7 +27,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.13.x]
+        go-version: [1.15.x]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -49,7 +49,7 @@ jobs:
       if: success()
       uses: actions/setup-go@v1
       with:
-        go-version: 1.13.x
+        go-version: 1.15.x
     - name: Checkout code
       uses: actions/checkout@v1
     - name: Calc coverage
