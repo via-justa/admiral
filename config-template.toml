@@ -1,0 +1,39 @@
+# MariaDB settings for database connection
+[mariadb]
+  User = ""
+  Password = ""
+  Host = ""
+  Port = 0
+  DB = ""
+
+# SQLite settings for database connection
+[sqlite]
+  Path = ""
+  Memory = false
+
+# defaults to set on new hosts / groups if not implicitly defined
+[defaults]
+  Domain = ""
+  Monitored = false
+  Enabled = false
+
+# If your database cannot be accessed directly from your machine and
+# you need to proxy the connection via a 3rd host, set the SSH connection
+# details of that host here.
+# Those settings will be used as well if 'ssh.proxy' is set to `true` to
+# proxy ssh commands
+[ssh-proxy]
+  User = ""
+  key-path = ""
+  Host = ""
+  Port = 0
+  Password = ""
+
+# SSH configuration settings to use with the 'admiral ssh' command
+[ssh]
+  User = ""
+  key-path = ""
+  Port = 0
+  Password = ""
+  strict-host-key-checking = false
+  Proxy = false

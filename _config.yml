@@ -7,5 +7,6 @@ include:
   - /docs
   - /releases
   - README.md
- 
+  - config-template.toml
+
 theme: jekyll-theme-slate
