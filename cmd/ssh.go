@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
+
+	"github.com/via-justa/admiral/datastructs"
 
 	"github.com/spf13/cobra"
 )
@@ -30,10 +33,25 @@ var sshVar = &cobra.Command{
 	},
 }
 
-func sshFunc(args []string) error {
-	host, err := viewHostByHostname(args[0])
-	if err != nil {
-		return err
+func sshFunc(args []string) (err error) {
+	var user string
+
+	var host datastructs.Host
+
+	if strings.Contains(args[0], "@") {
+		login := strings.Split(args[0], "@")
+		user = login[0]
+
+		host, err = viewHostByHostname(login[1])
+		if err != nil {
+			return err
+		}
+	} else {
+		user = Conf.SSH.User
+		host, err = viewHostByHostname(args[0])
+		if err != nil {
+			return err
+		}
 	}
 
 	sshArgs := []string{}
@@ -58,7 +76,7 @@ func sshFunc(args []string) error {
 
 	// format host connection user@host.domain
 	sshArgs = append(sshArgs, "-p", fmt.Sprint(Conf.SSH.Port),
-		fmt.Sprintf("%v@%v.%v", Conf.SSH.User, host.Hostname, host.Domain))
+		fmt.Sprintf("%v@%v.%v", user, host.Hostname, host.Domain))
 
 	// pass additional arguments ass ssh command
 	if len(args) > 1 {
