@@ -7,36 +7,36 @@
 
 # Admiral
 
-Admiral - a lightweight, opinionated, command line tool to manage [ansible](https://www.ansible.com/) database based inventory.
+Admiral - a lightweight, opinionated, command-line tool to manage [Ansible](https://www.ansible.com/) database based inventory.
 
-Managing hundreds or thousands of hosts on different infrastructure providers in a file based inventory can be a complicated task that require a lot on managemental overhead and can lead to misconfiguration, relationship loops between groups and very long inventory files.
+Managing hundreds or thousands of hosts on different infrastructure providers in a file-based inventory can be a complicated task that requires a lot of management overhead and can lead to misconfiguration, relationship loops between groups, and very long inventory files.
 
-Admiral is meant to solve this issue by storing the inventory in a database and allow for better visibility of the relationships, making the inventory searchable and making the management of the inventory easier and error prone.
+Admiral is meant to solve this issue by storing the inventory in a database and allow for better visibility of the relationships, making the inventory searchable and making the management of the inventory easier and error-prone.
 
-As Prometheus is the most common monitoring tool this days and the one monitoring tool I favorite the most, I baked the option to export the inventory as [file_sd_configs](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config) and provide the groups the host is part of as metric labels
+As Prometheus is the most common monitoring tool these days and the one monitoring tool I favorite the most, I baked the option to export the inventory as  [file_sd_configs](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config) and provide the groups the host is part of as metric labels
 
 ## Admiral main features:
 ### Inventory feature
 - Creation and Edit of hosts and groups in JSON structure using your favorite editor
-- Bulk import hosts / groups / child-groups from json file
-- Command line edit and delete of hosts, groups and their relationships
-- Create new host / group from existing one (copy) to save time and need for configuration
-- Setting default common configurations for new hosts / groups
+- Bulk import hosts/groups / child-groups from JSON file
+- Command-line edit and delete of hosts, groups, and their relationships
+- Create a new host/group from an existing one (copy) to save time and need for configuration
+- Setting default common configurations for new hosts/groups
 - MariaDB ssh proxy connection
 
 ### CLI features
 - Full auto-completion of commands
 - Realtime retrieval of hosts and groups for bash auto-completion
 - Export of the inventory in ansible readable structure
-- Export of the inventory in prometheus static file structure
+- Export of the inventory in Prometheus static file structure
 - Ansible ping command wrapper to validate ansible can communicate with the hosts
-- SSH command with proxy-jump option to leverage the hostname auto-completion
+- SSH command with proxy-jump option to leverage the hostname auto-comple
 
 Supported Operating systems
 ---------------------------
 
 -   Windows 10
--   MacOs
+-   macOS
 -   Linux - Tested on Debian x64 based operating systems (Debian,
     Ubuntu, Mint...) but should work on any x64 Linux distribution
 
@@ -52,7 +52,7 @@ Installation
 
 -   Download and extract the relevant version from the [release page](https://github.com/via-justa/admiral/releases) to a location in your `$PATH`
 -   Add configuration file is detailed in the `Configuration File` section
--   Add bash completion to your `.bashrc` or `.profile` (optional)
+-   Add bash-completion to your `.bashrc` or `.profile` (optional)
     ```shell
     . <(admiral completion)
     ```
