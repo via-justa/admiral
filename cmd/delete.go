@@ -29,6 +29,7 @@ var deleteHostVar = &cobra.Command{
 	Short:             "delete existing host",
 	Example:           "admiral delete host host1",
 	ValidArgsFunction: hostsArgsFunc,
+	Args:              cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := deleteHostCase(args); err != nil {
 			log.Fatal(err)
@@ -41,16 +42,9 @@ func deleteHostCase(args []string) error {
 
 	var err error
 
-	switch len(args) {
-	case 0:
-		return fmt.Errorf("no host argument passed")
-	case 1:
-		hosts, err = scanHosts(args[0])
-		if err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf("received too many arguments")
+	hosts, err = scanHosts(args[0])
+	if err != nil {
+		return err
 	}
 
 	switch len(hosts) {
@@ -93,6 +87,7 @@ var deleteGroupVar = &cobra.Command{
 	Short:             "delete existing group",
 	Example:           "admiral delete group group1",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := deleteGroupCase(args); err != nil {
 			log.Fatal(err)
@@ -105,16 +100,9 @@ func deleteGroupCase(args []string) error {
 
 	var err error
 
-	switch len(args) {
-	case 0:
-		return fmt.Errorf("no group argument passed")
-	case 1:
-		groups, err = scanGroups(args[0])
-		if err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf("received too many arguments")
+	groups, err = scanGroups(args[0])
+	if err != nil {
+		return err
 	}
 
 	switch len(groups) {
@@ -158,6 +146,7 @@ var deleteChildVar = &cobra.Command{
 	Long:              "delete existing child-group relationship expecting ordered arguments child and parent group names",
 	Example:           "admiral delete child child-group parent-group",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := deleteChildCase(args); err != nil {
 			log.Fatal(err)
@@ -170,16 +159,9 @@ func deleteChildCase(args []string) error {
 
 	var err error
 
-	switch len(args) {
-	case 0, 1:
-		return fmt.Errorf("not enough argument passed")
-	case 2:
-		childGroups, err = viewChildGroup(args[0], args[1])
-		if err != nil {
-			return (err)
-		}
-	default:
-		return fmt.Errorf("received too many arguments")
+	childGroups, err = viewChildGroup(args[0], args[1])
+	if err != nil {
+		return (err)
 	}
 
 	printChildGroups(childGroups)

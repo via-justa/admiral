@@ -18,10 +18,10 @@ func Example_viewHost() {
 
 	viewHost([]string{})
 	// Output:
-	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Groups |Inherited Groups
-	// 1.1.1.1      |host1        |domain.local |true         |true         |group1        |
-	// 2.2.2.2      |host2        |domain.local |true         |true         |group2        |
-	// 3.3.3.3      |host3        |domain.local |true         |true         |group3        |group4,group5
+	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Group |Inherited Groups
+	// 1.1.1.1      |host1        |domain.local |true         |true         |group1       |
+	// 2.2.2.2      |host2        |domain.local |true         |true         |group2       |
+	// 3.3.3.3      |host3        |domain.local |true         |true         |group3       |group4,group5
 }
 
 // admiral view host host1
@@ -34,8 +34,8 @@ func Example_viewSingleHost() {
 
 	viewHost([]string{"host1"})
 	// Output:
-	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Groups |Inherited Groups
-	// 1.1.1.1      |host1        |domain.local |true         |true         |group1        |
+	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Group |Inherited Groups
+	// 1.1.1.1      |host1        |domain.local |true         |true         |group1       |
 }
 
 // admiral view host host1 -j
@@ -345,9 +345,9 @@ func Test_viewGroupByName(t *testing.T) {
 		{
 			name: "View group by name",
 			args: args{
-				name: "group1",
+				name: "group2",
 			},
-			wantGroup: testGroup1,
+			wantGroup: testGroup2,
 			wantErr:   false,
 		},
 		{
@@ -555,15 +555,6 @@ func Test_viewChildGroup(t *testing.T) {
 			name: "Get none-existing child-groups",
 			args: args{
 				child:  "group3",
-				parent: "group10",
-			},
-			wantChildGroups: nil,
-			wantErr:         true,
-		},
-		{
-			name: "missing param",
-			args: args{
-				child:  "",
 				parent: "group10",
 			},
 			wantChildGroups: nil,

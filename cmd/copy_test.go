@@ -15,16 +15,6 @@ func Test_copyHostCase(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "missing param",
-			args:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"host1", "host10", "extra-param"},
-			wantErr: true,
-		},
-		{
 			name:    "source does not exists",
 			args:    []string{"host9", "host10"},
 			wantErr: true,
@@ -36,7 +26,7 @@ func Test_copyHostCase(t *testing.T) {
 		},
 		{
 			name:    "new with domain",
-			args:    []string{"host1", "host10.domain.com"},
+			args:    []string{"host2", "host10.domain.com"},
 			wantErr: false,
 		},
 	}
@@ -63,16 +53,6 @@ func Test_copyGroupCase(t *testing.T) {
 			name:    "valid new",
 			args:    []string{"group1", "group10"},
 			wantErr: false,
-		},
-		{
-			name:    "missing param",
-			args:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"group1", "group10", "extra-param"},
-			wantErr: true,
 		},
 		{
 			name:    "source does not exists",

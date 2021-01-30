@@ -100,6 +100,7 @@ func (conf *Config) NewDefaultHost() datastructs.Host {
 		Domain:    conf.Defaults.Domain,
 		Monitored: conf.Defaults.Monitored,
 		Enabled:   conf.Defaults.Enabled,
+		Variables: "{}",
 	}
 }
 
@@ -108,5 +109,6 @@ func (conf *Config) NewDefaultGroup() datastructs.Group {
 	return datastructs.Group{
 		Monitored: conf.Defaults.Monitored,
 		Enabled:   conf.Defaults.Enabled,
+		Variables: "{}",
 	}
 }

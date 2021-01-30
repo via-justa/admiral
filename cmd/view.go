@@ -46,6 +46,7 @@ var viewHostVar = &cobra.Command{
 		"pass the flag `-j,--json` to view the host in json structure with host variables",
 	Example:           "admiral view host\nadmiral view host host1\nadmiral view host host1 -j",
 	ValidArgsFunction: hostsArgsFunc,
+	Args:              cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		viewHost(args)
 	},
@@ -67,8 +68,6 @@ func viewHost(args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	default:
-		log.Fatal("received too many arguments")
 	}
 
 	err = hosts.Sort(sortH)
@@ -117,6 +116,7 @@ var viewHostGroupVar = &cobra.Command{
 	Long:              "view direct hosts for group or view all records when no argument passed",
 	Example:           "admiral view host-group\nadmiral view host-group group1",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		viewHostGroup(args)
 	},
@@ -138,8 +138,6 @@ func viewHostGroup(args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	default:
-		log.Fatal("received too many arguments")
 	}
 
 	printHostGroups(hgs)
@@ -170,6 +168,7 @@ var viewGroupVar = &cobra.Command{
 		"pass the flag `-j,--json` to view the group in json structure with group variables",
 	Example:           "admiral view group\nadmiral view group group1\nadmiral view group group1 -j",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		viewGroup(args)
 	},
@@ -191,8 +190,6 @@ func viewGroup(args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	default:
-		log.Fatal("received too many arguments")
 	}
 
 	err = groups.Sort(sortG)
@@ -252,6 +249,7 @@ var viewChildVar = &cobra.Command{
 		" or child or view all records when no argument passed",
 	Example:           "admiral view child\nadmiral view child parent-group\nadmiral view child child-group",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		viewChild(args)
 	},
@@ -273,8 +271,6 @@ func viewChild(args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-	default:
-		log.Fatal("received too many arguments")
 	}
 
 	err = childGroups.Sort(sortC)

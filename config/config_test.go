@@ -17,7 +17,8 @@ var (
 	testMariadbConfig = MariaDBConfig{
 		User:     "root",
 		Password: "local",
-		Host:     "localhost:3306",
+		Host:     "localhost",
+		Port:     3306,
 		DB:       "ansible",
 	}
 
@@ -65,6 +66,7 @@ func Test_config_newDefaultHost(t *testing.T) {
 				Domain:    "domain.local",
 				Monitored: true,
 				Enabled:   true,
+				Variables: "{}",
 			},
 		},
 	}
@@ -92,6 +94,7 @@ func Test_config_newDefaultGroup(t *testing.T) {
 			want: datastructs.Group{
 				Monitored: true,
 				Enabled:   true,
+				Variables: "{}",
 			},
 		},
 	}
