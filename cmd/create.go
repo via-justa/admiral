@@ -204,6 +204,7 @@ func editHosts(hosts *datastructs.Hosts) (returnHosts datastructs.Hosts, err err
 	return unmarshalHosts(modifiedHostB)
 }
 
+// nolint: gocognit
 func confirmedHosts(hostsToCreate *datastructs.Hosts) (err error) {
 	hosts := *hostsToCreate
 	for i := range hosts {
