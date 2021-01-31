@@ -7,7 +7,7 @@
 
 # Admiral
 
-Admiral - a lightweight, opinionated, command-line tool to manage [Ansible](https://www.ansible.com/) database based inventory.
+Admiral - a lightweight, opinionated, command-line tool to manage [Ansible](https://www.ansible.com/) database based inventory and manage the hosts.
 
 Managing hundreds or thousands of hosts on different infrastructure providers in a file-based inventory can be a complicated task that requires a lot of management overhead and can lead to misconfiguration, relationship loops between groups, and very long inventory files.
 
@@ -18,7 +18,9 @@ As Prometheus is the most common monitoring tool these days and the one monitori
 ## Admiral main features:
 ### Inventory feature
 - Creation and Edit of hosts and groups in JSON structure using your favorite editor
+- Creation of hosts in one command for use with CI/CD pipelines
 - Bulk import hosts/groups / child-groups from JSON file
+- Bulk enable/disable of hosts/monitoring in one command (none interactive)
 - Command-line edit and delete of hosts, groups, and their relationships
 - Create a new host/group from an existing one (copy) to save time and need for configuration
 - Setting default common configurations for new hosts/groups
@@ -65,20 +67,34 @@ The tool is expecting to find a `toml` configuration file with the database deta
 - ./config.toml
 - $HOME/.admiral.toml
 
-Example configuration file: [config](./config-template.toml)
+Example configuration file: [config-template.toml](./config-template.toml)
 
 Usage
 -----------
+
 The tool comes with a full help menu that can be accessed with the flag `-h, --help`.
 The compleat command documentation is also available [here](/docs/admiral.md)
 
 Configuring the Database
 -----------
+
 A compatible `MariaDB > 13` scheme can be found [here](/fixtures/mariadb/01_scheme.sql).
 A compatible `sqlite3` scheme can be found [here](/fixtures/dqlite/01_scheme.sql).
 
+Use admiral for ssh connections
+-----------
+
+Admiral can be used to ssh to hosts with auto-completion of host names
+
+SSH and Database proxy
+-----------
+
+If you need to connect to secured network where you have ssh gateway or the database server does not allow remote connection to the database, you can configure ssh proxy the tool will use to proxy the connection thru.
+It is also possible to use `admiral ssh` to proxy SSH connections via the ssh proxy.
+
 Using the prometheus `file_sd_configs` and labels to filter jobs
 -----------
+
 The easiest way to get the `file_sd_configs` generated and read by prometheus is by using a cron job or systemd timer.
 ```shell
 */1 * * * * "/usr/local/bin/admiral prometheus > /etc/prometheus/prometheus_file_sd.json.new && mv /etc/prometheus/prometheus_file_sd.json.new /etc/prometheus/prometheus_file_sd.json"
@@ -100,6 +116,97 @@ This [nginx-exporter](https://github.com/nginxinc/nginx-prometheus-exporter) job
         regex:  '(.*)'
         target_label: __address__
         replacement: '${1}:9113'
+```
+
+Usage examples
+-----------
+
+View all hosts
+```
+$ admiral view host
+IP           |Hostname       |domain         |Enabled      |Monitored    |Direct Groups     |Inherited Groups
+1.2.3.4      |host-2         |via-justa.com  |true         |true         |web               |app
+1.2.3.5      |host-3         |via-justa.com  |true         |true         |web               |app
+1.2.3.6      |host-4         |via-justa.com  |true         |true         |web               |app
+1.2.3.7      |host-5         |via-justa.com  |true         |true         |web               |app
+...
+```
+
+View specific host
+```
+$ admiral view host host-2
+IP           |Hostname      |domain         |Enabled      |Monitored    |Direct Groups  |Inherited Groups
+1.2.3.4      |host-2        |via-justa.com  |true         |true         |web            |app
+```
+
+View host as JSON (with vars)
+```
+$ admiral view host host-2
+[
+    {
+        "ip": "1.2.3.4",
+        "hostname": "host-2",
+        "domain": "via-justa.com",
+        "variables": {},
+        "enable": true,
+        "monitor": true,
+        "direct_group": "web"
+    }
+]
+```
+
+Create New host
+```
+$ admiral create host host-2
+<edit in editor>
+IP           |Hostname       |domain         |Enabled      |Monitored    |Direct Groups |Inherited Groups
+1.2.3.4      |host-2         |via-justa.com  |true         |true         |web           |app
+Please confirm [y/n]: y
+```
+
+Create New host none-interactively (useful for CI/CD pipelines)
+```
+admiral create host host-2 --monitor=false --enable --ip 1.2.3.4 --group=web
+IP           |Hostname       |domain         |Enabled      |Monitored    |Direct Groups |Inherited Groups
+1.2.3.4      |host-2         |via-justa.com  |true         |true         |web           |
+Please confirm [y/n]: y
+```
+
+Create a new host from an existing one
+```
+$ admiral copy host host-1 host-2
+<edit in editor>
+IP           |Hostname       |domain         |Enabled      |Monitored    |Direct Groups     |Inherited Groups
+1.2.3.4      |host-2         |via-justa.com  |true         |true         |web               |
+Please confirm [y/n]: y
+```
+
+Delete host
+```
+$ admiral delete host host-2
+IP           |Hostname     |domain         |Enabled      |Monitored    |Direct Groups     |Inherited Groups
+1.2.3.4      |host-2       |via-justa.com  |true         |true         |web               |
+Please confirm [y/n]: y
+```
+
+Run Ansible ping to check Ansible connectivity
+```
+$ admiral ping host-2
+host-2.via-justa.com | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+Create child group relationship
+```
+$ admiral create child web app
+Parent       |Parent ID    |Child         |Child ID
+app          |2            |web           |3
+Please confirm [y/n]: y
 ```
 
 Issues and feature requests
