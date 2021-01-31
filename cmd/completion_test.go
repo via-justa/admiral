@@ -34,14 +34,14 @@ func Test_hostsArgsFunc(t *testing.T) {
 
 	defer testDB.Close()
 
-	rootCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:               "root",
 		ValidArgsFunction: hostsArgsFunc,
 		Run:               emptyRun,
 	}
 
 	// Test that both sub-commands and validArgsFunction are completed
-	output, err := executeCommand(rootCmd, cobra.ShellCompNoDescRequestCmd, "")
+	output, err := executeCommand(cmd, cobra.ShellCompNoDescRequestCmd, "")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -59,14 +59,14 @@ func Test_groupsArgsFunc(t *testing.T) {
 
 	defer testDB.Close()
 
-	rootCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:               "root",
 		ValidArgsFunction: groupsArgsFunc,
 		Run:               emptyRun,
 	}
 
 	// Test that both sub-commands and validArgsFunction are completed
-	output, err := executeCommand(rootCmd, cobra.ShellCompNoDescRequestCmd, "")
+	output, err := executeCommand(cmd, cobra.ShellCompNoDescRequestCmd, "")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

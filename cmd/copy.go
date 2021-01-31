@@ -33,6 +33,7 @@ var copyHostVar = &cobra.Command{
 	Example: "admiral copy host existing-host " +
 		"new-host\nadmiral copy host existing-host.domain.local new-host.domain.com",
 	ValidArgsFunction: hostsArgsFunc,
+	Args:              cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := copyHostCase(args); err != nil {
 			log.Fatal(err)
@@ -41,46 +42,50 @@ var copyHostVar = &cobra.Command{
 }
 
 func copyHostCase(args []string) error {
-	var hosts []datastructs.Host
-
-	var existingHost datastructs.Host
-
-	var host datastructs.Host
+	var hosts datastructs.Hosts
 
 	var err error
 
-	switch len(args) {
-	case 0, 1:
-		return fmt.Errorf("please set source and destination host arguments")
-	case 2:
-		hosts, err = returnHosts(args[0])
-		if err != nil {
-			return err
-		}
-
-		if len(hosts[0].Hostname) != 0 {
-			existingHost = hosts[0]
-			existingHost.Host = ""
-			checkedVal := strings.SplitN(args[1], ".", 2)
-			existingHost.Hostname = checkedVal[0]
-
-			if len(checkedVal) > 1 {
-				existingHost.Domain = checkedVal[1]
-			}
-		}
-	default:
-		return fmt.Errorf("received too many arguments")
-	}
-
-	host, err = editHost(&existingHost, args[1])
+	hosts, err = scanHosts(args[0])
 	if err != nil {
 		return err
 	}
 
-	printHosts([]datastructs.Host{host})
+	switch len(hosts) {
+	case 0:
+		return fmt.Errorf("source host does not exists")
+	case 1:
+		var domain string
+
+		fqdn := strings.SplitN(args[1], ".", 2)
+		if len(fqdn) > 1 {
+			domain = fqdn[1]
+		} else {
+			domain = hosts[0].Domain
+		}
+
+		hosts = datastructs.Hosts{
+			{
+				Hostname:  fqdn[0],
+				Domain:    domain,
+				Variables: hosts[0].Variables,
+				Enabled:   hosts[0].Enabled,
+				Monitored: hosts[0].Monitored,
+			},
+		}
+	default:
+		return fmt.Errorf("source host matched to many records")
+	}
+
+	hosts, err = editHosts(&hosts)
+	if err != nil {
+		return err
+	}
+
+	printHosts(hosts)
 
 	if User.confirm() {
-		err = confirmedHost(&host)
+		err = confirmedHosts(&hosts)
 		if err != nil {
 			return err
 		}
@@ -99,6 +104,7 @@ var copyGroupVar = &cobra.Command{
 		"the new group would open in your favorite editor as editable json",
 	Example:           "admiral copy existing-group new-group",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := copyGroupCase(args); err != nil {
 			log.Fatal(err)
@@ -107,27 +113,18 @@ var copyGroupVar = &cobra.Command{
 }
 
 func copyGroupCase(args []string) error {
-	var templateGroup datastructs.Group
-
 	var group datastructs.Group
 
 	var err error
 
-	switch len(args) {
-	case 0, 1:
-		return fmt.Errorf("please set source and destination group arguments")
-	case 2:
-		templateGroup, err = viewGroupByName(args[0])
-		if err != nil {
-			return err
-		}
-
-		templateGroup.Name = args[1]
-	default:
-		return fmt.Errorf("received too many arguments")
+	group, err = viewGroupByName(args[0])
+	if err != nil {
+		return err
 	}
 
-	group, err = editGroup(&templateGroup, args[1])
+	group.Name = args[1]
+
+	group, err = editGroup(&group)
 	if err != nil {
 		return err
 	}

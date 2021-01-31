@@ -98,3 +98,14 @@ func sshFunc(args []string) (err error) {
 
 	return nil
 }
+
+func viewHostByHostname(hostname string) (host datastructs.Host, err error) {
+	host, err = DB.SelectHost(hostname)
+	if err != nil {
+		return host, err
+	} else if host.Hostname == "" {
+		return host, fmt.Errorf("requested host does not exists")
+	}
+
+	return host, nil
+}

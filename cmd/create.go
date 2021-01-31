@@ -10,8 +10,21 @@ import (
 	"github.com/via-justa/admiral/datastructs"
 )
 
+var (
+	monitor bool
+	enable  bool
+	accept  bool
+	ip      string
+	group   string
+)
+
 func init() {
 	rootCmd.AddCommand(create)
+	create.PersistentFlags().BoolVarP(&accept, "accept", "y", false, "auto accept changes")
+	create.PersistentFlags().BoolVarP(&monitor, "monitor", "m", true, "set monitor value [true|false] (default: true)")
+	create.PersistentFlags().BoolVarP(&enable, "enable", "e", true, "set enable value [true|false] (default: true)")
+	createHostVar.Flags().StringVar(&ip, "ip", "", "set host ip")
+	createHostVar.Flags().StringVarP(&group, "group", "g", "", "default host group")
 
 	create.AddCommand(createHostVar)
 	create.AddCommand(createGroupVar)
@@ -34,6 +47,7 @@ var createHostVar = &cobra.Command{
 	Example: "admiral create host new-host\nadmiral create" +
 		" host new-host.domain.com\nadmiral edit host existing-host",
 	ValidArgsFunction: hostsArgsFunc,
+	Args:              cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := createHostCase(args); err != nil {
 			log.Fatal(err)
@@ -42,33 +56,55 @@ var createHostVar = &cobra.Command{
 }
 
 func createHostCase(args []string) error {
-	var hosts []datastructs.Host
-
-	var host datastructs.Host
+	var hosts datastructs.Hosts
 
 	var err error
 
-	switch len(args) {
-	case 0:
-		return fmt.Errorf("no host hostname argument passed")
-	case 1:
-		hosts, err = returnHosts(args[0])
-		if err != nil {
-			log.Println(err)
-		}
-	default:
-		return fmt.Errorf("received too many arguments")
-	}
-
-	host, err = editHost(&hosts[0], args[0])
+	hosts, err = returnHosts(args[0])
 	if err != nil {
 		return err
 	}
 
-	printHosts([]datastructs.Host{host})
+	enableF := create.Flag("enable")
+	if enableF.Changed {
+		for i := range hosts {
+			hosts[i].Enabled = enable
+		}
+	}
 
-	if User.confirm() {
-		err = confirmedHost(&host)
+	monitorF := create.Flag("monitor")
+	if monitorF.Changed {
+		for i := range hosts {
+			hosts[i].Monitored = monitor
+		}
+	}
+
+	if ip != "" {
+		if len(hosts) == 1 {
+			hosts[0].Host = ip
+		} else {
+			return fmt.Errorf("cannot set host ip, too many host matches")
+		}
+	}
+
+	if group != "" {
+		for i := range hosts {
+			hosts[i].DirectGroup = group
+			hosts[i].InheritedGroups = ""
+		}
+	}
+
+	if !enableF.Changed && !monitorF.Changed && ip == "" && group == "" {
+		hosts, err = editHosts(&hosts)
+		if err != nil {
+			return err
+		}
+	}
+
+	printHosts(hosts)
+
+	if accept || User.confirm() {
+		err = confirmedHosts(&hosts)
 		if err != nil {
 			return err
 		}
@@ -79,140 +115,143 @@ func createHostCase(args []string) error {
 	return nil
 }
 
+// returnHosts return existing records or list of hosts with one new record
 func returnHosts(val string) (hosts []datastructs.Host, err error) {
-	checkedVal := strings.SplitN(val, ".", 2)
+	fqdn := strings.SplitN(val, ".", 2)
 
-	var tmp datastructs.Host
-
-	tmp, err = viewHostByHostname(checkedVal[0])
-
-	// return default host if hostname or fqdn (if provided) does not exists
-	if (err != nil && err.Error() != "requested host does not exists") ||
-		(len(checkedVal) > 1 && tmp.Domain != checkedVal[1]) {
-		return []datastructs.Host{Conf.NewDefaultHost()}, err
+	hosts, err = scanHosts(fqdn[0])
+	if err != nil {
+		return hosts, err
 	}
 
-	return []datastructs.Host{tmp}, err
+	switch len(hosts) {
+	case 0:
+		host := Conf.NewDefaultHost()
+		host.Hostname = fqdn[0]
+
+		if len(fqdn) > 1 {
+			host.Domain = fqdn[1]
+		}
+
+		return []datastructs.Host{host}, nil
+	case 1:
+		if len(fqdn) > 1 {
+			if fqdn[1] == hosts[0].Domain {
+				return hosts, err
+			}
+
+			host := Conf.NewDefaultHost()
+			host.Hostname = fqdn[0]
+			host.Domain = fqdn[1]
+
+			return []datastructs.Host{host}, nil
+		}
+
+		return hosts, err
+	default:
+		return hosts, err
+	}
 }
 
-func prepHostForEdit(host *datastructs.Host, val string) (b []byte, err error) {
-	switch len(host.Hostname) {
-	case 0:
-		checkedVal := strings.SplitN(val, ".", 2)
-		tmp := Conf.NewDefaultHost()
-
-		tmp.Hostname = checkedVal[0]
-		if len(checkedVal) > 1 {
-			tmp.Domain = checkedVal[1]
-		}
-
-		tmp.Variables = "{}"
-
-		err = tmp.UnmarshalVars()
+func marshalHosts(hosts *datastructs.Hosts) (b []byte, err error) {
+	marshaledHosts := *hosts
+	for i := range marshaledHosts {
+		err = marshaledHosts[i].UnmarshalVars()
 		if err != nil {
 			return b, err
 		}
+	}
 
-		b, err = json.MarshalIndent(tmp, "", "  ")
-		if err != nil {
-			return b, err
-		}
-	default:
-		err = host.UnmarshalVars()
-		if err != nil {
-			return b, err
-		}
-
-		b, err = json.MarshalIndent(host, "", "  ")
-		if err != nil {
-			return b, err
-		}
+	b, err = json.MarshalIndent(marshaledHosts, "", "  ")
+	if err != nil {
+		return b, err
 	}
 
 	return b, err
 }
 
-func editHost(host *datastructs.Host, val string) (returnHost datastructs.Host, err error) {
-	var hostB []byte
+func unmarshalHosts(b []byte) (datastructs.Hosts, error) {
+	var hosts datastructs.Hosts
 
-	hostB, err = prepHostForEdit(host, val)
+	err := json.Unmarshal(b, &hosts)
 	if err != nil {
-		return returnHost, err
+		return hosts, err
 	}
 
-	modifiedHostB, err := User.Edit(hostB)
-	if err != nil {
-		return returnHost, err
+	for i := range hosts {
+		err := hosts[i].MarshalVars()
+		if err != nil {
+			return hosts, err
+		}
 	}
 
-	err = json.Unmarshal(modifiedHostB, &returnHost)
-	if err != nil {
-		return returnHost, err
-	}
-
-	err = returnHost.MarshalVars()
-	if err != nil {
-		log.Print(err)
-	}
-
-	return returnHost, err
+	return hosts, nil
 }
 
-func confirmedHost(host *datastructs.Host) (err error) {
-	var group datastructs.Group
+func editHosts(hosts *datastructs.Hosts) (returnHosts datastructs.Hosts, err error) {
+	var hostsB []byte
 
-	err = createHost(host)
-	if err != nil && err.Error() != "no lines affected" {
-		return err
+	hostsB, err = marshalHosts(hosts)
+	if err != nil {
+		return returnHosts, err
 	}
 
-	if host.DirectGroup == "" {
-		log.Println("created host without group. please make sure to add the host to default group")
-	} else {
-		group, err = viewGroupByName(host.DirectGroup)
-		if err != nil {
+	modifiedHostB, err := User.Edit(hostsB)
+	if err != nil {
+		return returnHosts, err
+	}
+
+	return unmarshalHosts(modifiedHostB)
+}
+
+// nolint: gocognit
+func confirmedHosts(hostsToCreate *datastructs.Hosts) (err error) {
+	hosts := *hostsToCreate
+	for i := range hosts {
+		var group datastructs.Group
+
+		err = createHost(&hosts[i])
+		if err != nil && err.Error() != "no lines affected" {
 			return err
 		}
 
-		var existingHostGroup []datastructs.HostGroup
-
-		// if host already got host-group relationship first delete it
-		existingHostGroup, err = viewHostGroupByHost(host.Hostname)
-		if err != nil && err.Error() != "no record matched request" {
-			return err
-		} else if existingHostGroup != nil {
-			_, err = deleteHostGroup(&existingHostGroup[0])
+		if hosts[i].DirectGroup == "" {
+			log.Println("created host without group. please make sure to add the host to default group")
+		} else {
+			group, err = viewGroupByName(hosts[i].DirectGroup)
 			if err != nil {
 				return err
 			}
-		}
 
-		var created datastructs.Host
+			var existingHostGroup []datastructs.HostGroup
 
-		// retrieving the created host to get its ID
-		created, err = viewHostByHostname(host.Hostname)
-		if err != nil {
-			return err
-		}
+			// if host already got host-group relationship first delete it
+			existingHostGroup, err = viewHostGroupByHost(hosts[i].Hostname)
+			if err != nil && err.Error() != "no record matched request" {
+				return err
+			} else if existingHostGroup != nil {
+				_, err = deleteHostGroup(&existingHostGroup[0])
+				if err != nil {
+					return err
+				}
+			}
 
-		err = createHostGroup(&created, &group)
-		if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
-			return err
+			var created datastructs.Hosts
+
+			// retrieving the created host to get its ID
+			created, err = scanHosts(hosts[i].Hostname)
+			if err != nil {
+				return err
+			}
+
+			err = createHostGroup(&created[0], &group)
+			if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
+				return err
+			}
 		}
 	}
 
 	return err
-}
-
-func viewHostByHostname(hostname string) (host datastructs.Host, err error) {
-	host, err = DB.SelectHost(hostname)
-	if err != nil {
-		return host, err
-	} else if host.Hostname == "" {
-		return host, fmt.Errorf("requested host does not exists")
-	}
-
-	return host, nil
 }
 
 func createHost(host *datastructs.Host) error {
@@ -275,6 +314,7 @@ var createGroupVar = &cobra.Command{
 		"the new or edited group would open in your favorite editor as editable json",
 	Example:           "admiral create group new-group\nadmiral edit group existing-group",
 	ValidArgsFunction: groupsArgsFunc,
+	Args:              cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := createGroupCase(args); err != nil {
 			log.Fatal(err)
@@ -285,30 +325,38 @@ var createGroupVar = &cobra.Command{
 func createGroupCase(args []string) error {
 	var group datastructs.Group
 
-	var tmpGroup datastructs.Group
-
 	var err error
 
-	switch len(args) {
-	case 0:
-		return fmt.Errorf("no group name argument passed")
-	case 1:
-		tmpGroup, err = viewGroupByName(args[0])
-		if err != nil {
-			log.Println(err)
+	group, err = viewGroupByName(args[0])
+	if err != nil {
+		if err.Error() == "requested group does not exists" {
+			group = Conf.NewDefaultGroup()
+			group.Name = args[0]
+		} else {
+			return err
 		}
-	default:
-		return fmt.Errorf("received too many arguments")
 	}
 
-	group, err = editGroup(&tmpGroup, args[0])
-	if err != nil {
-		return err
+	enableF := create.Flag("enable")
+	if enableF.Changed {
+		group.Enabled = enable
+	}
+
+	monitorF := create.Flag("monitor")
+	if monitorF.Changed {
+		group.Monitored = monitor
+	}
+
+	if !enableF.Changed && !monitorF.Changed {
+		group, err = editGroup(&group)
+		if err != nil {
+			return err
+		}
 	}
 
 	printGroups([]datastructs.Group{group})
 
-	if User.confirm() {
+	if accept || User.confirm() {
 		err := createGroup(&group)
 		if err != nil {
 			return err
@@ -320,41 +368,24 @@ func createGroupCase(args []string) error {
 	return nil
 }
 
-func prepGroupForEdit(group *datastructs.Group, name string) (b []byte, err error) {
-	switch len(group.Name) {
-	case 0:
-		tmp := Conf.NewDefaultGroup()
-		tmp.Name = name
-		tmp.Variables = "{}"
+func unmarshalGroups(group *datastructs.Group) (b []byte, err error) {
+	err = group.UnmarshalVars()
+	if err != nil {
+		return b, err
+	}
 
-		err = tmp.UnmarshalVars()
-		if err != nil {
-			return b, err
-		}
-
-		b, err = json.MarshalIndent(tmp, "", "  ")
-		if err != nil {
-			return b, err
-		}
-	default:
-		err = group.UnmarshalVars()
-		if err != nil {
-			return b, err
-		}
-
-		b, err = json.MarshalIndent(group, "", "  ")
-		if err != nil {
-			return b, err
-		}
+	b, err = json.MarshalIndent(group, "", "  ")
+	if err != nil {
+		return b, err
 	}
 
 	return b, err
 }
 
-func editGroup(group *datastructs.Group, val string) (returnGroup datastructs.Group, err error) {
+func editGroup(group *datastructs.Group) (returnGroup datastructs.Group, err error) {
 	var groupB []byte
 
-	groupB, err = prepGroupForEdit(group, val)
+	groupB, err = unmarshalGroups(group)
 	if err != nil {
 		return returnGroup, err
 	}
@@ -428,12 +459,14 @@ func createChildCase(args []string) error {
 		return err
 	}
 
-	childGroups = []datastructs.ChildGroup{datastructs.ChildGroup{
-		Parent:   parent.Name,
-		ParentID: parent.ID,
-		Child:    child.Name,
-		ChildID:  child.ID,
-	}}
+	childGroups = []datastructs.ChildGroup{
+		{
+			Parent:   parent.Name,
+			ParentID: parent.ID,
+			Child:    child.Name,
+			ChildID:  child.ID,
+		},
+	}
 
 	printChildGroups(childGroups)
 

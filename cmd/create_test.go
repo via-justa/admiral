@@ -28,16 +28,6 @@ func Test_createHostCase(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "missing param",
-			args:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"host1", "extra-param"},
-			wantErr: true,
-		},
-		{
 			name:    "new with domain",
 			args:    []string{"host10.domain.com"},
 			wantErr: false,
@@ -50,6 +40,26 @@ func Test_createHostCase(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Example_updateHostFromFlags() {
+	testDB := prepEnv()
+	defer testDB.Close()
+
+	executeCommand(rootCmd, "create", "host", "host3", "-e=true", "-m=false", "-g", "group2")
+	// output:
+	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Group |Inherited Groups
+	// 3.3.3.3      |host3        |domain.local |true         |false        |group2       |
+}
+
+func Example_createHostCaseFromFlags() {
+	testDB := prepEnv()
+	defer testDB.Close()
+
+	executeCommand(rootCmd, "create", "host", "host11.domain.com", "-e=true", "-m=false", "-g", "group2", "--ip", "11.11.11.11")
+	// output:
+	// IP           |Hostname     |domain       |Enabled      |Monitored    |Direct Group |Inherited Groups
+	// 11.11.11.11  |host11       |domain.com   |true         |false        |group2       |
 }
 
 var emptyHost10 = `{
@@ -109,9 +119,9 @@ func Test_returnHosts(t *testing.T) {
 		{
 			name: "None-existing FQDN",
 			args: args{
-				val: "host1.com",
+				val: "host1.domain.com",
 			},
-			wantHosts: []datastructs.Host{datastructs.Host{Domain: "domain.local", Monitored: true, Enabled: true}},
+			wantHosts: []datastructs.Host{{Hostname: "host1", Domain: "domain.com", Variables: "{}", Monitored: true, Enabled: true}},
 			wantErr:   false,
 		},
 	}
@@ -129,75 +139,13 @@ func Test_returnHosts(t *testing.T) {
 	}
 }
 
-func Test_prepHostForEdit(t *testing.T) {
-	testDB := prepEnv()
-
-	defer testDB.Close()
-
-	tmpHost := testHost1
-
-	type args struct {
-		hosts    *datastructs.Host
-		hostname string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantB   []byte
-		wantErr bool
-	}{
-		{
-			name: "Hostname does not exists",
-			args: args{
-				hosts:    &datastructs.Host{},
-				hostname: "host10",
-			},
-			wantB:   []byte(emptyHost10),
-			wantErr: false,
-		},
-		{
-			name: "Hostname exists",
-			args: args{
-				hosts:    &testHost1,
-				hostname: "host1",
-			},
-			wantB:   []byte(testHost1Edit),
-			wantErr: false,
-		},
-		{
-			name: "FQDN exists",
-			args: args{
-				hosts:    &testHost1,
-				hostname: "host1.domain.local",
-			},
-			wantB:   []byte(testHost1Edit),
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotB, err := prepHostForEdit(tt.args.hosts, tt.args.hostname)
-			if (err != nil) != tt.wantErr {
-				testHost1 = tmpHost
-				t.Errorf("prepHostForEdit() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotB, tt.wantB) {
-				testHost1 = tmpHost
-				t.Errorf("prepHostForEdit() = %s, want %s", gotB, tt.wantB)
-			}
-			testHost1 = tmpHost
-		})
-	}
-}
-
 func Test_confirmedHost(t *testing.T) {
 	testDB := prepEnv()
 
 	defer testDB.Close()
 
 	type args struct {
-		host *datastructs.Host
+		host *datastructs.Hosts
 	}
 	tests := []struct {
 		name    string
@@ -208,8 +156,8 @@ func Test_confirmedHost(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := confirmedHost(tt.args.host); (err != nil) != tt.wantErr {
-				t.Errorf("confirmedHost() error = %v, wantErr %v", err, tt.wantErr)
+			if err := confirmedHosts(tt.args.host); (err != nil) != tt.wantErr {
+				t.Errorf("confirmedHosts() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -497,16 +445,6 @@ func Test_createGroupCase(t *testing.T) {
 			args:    []string{"group10"},
 			wantErr: false,
 		},
-		{
-			name:    "missing param",
-			args:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"group1", "extra-param"},
-			wantErr: true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -535,7 +473,7 @@ var testGroup1Edit = `{
   "monitor": true
 }`
 
-func Test_prepGroupForEdit(t *testing.T) {
+func Test_unmarshalGroups(t *testing.T) {
 	testDB := prepEnv()
 
 	defer testDB.Close()
@@ -552,16 +490,7 @@ func Test_prepGroupForEdit(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "case 0 - group does not exist",
-			args: args{
-				groups: &datastructs.Group{},
-				name:   "group10",
-			},
-			wantB:   []byte(emptyGroup10),
-			wantErr: false,
-		},
-		{
-			name: "case 1 - group exist",
+			name: "unmarshal group",
 			args: args{
 				groups: &testGroup1,
 				name:   "group1",
@@ -572,15 +501,15 @@ func Test_prepGroupForEdit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotB, err := prepGroupForEdit(tt.args.groups, tt.args.name)
+			gotB, err := unmarshalGroups(tt.args.groups)
 			if (err != nil) != tt.wantErr {
 				testGroup1 = tmpGroup
-				t.Errorf("prepGroupForEdit() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("unmarshalGroups() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotB, tt.wantB) {
 				testGroup1 = tmpGroup
-				t.Errorf("prepGroupForEdit() = %s, want %s", gotB, tt.wantB)
+				t.Errorf("unmarshalGroups() = %s, want %s", gotB, tt.wantB)
 			}
 			testGroup1 = tmpGroup
 		})

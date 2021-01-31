@@ -43,6 +43,10 @@ import (
 //  1|       3|        4|
 //  2|       4|        5|
 
+func init() {
+
+}
+
 var (
 	testGroup1 = datastructs.Group{
 		ID:        1,
@@ -249,15 +253,20 @@ func (u testUser) confirm() bool {
 }
 
 func (u testUser) Edit(data []byte) ([]byte, error) {
-	var host datastructs.Host
-	if err := json.Unmarshal(data, &host); err == nil && host.Hostname != "" {
-		if host.Host == "" {
-			i := strings.TrimPrefix(host.Hostname, "host")
-			host.Host = i + "." + i + "." + i + "." + i
-			d, _ := json.Marshal(host)
-			return d, nil
-		}
+	var hosts datastructs.Hosts
+
+	err := json.Unmarshal(data, &hosts)
+	if err != nil {
 		return data, nil
 	}
+
+	for i := range hosts {
+		if hosts[i].Hostname != "" && hosts[i].Host == "" {
+			j := strings.TrimPrefix(hosts[i].Hostname, "host")
+			hosts[i].Host = j + "." + j + "." + j + "." + j
+		}
+	}
+
+	data, _ = json.Marshal(hosts)
 	return data, nil
 }

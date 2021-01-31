@@ -22,7 +22,7 @@ func printHosts(hosts []datastructs.Host) {
 		{Header: "domain", MinWidth: 12},
 		{Header: "Enabled", MinWidth: 12},
 		{Header: "Monitored", MinWidth: 12},
-		{Header: "Direct Groups", MinWidth: 12},
+		{Header: "Direct Group", MinWidth: 12},
 		{Header: "Inherited Groups", MinWidth: 12},
 	}...)
 	if err != nil {
@@ -162,7 +162,7 @@ func openFileInEditor(filename string, editor string) error {
 func (u user) Edit(data []byte) ([]byte, error) {
 	resolveEditor := getPreferredEditorFromEnvironment()
 
-	file, err := ioutil.TempFile(os.TempDir(), "*")
+	file, err := ioutil.TempFile(os.TempDir(), "*.json")
 	if err != nil {
 		return []byte{}, err
 	}

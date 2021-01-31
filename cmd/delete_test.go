@@ -27,16 +27,6 @@ func Test_deleteHostCase(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "missing param",
-			args:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"host1", "extra-param"},
-			wantErr: true,
-		},
-		{
 			name:    "host does not exists",
 			args:    []string{"host10"},
 			wantErr: true,
@@ -115,16 +105,6 @@ func Test_deleteGroupCase(t *testing.T) {
 			name:    "valid",
 			args:    []string{"group1"},
 			wantErr: false,
-		},
-		{
-			name:    "missing param",
-			args:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"group1", "extra-param"},
-			wantErr: true,
 		},
 		{
 			name:    "group does not exists",
@@ -213,16 +193,6 @@ func Test_deleteChildCase(t *testing.T) {
 			name:    "valid",
 			args:    []string{"group4", "group5"},
 			wantErr: false,
-		},
-		{
-			name:    "missing param",
-			args:    []string{"group3"},
-			wantErr: true,
-		},
-		{
-			name:    "too many params",
-			args:    []string{"group4", "group4", "extra-param"},
-			wantErr: true,
 		},
 		{
 			name:    "does not exists",

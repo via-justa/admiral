@@ -1,7 +1,8 @@
 [mariadb]
 user = "root"
 password = "local"
-host = "localhost:3306"
+host = "localhost"
+port = "3306"
 db = "ansible"
 
 [sqlite]
