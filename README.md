@@ -4,6 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/via-justa/admiral/badge.svg)](https://coveralls.io/github/via-justa/admiral)
 [![license](https://img.shields.io/badge/license-CC-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![latest release](https://img.shields.io/badge/-latest_release-blue)](https://github.com/via-justa/admiral/releases/latest)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvia-justa%2Fadmiral.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvia-justa%2Fadmiral?ref=badge_shield)
 
 # Admiral
 
@@ -220,3 +221,7 @@ License
 -----------
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvia-justa%2Fadmiral.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvia-justa%2Fadmiral?ref=badge_large)
